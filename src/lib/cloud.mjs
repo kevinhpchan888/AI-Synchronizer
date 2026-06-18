@@ -56,7 +56,7 @@ export async function publishMachineStatus(summary) {
   const url = env.SUPABASE_URL;
   const key = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
   if (!url || !key) {
-    return { ok: false, message: "Supabase URL and backend key are not configured in .env.local." };
+    return { ok: false, message: "Supabase is not connected yet. Add the Supabase connection details, then try Publish Cloud Status again." };
   }
 
   const endpoint = `${url.replace(/\/$/, "")}/rest/v1/sync_machines?on_conflict=id`;

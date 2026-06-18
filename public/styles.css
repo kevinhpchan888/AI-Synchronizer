@@ -319,6 +319,29 @@ main {
   grid-column: 2;
 }
 
+.training-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.training-grid article {
+  min-height: 112px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: var(--surface-soft);
+}
+
+.training-grid strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.training-grid p {
+  color: var(--muted);
+}
+
 .list {
   display: grid;
   gap: 10px;
@@ -468,6 +491,10 @@ dialog::backdrop {
   }
 
   .row {
+    grid-template-columns: 1fr;
+  }
+
+  .training-grid {
     grid-template-columns: 1fr;
   }
 

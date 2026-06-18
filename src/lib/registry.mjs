@@ -25,7 +25,8 @@ async function writeJson(file, data) {
 
 export async function readProjects() {
   const projects = await readJson(PROJECTS_FILE, []);
-  return Array.isArray(projects) ? projects : [];
+  if (Array.isArray(projects)) return projects;
+  return projects && typeof projects === "object" ? [projects] : [];
 }
 
 export async function saveProjects(projects) {
@@ -79,4 +80,3 @@ export async function removeProject(id) {
   await saveProjects(next);
   return { removed: projects.length !== next.length };
 }
-

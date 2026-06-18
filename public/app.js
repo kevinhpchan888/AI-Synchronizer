@@ -212,6 +212,8 @@ function renderProjects() {
       project.branch ? `Branch: ${project.branch}` : null
     ].filter(Boolean).join("\n");
 
+    const canRunGit = project.exists && project.isRepo;
+    const disabled = canRunGit ? "" : "disabled";
     return `
       <article class="row">
         <div class="row-title">
@@ -223,10 +225,10 @@ function renderProjects() {
         </div>
         <div class="row-detail">${escapeHtml(details)}</div>
         <div class="row-actions">
-          <button data-project-action="fetch" data-project-id="${project.id}">Fetch</button>
-          <button data-project-action="pull" data-project-id="${project.id}">Pull</button>
-          <button data-project-action="push" data-project-id="${project.id}">Push</button>
-          <button data-project-action="commitWip" data-project-id="${project.id}">Save WIP</button>
+          <button data-project-action="fetch" data-project-id="${project.id}" ${disabled}>Fetch</button>
+          <button data-project-action="pull" data-project-id="${project.id}" ${disabled}>Pull</button>
+          <button data-project-action="push" data-project-id="${project.id}" ${disabled}>Push</button>
+          <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
         </div>
       </article>
@@ -305,6 +307,12 @@ async function refresh() {
 }
 
 async function projectAction(projectId, action) {
+  if (["push", "commitWip"].includes(action)) {
+    const ok = window.confirm(action === "push"
+      ? "Push local commits to GitHub for this project?"
+      : "Save all current local file changes into a WIP commit?");
+    if (!ok) return;
+  }
   log(`Running project action: ${action}`);
   const result = await api(`/api/projects/${encodeURIComponent(projectId)}/action`, {
     method: "POST",
@@ -384,7 +392,7 @@ selectors.saveMachineButton.addEventListener("click", async (event) => {
   }
   const machine = await api("/api/machines", { method: "POST", body: JSON.stringify({ name, platform }) });
   selectors.machineDialog.close();
-  log("Machine added. Use the pairing code during restore.", machine);
+  log(`Machine added: ${machine.name}. Pairing code: ${machine.pairingCode}`);
   await refresh();
 });
 
@@ -445,7 +453,7 @@ selectors.openMemoryButton.addEventListener("click", () => {
 selectors.publishCloudButton.addEventListener("click", async () => {
   log("Publishing this machine status to Supabase.");
   const result = await api("/api/cloud/publish", { method: "POST" });
-  log(result.ok ? "Cloud status published." : "Cloud publish failed.", result);
+  log(result.ok ? "Cloud status published." : `Cloud publish failed: ${result.message || "needs setup"}`);
   await refresh();
 });
 

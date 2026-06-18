@@ -58,6 +58,8 @@ function buildRecommendations({ tools, projects, cloud, machines }) {
   const behind = projects.filter((project) => project.state === "behind");
   const ahead = projects.filter((project) => project.state === "ahead");
   const diverged = projects.filter((project) => project.state === "diverged");
+  const missingFolders = projects.filter((project) => project.state === "missing");
+  const notRepos = projects.filter((project) => project.state === "not-repo");
   const noUpstream = projects.filter((project) => project.message === "No upstream branch");
   const pendingMachines = machines.filter((machine) => machine.status === "pending");
 
@@ -75,6 +77,22 @@ function buildRecommendations({ tools, projects, cloud, machines }) {
       title: "Resolve diverged project history",
       body: `${diverged.length} project${diverged.length === 1 ? "" : "s"} changed both locally and remotely.`,
       action: "Open the project and resolve the Git conflict before pushing."
+    });
+  }
+  if (missingFolders.length) {
+    items.push({
+      level: "critical",
+      title: "Fix missing project folders",
+      body: `${missingFolders.length} project${missingFolders.length === 1 ? " points" : "s point"} to a folder that does not exist on this machine.`,
+      action: "Remove the broken entry or add the project again with the correct local folder."
+    });
+  }
+  if (notRepos.length) {
+    items.push({
+      level: "critical",
+      title: "Fix non-Git project folders",
+      body: `${notRepos.length} project${notRepos.length === 1 ? " folder is" : " folders are"} not a Git repo, so the console cannot sync it.`,
+      action: "Choose the actual cloned repo folder, or clone the project from GitHub first."
     });
   }
   if (dirty.length) {
