@@ -6,6 +6,7 @@ import { getLocalMachine, readProjects, addProject, removeProject, readSettings 
 import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
 import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
+import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -38,7 +39,109 @@ async function summary() {
     getCloudStatus()
   ]);
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
-  return { machine, tools, projects: projectStatuses, cloud, generatedAt: new Date().toISOString() };
+  const machines = await readMachines();
+  return {
+    machine,
+    machines,
+    tools,
+    projects: projectStatuses,
+    cloud,
+    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines }),
+    generatedAt: new Date().toISOString()
+  };
+}
+
+function buildRecommendations({ tools, projects, cloud, machines }) {
+  const items = [];
+  const missingTools = tools.filter((tool) => !tool.exists);
+  const dirty = projects.filter((project) => project.state === "dirty");
+  const behind = projects.filter((project) => project.state === "behind");
+  const ahead = projects.filter((project) => project.state === "ahead");
+  const diverged = projects.filter((project) => project.state === "diverged");
+  const noUpstream = projects.filter((project) => project.message === "No upstream branch");
+  const pendingMachines = machines.filter((machine) => machine.status === "pending");
+
+  if (missingTools.length) {
+    items.push({
+      level: "warning",
+      title: "Install missing sync tools",
+      body: `${missingTools.map((tool) => tool.label).join(", ")} ${missingTools.length === 1 ? "is" : "are"} missing.`,
+      action: "Use the Install buttons in Tools."
+    });
+  }
+  if (diverged.length) {
+    items.push({
+      level: "critical",
+      title: "Resolve diverged project history",
+      body: `${diverged.length} project${diverged.length === 1 ? "" : "s"} changed both locally and remotely.`,
+      action: "Open the project and resolve the Git conflict before pushing."
+    });
+  }
+  if (dirty.length) {
+    items.push({
+      level: "warning",
+      title: "Save local project changes",
+      body: `${dirty.length} project${dirty.length === 1 ? " has" : "s have"} uncommitted local changes.`,
+      action: "Use Save WIP, then Push when ready."
+    });
+  }
+  if (behind.length) {
+    items.push({
+      level: "info",
+      title: "Pull newer work",
+      body: `${behind.length} project${behind.length === 1 ? " is" : "s are"} behind GitHub.`,
+      action: "Use Pull before starting work."
+    });
+  }
+  if (ahead.length) {
+    items.push({
+      level: "info",
+      title: "Push local commits",
+      body: `${ahead.length} project${ahead.length === 1 ? " has" : "s have"} commits not on GitHub.`,
+      action: "Use Push before switching machines."
+    });
+  }
+  if (noUpstream.length) {
+    items.push({
+      level: "warning",
+      title: "Connect the sync console to GitHub",
+      body: "This console repo has no upstream branch yet, so it cannot restore onto another machine from GitHub.",
+      action: "Create a private GitHub repo and set it as origin."
+    });
+  }
+  if (!cloud.supabase.configured) {
+    items.push({
+      level: "neutral",
+      title: "Cloud control plane is not connected",
+      body: "Local sync works. Cross-machine status needs Supabase credentials in .env.local.",
+      action: "Add Supabase details when ready, then Publish Cloud Status."
+    });
+  }
+  if (!cloud.vercel.cliAuthenticated) {
+    items.push({
+      level: "neutral",
+      title: "Hosted dashboard is not deployed",
+      body: "Vercel is installed but not logged in here.",
+      action: "Run Vercel login later from the visual setup flow."
+    });
+  }
+  if (pendingMachines.length) {
+    items.push({
+      level: "info",
+      title: "Pair pending machines",
+      body: `${pendingMachines.length} machine${pendingMachines.length === 1 ? " is" : "s are"} waiting to be restored and connected.`,
+      action: "Use the pairing code on that machine after cloning the sync console repo."
+    });
+  }
+  if (!items.length) {
+    items.push({
+      level: "success",
+      title: "Everything is level",
+      body: "Projects, tools, machines, and cloud status look healthy.",
+      action: "You can start work."
+    });
+  }
+  return items;
 }
 
 async function handleApi(req, res, url) {
@@ -69,6 +172,20 @@ async function handleApi(req, res, url) {
     if (req.method === "GET" && url.pathname === "/api/projects") {
       const projects = await readProjects();
       return send(res, 200, await Promise.all(projects.map(getProjectStatus)));
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/machines") {
+      return send(res, 200, await readMachines());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/machines") {
+      const body = await readBody(req);
+      return send(res, 200, await addMachine(body));
+    }
+
+    if (req.method === "DELETE" && url.pathname.match(/^\/api\/machines\/[^/]+$/)) {
+      const id = decodeURIComponent(url.pathname.split("/").pop());
+      return send(res, 200, await removeMachine(id));
     }
 
     if (req.method === "POST" && url.pathname === "/api/projects") {

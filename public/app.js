@@ -5,20 +5,30 @@ const state = {
 const selectors = {
   machineLine: document.querySelector("#machineLine"),
   refreshButton: document.querySelector("#refreshButton"),
+  readinessTitle: document.querySelector("#readinessTitle"),
+  readinessBody: document.querySelector("#readinessBody"),
   projectsCard: document.querySelector("#projectsCard"),
+  machinesCard: document.querySelector("#machinesCard"),
   skillsCard: document.querySelector("#skillsCard"),
   configCard: document.querySelector("#configCard"),
   memoryCard: document.querySelector("#memoryCard"),
   cloudCard: document.querySelector("#cloudCard"),
+  recommendationsList: document.querySelector("#recommendationsList"),
+  machinesList: document.querySelector("#machinesList"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
   activityLog: document.querySelector("#activityLog"),
   clearLogButton: document.querySelector("#clearLogButton"),
   addProjectButton: document.querySelector("#addProjectButton"),
+  addMachineButton: document.querySelector("#addMachineButton"),
   projectDialog: document.querySelector("#projectDialog"),
+  machineDialog: document.querySelector("#machineDialog"),
   projectNameInput: document.querySelector("#projectNameInput"),
   projectPathInput: document.querySelector("#projectPathInput"),
+  machineNameInput: document.querySelector("#machineNameInput"),
+  machinePlatformInput: document.querySelector("#machinePlatformInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
+  saveMachineButton: document.querySelector("#saveMachineButton"),
   startWorkButton: document.querySelector("#startWorkButton"),
   endWorkButton: document.querySelector("#endWorkButton"),
   syncEverythingButton: document.querySelector("#syncEverythingButton"),
@@ -46,10 +56,10 @@ async function api(path, options = {}) {
   return payload;
 }
 
-function setCard(card, tone, title, message) {
+function setCard(card, tone, value, message) {
   const dot = card.querySelector(".status-dot");
   dot.className = `status-dot ${tone}`;
-  card.querySelector("h2").textContent = title;
+  card.querySelector("strong").textContent = value;
   card.querySelector("p").textContent = message;
 }
 
@@ -61,12 +71,12 @@ function toneForProject(project) {
 }
 
 function summarizeProjects(projects) {
-  if (!projects.length) return ["warn", "Projects", "No projects registered yet"];
+  if (!projects.length) return ["warn", "0", "No projects"];
   const bad = projects.filter((project) => toneForProject(project) === "bad").length;
   const warn = projects.filter((project) => toneForProject(project) === "warn").length;
-  if (bad) return ["bad", "Projects", `${bad} project${bad === 1 ? "" : "s"} need attention`];
-  if (warn) return ["warn", "Projects", `${warn} project${warn === 1 ? "" : "s"} need sync`];
-  return ["ok", "Projects", `${projects.length} project${projects.length === 1 ? "" : "s"} synced`];
+  if (bad) return ["bad", String(bad), "Need attention"];
+  if (warn) return ["warn", String(warn), "Need sync"];
+  return ["ok", String(projects.length), "Synced"];
 }
 
 function toolById(id) {
@@ -77,14 +87,23 @@ function renderCards() {
   const [projectTone, projectTitle, projectMessage] = summarizeProjects(state.summary.projects);
   setCard(selectors.projectsCard, projectTone, projectTitle, projectMessage);
 
+  const pendingMachines = state.summary.machines.filter((machine) => machine.status === "pending").length;
+  const onlineMachines = state.summary.machines.filter((machine) => machine.status === "online").length;
+  setCard(
+    selectors.machinesCard,
+    pendingMachines ? "warn" : "ok",
+    `${onlineMachines}/${state.summary.machines.length}`,
+    pendingMachines ? "Pending pair" : "Online"
+  );
+
   const skillshare = toolById("skillshare");
-  setCard(selectors.skillsCard, skillshare?.exists ? "ok" : "warn", "Skills", skillshare?.exists ? "Skillshare installed" : "Skillshare not installed");
+  setCard(selectors.skillsCard, skillshare?.exists ? "ok" : "warn", skillshare?.exists ? "Ready" : "Missing", "Skillshare");
 
   const config = toolById("aiConfigSync");
-  setCard(selectors.configCard, config?.exists ? "ok" : "warn", "Claude / Codex", config?.exists ? "Config sync tool installed" : "Config sync tool not installed");
+  setCard(selectors.configCard, config?.exists ? "ok" : "warn", config?.exists ? "Ready" : "Missing", "Config sync");
 
   const memorix = toolById("memorix");
-  setCard(selectors.memoryCard, memorix?.exists ? "ok" : "warn", "Memory", memorix?.exists ? "Memorix installed" : "Memorix not installed");
+  setCard(selectors.memoryCard, memorix?.exists ? "ok" : "warn", memorix?.exists ? "Ready" : "Missing", "Memorix");
 
   const cloud = state.summary.cloud;
   const cloudReady = cloud.vercel.cliAuthenticated && cloud.supabase.configured;
@@ -92,13 +111,91 @@ function renderCards() {
   setCard(
     selectors.cloudCard,
     cloudReady ? "ok" : cloudPartial ? "warn" : "neutral",
-    "Cloud",
-    cloudReady ? "Vercel and Supabase configured" : cloudPartial ? "Partially configured" : "Local mode"
+    cloudReady ? "Ready" : cloudPartial ? "Partial" : "Local",
+    cloudReady ? "Control plane" : cloudPartial ? "Needs setup" : "Local mode"
   );
+
+  renderReadiness();
+  renderRecommendations();
+}
+
+function renderReadiness() {
+  const critical = state.summary.recommendations.filter((item) => item.level === "critical").length;
+  const warnings = state.summary.recommendations.filter((item) => item.level === "warning").length;
+  const info = state.summary.recommendations.filter((item) => item.level === "info").length;
+  if (critical) {
+    selectors.readinessTitle.textContent = "Stop before switching machines";
+    selectors.readinessBody.textContent = "There is a conflict-style sync issue that needs attention before you continue elsewhere.";
+  } else if (warnings) {
+    selectors.readinessTitle.textContent = "Almost ready, but not level";
+    selectors.readinessBody.textContent = "Some setup or project sync work remains. Follow the action list before moving machines.";
+  } else if (info) {
+    selectors.readinessTitle.textContent = "Ready with minor follow-ups";
+    selectors.readinessBody.textContent = "Core tools are healthy. A few optional sync actions can make the environment cleaner.";
+  } else {
+    selectors.readinessTitle.textContent = "Everything is level";
+    selectors.readinessBody.textContent = "You can start work here or move to another machine.";
+  }
+}
+
+function toneForRecommendation(level) {
+  if (level === "success") return "ok";
+  if (level === "critical") return "bad";
+  if (level === "warning") return "warn";
+  if (level === "info") return "neutral";
+  return "neutral";
+}
+
+function renderRecommendations() {
+  selectors.recommendationsList.innerHTML = state.summary.recommendations.map((item) => {
+    const tone = toneForRecommendation(item.level);
+    return `
+      <article class="recommendation">
+        <span class="status-dot ${tone}"></span>
+        <div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.body)}</p>
+        </div>
+        <p class="action-note">${escapeHtml(item.action)}</p>
+      </article>
+    `;
+  }).join("");
 }
 
 function pill(text, tone) {
   return `<span class="pill ${tone}">${text}</span>`;
+}
+
+function toneForMachine(machine) {
+  if (machine.status === "online") return "ok";
+  if (machine.status === "pending") return "warn";
+  if (machine.status === "offline") return "bad";
+  return "neutral";
+}
+
+function renderMachines() {
+  selectors.machinesList.innerHTML = state.summary.machines.map((machine) => {
+    const tone = toneForMachine(machine);
+    const details = [
+      machine.platform ? `Platform: ${machine.platform}` : null,
+      machine.lastSeen ? `Last seen: ${new Date(machine.lastSeen).toLocaleString()}` : "Waiting for first connection",
+      machine.pairingCode ? `Pairing code: ${machine.pairingCode}` : null
+    ].filter(Boolean).join("\n");
+    const remove = machine.status === "online" ? "" : `<button class="danger" data-remove-machine="${machine.id}">Remove</button>`;
+    return `
+      <article class="row">
+        <div class="row-title">
+          <span class="status-dot ${tone}"></span>
+          <div>
+            <strong>${escapeHtml(machine.name)}</strong>
+            <div>${pill(escapeHtml(machine.status), tone)}</div>
+          </div>
+        </div>
+        <div class="row-detail">${escapeHtml(details)}</div>
+        <div class="row-actions">${remove}</div>
+      </article>
+    `;
+  }).join("");
 }
 
 function renderProjects() {
@@ -196,6 +293,7 @@ async function refresh() {
     state.summary = await api("/api/summary");
     selectors.machineLine.textContent = `${state.summary.machine.name} (${state.summary.machine.platform}) · ${new Date(state.summary.generatedAt).toLocaleString()}`;
     renderCards();
+    renderMachines();
     renderProjects();
     renderTools();
     log("Status refreshed.");
@@ -219,6 +317,12 @@ async function projectAction(projectId, action) {
 async function removeProject(projectId) {
   await api(`/api/projects/${encodeURIComponent(projectId)}`, { method: "DELETE" });
   log("Project removed.");
+  await refresh();
+}
+
+async function removeMachine(machineId) {
+  await api(`/api/machines/${encodeURIComponent(machineId)}`, { method: "DELETE" });
+  log("Machine removed.");
   await refresh();
 }
 
@@ -250,6 +354,12 @@ selectors.addProjectButton.addEventListener("click", () => {
   selectors.projectDialog.showModal();
 });
 
+selectors.addMachineButton.addEventListener("click", () => {
+  selectors.machineNameInput.value = "";
+  selectors.machinePlatformInput.value = "";
+  selectors.machineDialog.showModal();
+});
+
 selectors.saveProjectButton.addEventListener("click", async (event) => {
   event.preventDefault();
   const path = selectors.projectPathInput.value.trim();
@@ -264,17 +374,34 @@ selectors.saveProjectButton.addEventListener("click", async (event) => {
   await refresh();
 });
 
+selectors.saveMachineButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const name = selectors.machineNameInput.value.trim();
+  const platform = selectors.machinePlatformInput.value.trim();
+  if (!name) {
+    log("Machine name is required.");
+    return;
+  }
+  const machine = await api("/api/machines", { method: "POST", body: JSON.stringify({ name, platform }) });
+  selectors.machineDialog.close();
+  log("Machine added. Use the pairing code during restore.", machine);
+  await refresh();
+});
+
 document.addEventListener("click", async (event) => {
   const projectActionButton = event.target.closest("[data-project-action]");
   const removeButton = event.target.closest("[data-remove-project]");
   const installButton = event.target.closest("[data-install-tool]");
   const toolActionButton = event.target.closest("[data-tool-action]");
+  const removeMachineButton = event.target.closest("[data-remove-machine]");
 
   try {
     if (projectActionButton) {
       await projectAction(projectActionButton.dataset.projectId, projectActionButton.dataset.projectAction);
     } else if (removeButton) {
       await removeProject(removeButton.dataset.removeProject);
+    } else if (removeMachineButton) {
+      await removeMachine(removeMachineButton.dataset.removeMachine);
     } else if (installButton) {
       await installTool(installButton.dataset.installTool);
     } else if (toolActionButton) {

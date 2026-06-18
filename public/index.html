@@ -7,61 +7,120 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <header class="topbar">
-      <div>
-        <h1>Kevin Sync Console</h1>
-        <p id="machineLine">Checking this machine...</p>
+    <header class="app-shell">
+      <div class="brand-block">
+        <div class="brand-mark">KS</div>
+        <div>
+          <h1>Kevin Sync Console</h1>
+          <p id="machineLine">Checking this machine...</p>
+        </div>
       </div>
-      <div class="topbar-actions">
+      <div class="header-actions">
         <button id="refreshButton" class="primary">Refresh</button>
       </div>
     </header>
 
     <main>
-      <section class="status-grid" aria-label="System status">
-        <article class="status-card" id="projectsCard">
-          <span class="status-dot neutral"></span>
-          <div>
-            <h2>Projects</h2>
-            <p>Checking Git status...</p>
+      <section class="hero-panel">
+        <div>
+          <p class="eyebrow">Current Readiness</p>
+          <h2 id="readinessTitle">Checking sync posture...</h2>
+          <p id="readinessBody">Gathering local project, machine, tool, and cloud status.</p>
+        </div>
+        <div class="hero-actions">
+          <button id="startWorkButton" class="primary">Start Work</button>
+          <button id="endWorkButton">End Work</button>
+          <button id="syncEverythingButton">Sync Everything</button>
+          <button id="openMemoryButton">Open Memory Dashboard</button>
+        </div>
+      </section>
+
+      <section class="overview-grid" aria-label="System status">
+        <article class="metric-card" id="projectsCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Projects</span>
           </div>
+          <strong>Checking</strong>
+          <p>Git status</p>
         </article>
-        <article class="status-card" id="skillsCard">
-          <span class="status-dot neutral"></span>
-          <div>
-            <h2>Skills</h2>
-            <p>Checking Skillshare...</p>
+        <article class="metric-card" id="machinesCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Machines</span>
           </div>
+          <strong>Checking</strong>
+          <p>Companions</p>
         </article>
-        <article class="status-card" id="configCard">
-          <span class="status-dot neutral"></span>
-          <div>
-            <h2>Claude / Codex</h2>
-            <p>Checking config sync...</p>
+        <article class="metric-card" id="skillsCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Skills</span>
           </div>
+          <strong>Checking</strong>
+          <p>Skillshare</p>
         </article>
-        <article class="status-card" id="memoryCard">
-          <span class="status-dot neutral"></span>
-          <div>
-            <h2>Memory</h2>
-            <p>Checking Memorix...</p>
+        <article class="metric-card" id="configCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Claude / Codex</span>
           </div>
+          <strong>Checking</strong>
+          <p>Config sync</p>
         </article>
-        <article class="status-card" id="cloudCard">
-          <span class="status-dot neutral"></span>
-          <div>
-            <h2>Cloud</h2>
-            <p>Checking Vercel/Supabase...</p>
+        <article class="metric-card" id="memoryCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Memory</span>
           </div>
+          <strong>Checking</strong>
+          <p>Memorix</p>
+        </article>
+        <article class="metric-card" id="cloudCard">
+          <div class="metric-topline">
+            <span class="status-dot neutral"></span>
+            <span>Cloud</span>
+          </div>
+          <strong>Checking</strong>
+          <p>Vercel/Supabase</p>
         </article>
       </section>
 
-      <section class="workflow-panel">
-        <button id="startWorkButton" class="primary">Start Work</button>
-        <button id="endWorkButton">End Work</button>
-        <button id="syncEverythingButton">Sync Everything</button>
-        <button id="publishCloudButton">Publish Cloud Status</button>
-        <button id="openMemoryButton">Open Memory Dashboard</button>
+      <section class="content-grid">
+        <section class="panel action-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Needs Attention</h2>
+              <p>The console turns sync state into specific next actions.</p>
+            </div>
+          </div>
+          <div id="recommendationsList" class="recommendations"></div>
+        </section>
+
+        <section class="panel setup-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Recovery Path</h2>
+              <p>How a new or wiped machine gets back to level.</p>
+            </div>
+          </div>
+          <ol class="setup-steps">
+            <li><span>1</span><strong>Clone sync repo</strong><p>Pull this console from GitHub onto the new machine.</p></li>
+            <li><span>2</span><strong>Run restore</strong><p>Use the restore launcher to install tools and open the dashboard.</p></li>
+            <li><span>3</span><strong>Pair machine</strong><p>Publish status so the hosted dashboard can see it.</p></li>
+          </ol>
+        </section>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Machines</h2>
+            <p>Add a MacBook, PC, or future workstation so the console can track restore and sync readiness.</p>
+          </div>
+          <button id="addMachineButton">Add Machine</button>
+        </div>
+        <div id="machinesList" class="list"></div>
       </section>
 
       <section class="panel">
@@ -70,7 +129,10 @@
             <h2>Projects</h2>
             <p>Existing GitHub repos stay in their own folders. Add them here to monitor and sync visually.</p>
           </div>
-          <button id="addProjectButton">Add Project</button>
+          <div class="split-actions">
+            <button id="publishCloudButton">Publish Cloud Status</button>
+            <button id="addProjectButton">Add Project</button>
+          </div>
         </div>
         <div id="projectsList" class="list"></div>
       </section>
@@ -111,6 +173,24 @@
         <div class="dialog-actions">
           <button value="cancel">Cancel</button>
           <button id="saveProjectButton" value="default" class="primary">Add</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="machineDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Add Machine</h2>
+        <label>
+          Machine name
+          <input id="machineNameInput" autocomplete="off" placeholder="MacBook Pro, AMVPC, Travel Laptop" />
+        </label>
+        <label>
+          Platform
+          <input id="machinePlatformInput" autocomplete="off" placeholder="macOS, Windows, Linux" />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveMachineButton" value="default" class="primary">Add</button>
         </div>
       </form>
     </dialog>
