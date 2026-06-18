@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { getLocalMachine, readProjects, addProject, removeProject, readSettings } from "./lib/registry.mjs";
 import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
-import { getCloudStatus } from "./lib/cloud.mjs";
+import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -45,6 +45,10 @@ async function handleApi(req, res, url) {
   try {
     if (req.method === "GET" && url.pathname === "/api/summary") {
       return send(res, 200, await summary());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/cloud/publish") {
+      return send(res, 200, await publishMachineStatus(await summary()));
     }
 
     if (req.method === "GET" && url.pathname === "/api/tools") {
@@ -123,4 +127,3 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, "127.0.0.1", () => {
   console.log(`Kevin Sync Console is running at http://localhost:${PORT}`);
 });
-

@@ -22,6 +22,7 @@ const selectors = {
   startWorkButton: document.querySelector("#startWorkButton"),
   endWorkButton: document.querySelector("#endWorkButton"),
   syncEverythingButton: document.querySelector("#syncEverythingButton"),
+  publishCloudButton: document.querySelector("#publishCloudButton"),
   openMemoryButton: document.querySelector("#openMemoryButton")
 };
 
@@ -314,5 +315,11 @@ selectors.openMemoryButton.addEventListener("click", () => {
   window.open("http://localhost:3211", "_blank", "noopener,noreferrer");
 });
 
-refresh();
+selectors.publishCloudButton.addEventListener("click", async () => {
+  log("Publishing this machine status to Supabase.");
+  const result = await api("/api/cloud/publish", { method: "POST" });
+  log(result.ok ? "Cloud status published." : "Cloud publish failed.", result);
+  await refresh();
+});
 
+refresh();
