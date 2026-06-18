@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "port": 47831,
+  "safeMode": true,
+  "skillSource": "skills",
+  "cloud": {
+    "enabled": false,
+    "provider": "supabase-vercel"
+  }
+}

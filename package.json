@@ -1,0 +1,14 @@
+{
+  "name": "kevin-sync-console",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Visual local companion for syncing projects, skills, Claude/Codex config, and agent memory.",
+  "scripts": {
+    "start": "node src/server.mjs",
+    "check": "node --check src/server.mjs && node --check src/lib/command.mjs && node --check src/lib/registry.mjs && node --check src/lib/tools.mjs && node --check src/lib/git.mjs && node --check src/lib/cloud.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

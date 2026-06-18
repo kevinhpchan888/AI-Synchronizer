@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kevin Sync Console</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div>
+        <h1>Kevin Sync Console</h1>
+        <p id="machineLine">Checking this machine...</p>
+      </div>
+      <div class="topbar-actions">
+        <button id="refreshButton" class="primary">Refresh</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="status-grid" aria-label="System status">
+        <article class="status-card" id="projectsCard">
+          <span class="status-dot neutral"></span>
+          <div>
+            <h2>Projects</h2>
+            <p>Checking Git status...</p>
+          </div>
+        </article>
+        <article class="status-card" id="skillsCard">
+          <span class="status-dot neutral"></span>
+          <div>
+            <h2>Skills</h2>
+            <p>Checking Skillshare...</p>
+          </div>
+        </article>
+        <article class="status-card" id="configCard">
+          <span class="status-dot neutral"></span>
+          <div>
+            <h2>Claude / Codex</h2>
+            <p>Checking config sync...</p>
+          </div>
+        </article>
+        <article class="status-card" id="memoryCard">
+          <span class="status-dot neutral"></span>
+          <div>
+            <h2>Memory</h2>
+            <p>Checking Memorix...</p>
+          </div>
+        </article>
+        <article class="status-card" id="cloudCard">
+          <span class="status-dot neutral"></span>
+          <div>
+            <h2>Cloud</h2>
+            <p>Checking Vercel/Supabase...</p>
+          </div>
+        </article>
+      </section>
+
+      <section class="workflow-panel">
+        <button id="startWorkButton" class="primary">Start Work</button>
+        <button id="endWorkButton">End Work</button>
+        <button id="syncEverythingButton">Sync Everything</button>
+        <button id="openMemoryButton">Open Memory Dashboard</button>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Projects</h2>
+            <p>Existing GitHub repos stay in their own folders. Add them here to monitor and sync visually.</p>
+          </div>
+          <button id="addProjectButton">Add Project</button>
+        </div>
+        <div id="projectsList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Tools</h2>
+            <p>Install, check, or run the engines behind the dashboard.</p>
+          </div>
+        </div>
+        <div id="toolsList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Activity</h2>
+            <p>Recent actions and results.</p>
+          </div>
+          <button id="clearLogButton">Clear</button>
+        </div>
+        <pre id="activityLog" class="activity-log">Ready.</pre>
+      </section>
+    </main>
+
+    <dialog id="projectDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Add Project</h2>
+        <label>
+          Project name
+          <input id="projectNameInput" autocomplete="off" placeholder="Website, Book Store, Agent Config" />
+        </label>
+        <label>
+          Local folder path
+          <input id="projectPathInput" autocomplete="off" placeholder="C:\Users\Kevin Chan\Documents\Project" />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveProjectButton" value="default" class="primary">Add</button>
+        </div>
+      </form>
+    </dialog>
+
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+node_modules/
+.env
+.env.*
+!.env.example
+logs/*
+!logs/.gitkeep
+backups/*
+!backups/.gitkeep
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.vercel/
+registry/local-machine.json
