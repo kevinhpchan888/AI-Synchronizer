@@ -50,6 +50,11 @@ function expandProjectPath(projectPath) {
   if (typeof projectPath === "string" && projectPath.startsWith("$HOME/")) {
     return path.join(homedir(), projectPath.slice("$HOME/".length));
   }
+  const projectsHome = process.env.AI_SYNC_PROJECTS_HOME || path.join(homedir(), platform() === "win32" ? "Documents/GitHub" : "GitHub");
+  if (projectPath === "$PROJECTS_HOME") return projectsHome;
+  if (typeof projectPath === "string" && projectPath.startsWith("$PROJECTS_HOME/")) {
+    return path.join(projectsHome, projectPath.slice("$PROJECTS_HOME/".length));
+  }
   return projectPath;
 }
 
