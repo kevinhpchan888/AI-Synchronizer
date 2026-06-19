@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-MacBook setup support added. Project now includes launchd scripts for the local visual console on macOS and launchers search the portable user-level Node runtime at ~/.local/ai-sync/node/bin. Next step: install portable Node, clone/pull repo on MacBook, copy .env.local with MacBook identity, sync skills, install console and heartbeat worker.
+Portability fix complete. registry/projects.json now uses $AI_SYNC_ROOT and registry loading expands it to the local checkout path on each machine. Local machine identity now honors .env.local machine key/name/platform/role/address so MacBook reports as MacBook Pro. Next: pull on MacBook, restart services, verify local API project state is synced/fresh.
 
-Updated: 2026-06-19T10:41:04.026Z
+Updated: 2026-06-19T10:44:44.460Z

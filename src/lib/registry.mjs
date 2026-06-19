@@ -9,6 +9,7 @@ const PROJECTS_FILE = path.join(REGISTRY_DIR, "projects.json");
 const SETTINGS_FILE = path.join(REGISTRY_DIR, "settings.json");
 const LOCAL_MACHINE_FILE = path.join(REGISTRY_DIR, "local-machine.json");
 const SESSION_FILE = path.join(REGISTRY_DIR, "session.json");
+const ENV_FILE = path.join(ROOT, ".env.local");
 
 async function readJson(file, fallback) {
   try {
@@ -24,10 +25,37 @@ async function writeJson(file, data) {
   await fs.writeFile(file, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+async function readEnvLocal() {
+  const values = {};
+  try {
+    const raw = await fs.readFile(ENV_FILE, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+      const index = trimmed.indexOf("=");
+      values[trimmed.slice(0, index)] = trimmed.slice(index + 1).replace(/^["']|["']$/g, "");
+    }
+  } catch {
+    // Local env is optional.
+  }
+  return values;
+}
+
+function expandProjectPath(projectPath) {
+  if (projectPath === "$AI_SYNC_ROOT") return ROOT;
+  if (typeof projectPath === "string" && projectPath.startsWith("$AI_SYNC_ROOT/")) {
+    return path.join(ROOT, projectPath.slice("$AI_SYNC_ROOT/".length));
+  }
+  return projectPath;
+}
+
 export async function readProjects() {
   const projects = await readJson(PROJECTS_FILE, []);
-  if (Array.isArray(projects)) return projects;
-  return projects && typeof projects === "object" ? [projects] : [];
+  const list = Array.isArray(projects) ? projects : projects && typeof projects === "object" ? [projects] : [];
+  return list.map((project) => ({
+    ...project,
+    path: expandProjectPath(project.path)
+  }));
 }
 
 export async function saveProjects(projects) {
@@ -45,17 +73,28 @@ export async function readSettings() {
 }
 
 export async function getLocalMachine() {
+  const env = await readEnvLocal();
   let machine = await readJson(LOCAL_MACHINE_FILE, null);
   if (!machine?.id) {
     machine = {
       id: randomUUID(),
+      key: env.AI_SYNC_MACHINE_KEY || null,
       name: hostname(),
       platform: platform(),
       createdAt: new Date().toISOString()
     };
     await writeJson(LOCAL_MACHINE_FILE, machine);
   }
-  return machine;
+  const next = {
+    ...machine,
+    key: env.AI_SYNC_MACHINE_KEY || machine.key || null,
+    name: env.AI_SYNC_MACHINE_NAME || machine.name,
+    platform: env.AI_SYNC_MACHINE_PLATFORM || machine.platform,
+    role: env.AI_SYNC_MACHINE_ROLE || machine.role || null,
+    address: env.TAILSCALE_IP || machine.address || null
+  };
+  if (JSON.stringify(next) !== JSON.stringify(machine)) await writeJson(LOCAL_MACHINE_FILE, next);
+  return next;
 }
 
 export async function addProject(input) {
