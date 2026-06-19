@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "project": "General / Other",
+  "createdAt": "2026-06-19T12:02:22.178Z",
+  "memoryEngines": {
+    "cognee": {
+      "role": "project knowledge index",
+      "rebuildable": true
+    },
+    "graphiti": {
+      "role": "temporal event graph",
+      "rebuildable": true
+    },
+    "hermes": {
+      "role": "always-on coordinator",
+      "sourceOfTruth": false
+    }
+  },
+  "requiredFiles": [
+    "PROJECT.md",
+    "STATUS.md",
+    "DECISIONS.md",
+    "TASKS.md",
+    "HANDOFF.md",
+    "RULES.md",
+    "CONTEXT_INDEX.json"
+  ]
+}

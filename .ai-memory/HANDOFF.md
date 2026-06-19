@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-APC is now Kevin's dominant synced project. Canonical repo: https://github.com/kevinhpchan888/APC on branch main. Canonical portable local path: $PROJECTS_HOME/APC. On Windows, $PROJECTS_HOME defaults to ~/Documents/GitHub; on macOS, it defaults to ~/GitHub to avoid background-service access issues under Documents. APC memory pack was initialized in .ai-memory, committed as 794f77d ("Add AI sync memory baseline"), pushed to origin/main, and pulled onto MacBook Pro and Mac Mini. The AI Sync Console registry includes APC with project id 7a9ff1d2-3048-4cb3-8a0d-f18efc918f21 and portable project-home path expansion. Before switching machines/tools, sync APC project files, .ai-memory, skills, and Claude/Codex environment from the console.
+Dashboard redesign now centers the active project/context. APC remains the current active repo project, but the console also supports context-only work through "General / Other" (id b78c0ca8-0a7f-491f-baf2-701a3f4e73b6) at $AI_SYNC_ROOT/context-spaces/general. Repo projects use GitHub sync; context spaces are memory-first containers for non-repo work and can later be promoted into real repos. The first screen now has a project switcher, readiness gauge, flow strip for files/memory/machines/agent, and active next-best actions. Context spaces can initialize memory, write handoffs, and switch Claude/Codex without requiring Git.
 
-Updated: 2026-06-19T11:45:00.000Z
+Updated: 2026-06-19T12:10:00.000Z

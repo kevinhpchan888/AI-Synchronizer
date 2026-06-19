@@ -5,9 +5,16 @@ const state = {
 const selectors = {
   machineLine: document.querySelector("#machineLine"),
   refreshButton: document.querySelector("#refreshButton"),
+  projectSwitcher: document.querySelector("#projectSwitcher"),
+  activeProjectTitle: document.querySelector("#activeProjectTitle"),
+  activeProjectSubtitle: document.querySelector("#activeProjectSubtitle"),
+  activeProjectPath: document.querySelector("#activeProjectPath"),
+  readinessOrb: document.querySelector("#readinessOrb"),
+  readinessLabel: document.querySelector("#readinessLabel"),
   readinessTitle: document.querySelector("#readinessTitle"),
   readinessBody: document.querySelector("#readinessBody"),
-  currentProjectTile: document.querySelector("#currentProjectTile"),
+  gitStep: document.querySelector("#gitStep"),
+  activeActionList: document.querySelector("#activeActionList"),
   memoryMissionTile: document.querySelector("#memoryMissionTile"),
   hermesMissionTile: document.querySelector("#hermesMissionTile"),
   agentMissionTile: document.querySelector("#agentMissionTile"),
@@ -98,6 +105,7 @@ function setCard(card, tone, value, message) {
 }
 
 function toneForProject(project) {
+  if (project.isContext || project.state === "context") return "ok";
   if (["synced"].includes(project.state)) return "ok";
   if (["dirty", "ahead", "behind", "warning"].includes(project.state)) return "warn";
   if (["diverged", "missing", "not-repo"].includes(project.state)) return "bad";
@@ -115,6 +123,96 @@ function summarizeProjects(projects) {
 
 function toolById(id) {
   return state.summary.tools.find((tool) => tool.id === id);
+}
+
+function activeProject() {
+  return state.summary.projects.find((project) => project.id === state.summary.session?.activeProjectId)
+    ?? state.summary.projects.find((project) => !String(project.remote || "").includes("AI-Synchronizer") && !/sync console/i.test(project.name))
+    ?? state.summary.projects[0]
+    ?? null;
+}
+
+function memoryForProject(project) {
+  if (!project) return null;
+  return state.summary.memory.projects.find((item) => item.projectId === project.id) ?? null;
+}
+
+function setFlowStep(step, tone, title, detail) {
+  step.querySelector(".status-dot").className = `status-dot ${tone}`;
+  step.querySelector("strong").textContent = title;
+  step.querySelector("small").textContent = detail;
+}
+
+function toneForMemory(memory) {
+  if (!memory) return "neutral";
+  if (memory.state === "fresh") return "ok";
+  if (["missing", "unavailable"].includes(memory.state)) return "bad";
+  return "warn";
+}
+
+function activeReadiness(project, memory) {
+  if (!project) return { tone: "warn", label: "SETUP", title: "Choose a project", body: "Add or select a workspace before starting." };
+  const projectTone = toneForProject(project);
+  const memoryTone = toneForMemory(memory);
+  if (!memory || memory.state === "missing") {
+    return { tone: "warn", label: "SETUP", title: "Memory needed", body: "Create the memory pack before switching tools." };
+  }
+  if (projectTone === "bad" || memoryTone === "bad") {
+    return { tone: "bad", label: "STOP", title: "Do not switch yet", body: "Fix the project or memory issue first." };
+  }
+  if (projectTone === "warn" || memoryTone === "warn") {
+    return { tone: "warn", label: "SYNC", title: "Needs leveling", body: "Run the highlighted action before switching." };
+  }
+  return { tone: "ok", label: "READY", title: "Ready to work", body: "Files, memory, and project context are level." };
+}
+
+function actionButton(label, attributes, primary = false) {
+  const attrs = Object.entries(attributes).map(([key, value]) => `${key}="${escapeHtml(value)}"`).join(" ");
+  return `<button class="${primary ? "primary" : ""}" ${attrs}>${escapeHtml(label)}</button>`;
+}
+
+function activeActions(project, memory) {
+  if (!project) {
+    return [{ tone: "warn", title: "Add a project", body: "Track a repo or adopt a workspace first.", action: "" }];
+  }
+  if (!project.exists) {
+    return [{ tone: "bad", title: "Project folder missing", body: "This machine cannot find the selected project folder.", action: actionButton("Add Project", { "data-open-add-project": "true" }, true) }];
+  }
+  if (!project.isRepo) {
+    if (project.isContext) {
+      if (!memory || memory.state === "missing") {
+        return [{ tone: "warn", title: "Create context memory", body: "This space needs its portable memory pack.", action: actionButton("Initialize Memory", { "data-memory-init": project.id }, true) }];
+      }
+      if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
+        return [{ tone: "warn", title: "Refresh context handoff", body: "Update the handoff before moving this context elsewhere.", action: actionButton("Prepare Handoff", { "data-memory-handoff": project.id }, true) }];
+      }
+      return [{ tone: "ok", title: "Context is ready", body: "Use this for non-project work, then promote it to a repo later if needed.", action: actionButton("Use Codex", { "data-switch-agent": "codex", "data-project-id": project.id }, true) }];
+    }
+    return [{ tone: "bad", title: "Repo not connected", body: "This folder needs Git before it can sync cleanly.", action: actionButton("Adopt Workspace", { "data-open-adopt-workspace": "true" }, true) }];
+  }
+
+  const actions = [];
+  if (project.state === "behind") {
+    actions.push({ tone: "warn", title: "Pull newer work", body: `${project.name} has changes on GitHub.`, action: actionButton("Pull", { "data-project-action": "pull", "data-project-id": project.id }, true) });
+  }
+  if (project.state === "dirty") {
+    actions.push({ tone: "warn", title: "Save local work", body: "There are uncommitted local changes.", action: actionButton("Save WIP", { "data-project-action": "commitWip", "data-project-id": project.id }, true) });
+  }
+  if (project.state === "ahead") {
+    actions.push({ tone: "warn", title: "Push local commits", body: "This machine has commits not yet on GitHub.", action: actionButton("Push", { "data-project-action": "push", "data-project-id": project.id }, true) });
+  }
+  if (project.state === "diverged") {
+    actions.push({ tone: "bad", title: "History diverged", body: "Local and GitHub both changed. Resolve this before switching machines.", action: actionButton("Fetch", { "data-project-action": "fetch", "data-project-id": project.id }, true) });
+  }
+  if (!memory || memory.state === "missing") {
+    actions.push({ tone: "warn", title: "Create memory pack", body: "This project has no portable .ai-memory context yet.", action: actionButton("Initialize Memory", { "data-memory-init": project.id }, true) });
+  } else if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
+    actions.push({ tone: "warn", title: "Refresh handoff", body: "Update project memory before switching tools or machines.", action: actionButton("Prepare Handoff", { "data-memory-handoff": project.id }, true) });
+  }
+  if (!actions.length) {
+    actions.push({ tone: "ok", title: "Project is level", body: "You can continue here or switch to Claude/Codex.", action: actionButton("Use Codex", { "data-switch-agent": "codex", "data-project-id": project.id }, true) });
+  }
+  return actions;
 }
 
 function renderCards() {
@@ -153,37 +251,72 @@ function renderCards() {
 
   renderReadiness();
   renderMissionControl();
+  renderProjectSwitcher();
+  renderActiveProjectCockpit();
   renderRecommendations();
 }
 
-function setMissionTile(tile, tone, title, subtitle) {
-  tile.querySelector(".status-dot").className = `status-dot ${tone}`;
-  tile.querySelector("strong").textContent = title;
-  tile.querySelector("small").textContent = subtitle;
-}
-
 function renderMissionControl() {
-  const projects = state.summary.projects;
-  const primaryProject = projects[0];
-  if (!primaryProject) {
-    setMissionTile(selectors.currentProjectTile, "warn", "No project", "Add a project to track");
-  } else {
-    setMissionTile(selectors.currentProjectTile, toneForProject(primaryProject), primaryProject.name, primaryProject.message || primaryProject.state);
-  }
+  const project = activeProject();
+  const memoryItem = memoryForProject(project);
+  const projectTone = project ? toneForProject(project) : "warn";
+  setFlowStep(
+    selectors.gitStep,
+    projectTone,
+    project?.isContext ? "Context only" : project?.message || "No project",
+    project?.isContext ? "No repo required" : project?.branch ? `Branch ${project.branch}` : "Select a project"
+  );
 
-  const memory = state.summary.memory.summary;
-  const memoryTone = memory.state === "fresh" ? "ok" : memory.state === "missing" ? "bad" : memory.state === "empty" ? "neutral" : "warn";
-  const memoryTitle = memory.state === "fresh" ? `${memory.lowestFreshness}% fresh` : memory.state === "missing" ? "Missing packs" : memory.state === "stale" ? "Needs handoff" : "No projects";
-  setMissionTile(selectors.memoryMissionTile, memoryTone, memoryTitle, `${memory.fresh} fresh / ${memory.stale} stale / ${memory.missing} missing`);
+  const memoryTone = toneForMemory(memoryItem);
+  const memoryTitle = memoryItem?.state === "fresh" ? `${memoryItem.freshness}% fresh` : memoryItem?.message || "Memory unknown";
+  const memoryDetail = memoryItem?.handoffUpdatedAt ? `Handoff ${new Date(memoryItem.handoffUpdatedAt).toLocaleTimeString()}` : "Portable project context";
+  setFlowStep(selectors.memoryMissionTile, memoryTone, memoryTitle, memoryDetail);
 
-  const macMini = state.summary.machines.find((machine) => machine.id === "mac-mini" || machine.name.toLowerCase().includes("mini"));
-  const hermesTone = macMini?.status === "online" ? "ok" : macMini?.status === "pending" ? "warn" : "neutral";
-  setMissionTile(selectors.hermesMissionTile, hermesTone, macMini?.status === "online" ? "Online" : "Queued", macMini?.address || "Mac Mini coordinator");
+  const cloudMachines = state.summary.cloudControl?.machines ?? [];
+  const visibleMachines = cloudMachines.length || state.summary.machines.length;
+  const onlineCloud = cloudMachines.filter((machine) => machine.status?.hermesWorker === "online" || machine.status?.projects?.length).length;
+  const hermesTone = visibleMachines === 0 ? "neutral" : onlineCloud >= 2 ? "ok" : "warn";
+  setFlowStep(selectors.hermesMissionTile, hermesTone, `${onlineCloud || visibleMachines} visible`, "Fleet status");
 
   const route = state.summary.agents.activeRoute === "glm" ? "GLM 5.2" : "Claude";
   const glmReady = state.summary.agents.glm.configuredFor52;
   const sessionAgent = state.summary.session?.activeAgent === "codex" ? "Codex" : route;
-  setMissionTile(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", sessionAgent, state.summary.session?.activeProjectName || "No active project");
+  setFlowStep(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", sessionAgent, project?.name || "No active project");
+}
+
+function renderProjectSwitcher() {
+  const currentId = activeProject()?.id ?? "";
+  selectors.projectSwitcher.innerHTML = state.summary.projects.map((project) => {
+    const marker = project.id === currentId ? " selected" : "";
+    return `<option value="${escapeHtml(project.id)}"${marker}>${escapeHtml(project.name)}</option>`;
+  }).join("");
+}
+
+function renderActiveProjectCockpit() {
+  const project = activeProject();
+  const memoryItem = memoryForProject(project);
+  const readiness = activeReadiness(project, memoryItem);
+  selectors.readinessOrb.className = `readiness-gauge ${readiness.tone}`;
+  selectors.readinessLabel.textContent = readiness.label;
+  selectors.readinessTitle.textContent = readiness.title;
+  selectors.readinessBody.textContent = readiness.body;
+
+  selectors.activeProjectTitle.textContent = project?.name || "No active project";
+  selectors.activeProjectSubtitle.textContent = project
+    ? `${project.isContext ? "Context space" : project.message || project.state} · ${memoryItem?.message || "Memory unknown"}`
+    : "Add a project or adopt a workspace to begin.";
+  selectors.activeProjectPath.textContent = project?.path || "No project path";
+
+  selectors.activeActionList.innerHTML = activeActions(project, memoryItem).map((item) => `
+    <article class="active-action ${item.tone}">
+      <span class="status-dot ${item.tone}"></span>
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <small>${escapeHtml(item.body)}</small>
+      </div>
+      <div>${item.action}</div>
+    </article>
+  `).join("");
 }
 
 function renderReadiness() {
@@ -408,36 +541,41 @@ function renderProjects() {
 
   selectors.projectsList.innerHTML = state.summary.projects.map((project) => {
     const tone = toneForProject(project);
+    const isActive = project.id === activeProject()?.id;
     const details = [
       project.path,
+      project.isContext ? "Mode: Context space, no repo required" : null,
       project.remote ? `Remote: ${project.remote}` : null,
       project.branch ? `Branch: ${project.branch}` : null
     ].filter(Boolean).join("\n");
 
     const canRunGit = project.exists && project.isRepo;
+    const canUseMemory = project.exists && (project.isRepo || project.isContext);
     const disabled = canRunGit ? "" : "disabled";
+    const memoryDisabled = canUseMemory ? "" : "disabled";
     const memory = state.summary.memory.projects.find((item) => item.projectId === project.id);
     const memoryTone = memory?.tone ?? "neutral";
     const memoryLabel = memory ? memory.message : "Memory unknown";
     return `
-      <article class="row">
+      <article class="row project-row ${isActive ? "active" : ""}">
         <div class="row-title">
           <span class="status-dot ${tone}"></span>
           <div>
-            <strong>${escapeHtml(project.name)}</strong>
+            <strong>${escapeHtml(project.name)}${isActive ? " · Active" : ""}</strong>
             <div>${pill(escapeHtml(project.message || project.state), tone)} ${pill(escapeHtml(memoryLabel), memoryTone)}</div>
           </div>
         </div>
         <div class="row-detail">${escapeHtml(details)}</div>
         <div class="row-actions">
+          <button data-select-project="${project.id}" ${isActive ? "disabled" : ""}>Set Active</button>
           <button data-project-action="fetch" data-project-id="${project.id}" ${disabled}>Fetch</button>
           <button data-project-action="pull" data-project-id="${project.id}" ${disabled}>Pull</button>
           <button data-project-action="push" data-project-id="${project.id}" ${disabled}>Push</button>
           <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
-          <button data-memory-init="${project.id}" ${disabled}>Initialize Memory</button>
-          <button data-memory-handoff="${project.id}" ${disabled}>Prepare Handoff</button>
-          <button data-switch-agent="claude" data-project-id="${project.id}" ${disabled}>Use Claude</button>
-          <button data-switch-agent="codex" data-project-id="${project.id}" ${disabled}>Use Codex</button>
+          <button data-memory-init="${project.id}" ${memoryDisabled}>Initialize Memory</button>
+          <button data-memory-handoff="${project.id}" ${memoryDisabled}>Prepare Handoff</button>
+          <button data-switch-agent="claude" data-project-id="${project.id}" ${memoryDisabled}>Use Claude</button>
+          <button data-switch-agent="codex" data-project-id="${project.id}" ${memoryDisabled}>Use Codex</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
         </div>
       </article>
@@ -567,6 +705,17 @@ async function removeProject(projectId) {
   await refresh();
 }
 
+async function selectProject(projectId) {
+  const project = state.summary.projects.find((item) => item.id === projectId);
+  if (!project) return;
+  const result = await api("/api/session/project", {
+    method: "POST",
+    body: JSON.stringify({ projectId })
+  });
+  log(result.ok ? `Active project switched to ${project.name}.` : "Project switch failed.", result.message);
+  await refresh();
+}
+
 async function removeMachine(machineId) {
   await api(`/api/machines/${encodeURIComponent(machineId)}`, { method: "DELETE" });
   log("Machine removed.");
@@ -591,6 +740,13 @@ async function toolAction(toolId, action) {
 }
 
 selectors.refreshButton.addEventListener("click", refresh);
+selectors.projectSwitcher.addEventListener("change", async () => {
+  try {
+    await selectProject(selectors.projectSwitcher.value);
+  } catch (error) {
+    log("Project switch failed.", error.message);
+  }
+});
 selectors.clearLogButton.addEventListener("click", () => {
   selectors.activityLog.textContent = "Ready.";
 });
@@ -718,10 +874,19 @@ document.addEventListener("click", async (event) => {
   const memoryInitButton = event.target.closest("[data-memory-init]");
   const memoryHandoffButton = event.target.closest("[data-memory-handoff]");
   const switchAgentButton = event.target.closest("[data-switch-agent]");
+  const selectProjectButton = event.target.closest("[data-select-project]");
+  const openAddProjectButton = event.target.closest("[data-open-add-project]");
+  const openAdoptWorkspaceButton = event.target.closest("[data-open-adopt-workspace]");
 
   try {
     if (projectActionButton) {
       await projectAction(projectActionButton.dataset.projectId, projectActionButton.dataset.projectAction);
+    } else if (selectProjectButton) {
+      await selectProject(selectProjectButton.dataset.selectProject);
+    } else if (openAddProjectButton) {
+      selectors.addProjectButton.click();
+    } else if (openAdoptWorkspaceButton) {
+      selectors.adoptWorkspaceButton.click();
     } else if (removeButton) {
       await removeProject(removeButton.dataset.removeProject);
     } else if (removeMachineButton) {

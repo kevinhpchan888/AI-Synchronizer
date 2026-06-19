@@ -148,7 +148,7 @@ export async function publishMachineStatus(summary) {
   }
 
   const projectRows = summary.projects
-    .filter((project) => project.isRepo)
+    .filter((project) => project.isRepo || project.isContext)
     .map((project) => {
       const memory = summary.memory?.projects?.find((item) => item.projectId === project.id);
       return {

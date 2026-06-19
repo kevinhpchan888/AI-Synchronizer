@@ -10,5 +10,12 @@
     "name": "APC",
     "path": "$PROJECTS_HOME/APC",
     "createdAt": "2026-06-19T11:30:00.000Z"
+  },
+  {
+    "id": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+    "name": "General / Other",
+    "kind": "context",
+    "path": "$AI_SYNC_ROOT/context-spaces/general",
+    "createdAt": "2026-06-19T11:45:00.000Z"
   }
 ]

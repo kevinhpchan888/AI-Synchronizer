@@ -68,7 +68,7 @@ export async function checkpointWorkspace(project, label = "AI workspace checkpo
 
 export async function switchWorkspaceAgent(project, targetAgent, handoffSummary) {
   const status = await getProjectStatus(project);
-  if (!status.exists || !status.isRepo) return { ok: false, message: "Workspace must be an available Git repo first." };
+  if (!status.exists || (!status.isRepo && !status.isContext)) return { ok: false, message: "Workspace or context space must be available first." };
   const handoff = await writeProjectHandoff(status, handoffSummary || `Switching to ${targetAgent}.`);
   await appendMemoryEvent(status, "agent_switch", {
     targetAgent,

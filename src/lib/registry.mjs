@@ -135,7 +135,8 @@ export async function readSession() {
     activeProjectId: null,
     activeAgent: "claude",
     lastSwitchAt: null,
-    lastHandoffAt: null
+    lastHandoffAt: null,
+    lastProjectSwitchAt: null
   });
 }
 
@@ -144,6 +145,7 @@ export async function saveSession(session) {
     activeProjectId: session.activeProjectId ?? null,
     activeAgent: session.activeAgent ?? "claude",
     lastSwitchAt: session.lastSwitchAt ?? null,
-    lastHandoffAt: session.lastHandoffAt ?? null
+    lastHandoffAt: session.lastHandoffAt ?? null,
+    lastProjectSwitchAt: session.lastProjectSwitchAt ?? null
   });
 }

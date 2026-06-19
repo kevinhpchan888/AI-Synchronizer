@@ -24,6 +24,23 @@ export async function getProjectStatus(project) {
     return { ...project, exists: false, isRepo: false, state: "missing", message: "Folder missing" };
   }
 
+  if (project.kind === "context") {
+    return {
+      ...project,
+      exists: true,
+      isRepo: false,
+      isContext: true,
+      branch: null,
+      remote: null,
+      upstream: null,
+      dirtyCount: 0,
+      ahead: 0,
+      behind: 0,
+      state: "context",
+      message: "Context space"
+    };
+  }
+
   const inside = await git(project.path, ["rev-parse", "--is-inside-work-tree"], 10000);
   if (!inside.ok || clean(inside.stdout) !== "true") {
     return { ...project, exists: true, isRepo: false, state: "not-repo", message: "Not a Git repo" };
@@ -107,4 +124,3 @@ export async function runProjectAction(project, action) {
     message: result.ok ? "Done" : result.stderr || result.message
   };
 }
-

@@ -137,12 +137,12 @@ async function newestProjectFile(projectPath) {
 }
 
 export async function getProjectMemoryStatus(project) {
-  if (!project.exists || !project.isRepo) {
+  if (!project.exists || (!project.isRepo && !project.isContext)) {
     return {
       projectId: project.id,
       state: "unavailable",
       tone: "neutral",
-      message: "Project repo unavailable",
+      message: project.kind === "context" ? "Context space unavailable" : "Project repo unavailable",
       freshness: 0,
       path: null,
       missing: REQUIRED_FILES
@@ -246,8 +246,8 @@ export async function getMemoryInventory(projects) {
 }
 
 export async function initializeProjectMemory(project) {
-  if (!project?.exists || !project?.isRepo) {
-    return { ok: false, message: "Project must be an available Git repo first." };
+  if (!project?.exists || (!project?.isRepo && !project?.isContext)) {
+    return { ok: false, message: "Project or context space must be available first." };
   }
   const memoryPath = path.join(project.path, MEMORY_DIR);
   await fs.mkdir(path.join(memoryPath, "events"), { recursive: true });
@@ -287,8 +287,8 @@ export async function appendMemoryEvent(project, eventType, payload = {}) {
 }
 
 export async function writeProjectHandoff(project, summaryText) {
-  if (!project?.exists || !project?.isRepo) {
-    return { ok: false, message: "Project must be an available Git repo first." };
+  if (!project?.exists || (!project?.isRepo && !project?.isContext)) {
+    return { ok: false, message: "Project or context space must be available first." };
   }
   await initializeProjectMemory(project);
   const now = new Date().toISOString();

@@ -70,13 +70,19 @@ async function summary() {
 }
 
 function normalizeSession(session, projects) {
-  const activeProject = projects.find((project) => project.id === session.activeProjectId) ?? projects[0] ?? null;
+  const workflowProject = projects.find((project) => !String(project.remote || "").includes("AI-Synchronizer") && !/sync console/i.test(project.name));
+  const activeProject = projects.find((project) => project.id === session.activeProjectId) ?? workflowProject ?? projects[0] ?? null;
   return {
     activeProjectId: activeProject?.id ?? null,
     activeProjectName: activeProject?.name ?? null,
+    activeProjectPath: activeProject?.path ?? null,
+    activeProjectState: activeProject?.state ?? null,
+    activeProjectMessage: activeProject?.message ?? null,
+    activeProjectBranch: activeProject?.branch ?? null,
     activeAgent: session.activeAgent ?? "claude",
     lastSwitchAt: session.lastSwitchAt ?? null,
-    lastHandoffAt: session.lastHandoffAt ?? null
+    lastHandoffAt: session.lastHandoffAt ?? null,
+    lastProjectSwitchAt: session.lastProjectSwitchAt ?? null
   };
 }
 
@@ -88,7 +94,7 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   const ahead = projects.filter((project) => project.state === "ahead");
   const diverged = projects.filter((project) => project.state === "diverged");
   const missingFolders = projects.filter((project) => project.state === "missing");
-  const notRepos = projects.filter((project) => project.state === "not-repo");
+  const notRepos = projects.filter((project) => project.state === "not-repo" && !project.isContext);
   const noUpstream = projects.filter((project) => project.message === "No upstream branch");
   const pendingMachines = machines.filter((machine) => machine.status === "pending");
   const localSkillTargets = skills?.machines?.find((machine) => machine.status === "online")?.targets ?? [];
@@ -254,6 +260,22 @@ async function handleApi(req, res, url) {
       return send(res, 200, normalizeSession(await readSession(), projectStatuses));
     }
 
+    if (req.method === "POST" && url.pathname === "/api/session/project") {
+      const body = await readBody(req);
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      const project = projectStatuses.find((item) => item.id === body.projectId);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const session = await readSession();
+      const nextSession = {
+        ...session,
+        activeProjectId: project.id,
+        lastProjectSwitchAt: new Date().toISOString()
+      };
+      await saveSession(nextSession);
+      return send(res, 200, { ok: true, session: normalizeSession(nextSession, projectStatuses) });
+    }
+
     if (req.method === "GET" && url.pathname === "/api/tools") {
       return send(res, 200, await getToolStatus());
     }
@@ -333,11 +355,14 @@ async function handleApi(req, res, url) {
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
       const result = await switchWorkspaceAgent(project, targetAgent, body.summary);
       if (result.ok) {
+        const session = await readSession();
         await saveSession({
+          ...session,
           activeProjectId: id,
           activeAgent: targetAgent,
           lastSwitchAt: new Date().toISOString(),
-          lastHandoffAt: new Date().toISOString()
+          lastHandoffAt: new Date().toISOString(),
+          lastProjectSwitchAt: session.activeProjectId === id ? session.lastProjectSwitchAt : new Date().toISOString()
         });
       }
       return send(res, 200, result);
