@@ -40,6 +40,10 @@ input {
 }
 
 button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   min-height: 38px;
   border: 1px solid var(--line);
   border-radius: 7px;
@@ -47,11 +51,16 @@ button {
   color: var(--text);
   padding: 8px 12px;
   cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease, box-shadow 120ms ease, transform 120ms ease;
 }
 
 button:hover {
   border-color: var(--line-strong);
   background: #fbfdff;
+}
+
+button:active {
+  transform: translateY(1px);
 }
 
 button.primary {
@@ -67,6 +76,37 @@ button.danger {
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
+}
+
+button.is-busy {
+  border-color: #9db5f2;
+  background: var(--blue-soft);
+  color: var(--blue);
+  box-shadow: 0 0 0 3px rgba(39, 91, 217, 0.12);
+  cursor: progress;
+  opacity: 1;
+}
+
+button.primary.is-busy {
+  border-color: #1d4ed8;
+  background: #1d4ed8;
+  color: #fff;
+}
+
+.button-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  animation: buttonSpin 760ms linear infinite;
+}
+
+@keyframes buttonSpin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 h1,
@@ -866,6 +906,26 @@ select {
   border-color: #b8dec9;
   color: var(--green);
   background: var(--green-soft);
+}
+
+.command-feedback.working {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-color: #b8c7ee;
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.command-feedback.working::before {
+  content: "";
+  width: 13px;
+  height: 13px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 999px;
+  flex: 0 0 auto;
+  animation: buttonSpin 760ms linear infinite;
 }
 
 .command-feedback.warn {

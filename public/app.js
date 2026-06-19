@@ -159,6 +159,73 @@ function setWorkflowFeedback(message, tone = "neutral") {
   selectors.workflowFeedback.textContent = message;
 }
 
+function nextPaint() {
+  return new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+}
+
+function buttonText(button) {
+  return button?.textContent?.replace(/\s+/g, " ").trim() || "Working";
+}
+
+function busyLabelForButton(button) {
+  if (!button) return "Working";
+  if (button.dataset.switchAgent === "codex") return "Switching to Codex";
+  if (button.dataset.switchAgent === "claude") return "Switching to Claude";
+  if (button.dataset.autoHandoff) return "Refreshing handoff";
+  if (button.dataset.memoryInit) return "Creating memory";
+  if (button.dataset.selectProject) return "Setting active";
+  if (button.dataset.installTool) return "Installing";
+  if (button.dataset.toolAction) return "Running";
+  if (button.dataset.projectAction) {
+    const labels = {
+      fetch: "Fetching",
+      pull: "Pulling",
+      push: "Pushing",
+      commitWip: "Saving WIP",
+      saveHandoff: "Saving handoff"
+    };
+    return labels[button.dataset.projectAction] || "Running";
+  }
+  return `${buttonText(button)}...`;
+}
+
+function setButtonBusy(button, label = "Working") {
+  if (!button) return () => {};
+  const originalHtml = button.innerHTML;
+  const originalDisabled = button.disabled;
+  button.classList.add("is-busy");
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  button.innerHTML = `<span class="button-spinner" aria-hidden="true"></span><span>${escapeHtml(label)}</span>`;
+  return () => {
+    button.classList.remove("is-busy");
+    button.disabled = originalDisabled;
+    button.removeAttribute("aria-busy");
+    button.innerHTML = originalHtml;
+  };
+}
+
+async function withButtonFeedback(button, label, task) {
+  if (button?.disabled && !button.classList.contains("is-busy")) return null;
+  const cleanLabel = label || busyLabelForButton(button);
+  const restore = setButtonBusy(button, cleanLabel);
+  setWorkflowFeedback(`${cleanLabel}...`, "working");
+  await nextPaint();
+  try {
+    const result = await task();
+    if (selectors.workflowFeedback.classList.contains("working")) {
+      setWorkflowFeedback(`${cleanLabel} complete.`, "ok");
+    }
+    return result;
+  } catch (error) {
+    setWorkflowFeedback(`${cleanLabel} failed: ${error.message}`, "bad");
+    log(`${cleanLabel} failed.`, error.message);
+    return null;
+  } finally {
+    restore();
+  }
+}
+
 function toneForMemory(memory) {
   if (!memory) return "neutral";
   if (memory.state === "fresh") return "ok";
@@ -883,7 +950,10 @@ async function projectAction(projectId, action) {
     const ok = window.confirm(action === "push"
       ? "Push local commits to GitHub for this project?"
       : "Save all current local file changes into a WIP commit?");
-    if (!ok) return;
+    if (!ok) {
+      setWorkflowFeedback("Action canceled.", "neutral");
+      return;
+    }
   }
   log(`Running project action: ${action}`);
   const result = await api(`/api/projects/${encodeURIComponent(projectId)}/action`, {
@@ -988,7 +1058,7 @@ async function toolAction(toolId, action) {
   await refresh();
 }
 
-selectors.refreshButton.addEventListener("click", refresh);
+selectors.refreshButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Refreshing", () => refresh()));
 selectors.projectSwitcher.addEventListener("change", async () => {
   try {
     await selectProject(selectors.projectSwitcher.value);
@@ -996,8 +1066,8 @@ selectors.projectSwitcher.addEventListener("change", async () => {
     log("Project switch failed.", error.message);
   }
 });
-selectors.scanProjectsButton.addEventListener("click", scanProjectsHome);
-selectors.scanProjectsPanelButton.addEventListener("click", scanProjectsHome);
+selectors.scanProjectsButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Scanning repos", () => scanProjectsHome()));
+selectors.scanProjectsPanelButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Scanning repos", () => scanProjectsHome()));
 selectors.clearLogButton.addEventListener("click", () => {
   selectors.activityLog.textContent = "Ready.";
 });
@@ -1053,10 +1123,12 @@ selectors.saveProjectButton.addEventListener("click", async (event) => {
     log("Project path is required.");
     return;
   }
-  await api("/api/projects", { method: "POST", body: JSON.stringify({ name, path }) });
-  selectors.projectDialog.close();
-  log("Project added.");
-  await refresh();
+  await withButtonFeedback(event.currentTarget, "Adding project", async () => {
+    await api("/api/projects", { method: "POST", body: JSON.stringify({ name, path }) });
+    selectors.projectDialog.close();
+    log("Project added.");
+    await refresh();
+  });
 });
 
 selectors.saveWorkspaceButton.addEventListener("click", async (event) => {
@@ -1067,10 +1139,12 @@ selectors.saveWorkspaceButton.addEventListener("click", async (event) => {
     log("Workspace folder path is required.");
     return;
   }
-  const result = await api("/api/workspaces/adopt", { method: "POST", body: JSON.stringify({ name, path }) });
-  selectors.workspaceDialog.close();
-  log(result.ok ? "Workspace adopted." : "Workspace adoption failed.", result.message);
-  await refresh();
+  await withButtonFeedback(event.currentTarget, "Adopting workspace", async () => {
+    const result = await api("/api/workspaces/adopt", { method: "POST", body: JSON.stringify({ name, path }) });
+    selectors.workspaceDialog.close();
+    log(result.ok ? "Workspace adopted." : "Workspace adoption failed.", result.message);
+    await refresh();
+  });
 });
 
 selectors.saveMachineButton.addEventListener("click", async (event) => {
@@ -1081,10 +1155,12 @@ selectors.saveMachineButton.addEventListener("click", async (event) => {
     log("Machine name is required.");
     return;
   }
-  const machine = await api("/api/machines", { method: "POST", body: JSON.stringify({ name, platform }) });
-  selectors.machineDialog.close();
-  log(`Machine added: ${machine.name}. Pairing code: ${machine.pairingCode}`);
-  await refresh();
+  await withButtonFeedback(event.currentTarget, "Adding machine", async () => {
+    const machine = await api("/api/machines", { method: "POST", body: JSON.stringify({ name, platform }) });
+    selectors.machineDialog.close();
+    log(`Machine added: ${machine.name}. Pairing code: ${machine.pairingCode}`);
+    await refresh();
+  });
 });
 
 selectors.saveGlmButton.addEventListener("click", async (event) => {
@@ -1094,14 +1170,16 @@ selectors.saveGlmButton.addEventListener("click", async (event) => {
     log("Paste the Z.ai API key first.");
     return;
   }
-  const result = await api("/api/agents/glm52/configure", {
-    method: "POST",
-    body: JSON.stringify({ apiKey })
+  await withButtonFeedback(event.currentTarget, "Configuring GLM", async () => {
+    const result = await api("/api/agents/glm52/configure", {
+      method: "POST",
+      body: JSON.stringify({ apiKey })
+    });
+    selectors.glmApiKeyInput.value = "";
+    selectors.glmDialog.close();
+    log(result.ok ? "GLM 5.2 configured for Claude Code." : "GLM setup failed.", result.message);
+    await refresh();
   });
-  selectors.glmApiKeyInput.value = "";
-  selectors.glmDialog.close();
-  log(result.ok ? "GLM 5.2 configured for Claude Code." : "GLM setup failed.", result.message);
-  await refresh();
 });
 
 selectors.saveHandoffButton.addEventListener("click", async (event) => {
@@ -1112,28 +1190,32 @@ selectors.saveHandoffButton.addEventListener("click", async (event) => {
     ? `/api/projects/${encodeURIComponent(activeHandoffProjectId)}/switch-agent`
     : `/api/projects/${encodeURIComponent(activeHandoffProjectId)}/memory/handoff`;
   const body = activeSwitchTarget ? { summary, targetAgent: activeSwitchTarget } : { summary };
-  const result = await api(endpoint, {
-    method: "POST",
-    body: JSON.stringify(body)
+  await withButtonFeedback(event.currentTarget, "Saving note", async () => {
+    const result = await api(endpoint, {
+      method: "POST",
+      body: JSON.stringify(body)
+    });
+    selectors.handoffSummaryInput.value = "";
+    selectors.handoffDialog.close();
+    activeHandoffProjectId = null;
+    activeSwitchTarget = null;
+    log(result.ok ? "Handoff saved." : "Handoff failed.", result.message);
+    await refresh();
   });
-  selectors.handoffSummaryInput.value = "";
-  selectors.handoffDialog.close();
-  activeHandoffProjectId = null;
-  activeSwitchTarget = null;
-  log(result.ok ? "Handoff saved." : "Handoff failed.", result.message);
-  await refresh();
 });
 
-selectors.restoreClaudeButton.addEventListener("click", async () => {
+selectors.restoreClaudeButton.addEventListener("click", async (event) => {
   if (isHostedDashboard()) {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
   const ok = window.confirm("Switch Claude Code on this PC back to the normal Claude model setup?");
   if (!ok) return;
-  const result = await api("/api/agents/claude/restore", { method: "POST" });
-  log(result.ok ? "Claude Code switched back to Claude models." : "Switch back failed.", result.message);
-  await refresh();
+  await withButtonFeedback(event.currentTarget, "Restoring Claude", async () => {
+    const result = await api("/api/agents/claude/restore", { method: "POST" });
+    log(result.ok ? "Claude Code switched back to Claude models." : "Switch back failed.", result.message);
+    await refresh();
+  });
 });
 
 document.addEventListener("click", async (event) => {
@@ -1157,27 +1239,29 @@ document.addEventListener("click", async (event) => {
     } else if (isHostedDashboard()) {
       log("This hosted dashboard is read-only. Open the local console for actions.");
     } else if (projectActionButton) {
-      await projectAction(projectActionButton.dataset.projectId, projectActionButton.dataset.projectAction);
+      await withButtonFeedback(projectActionButton, busyLabelForButton(projectActionButton), () => projectAction(projectActionButton.dataset.projectId, projectActionButton.dataset.projectAction));
     } else if (selectProjectButton) {
-      await selectProject(selectProjectButton.dataset.selectProject);
+      await withButtonFeedback(selectProjectButton, "Setting active", () => selectProject(selectProjectButton.dataset.selectProject));
     } else if (openAddProjectButton) {
       selectors.addProjectButton.click();
     } else if (openAdoptWorkspaceButton) {
       selectors.adoptWorkspaceButton.click();
     } else if (removeButton) {
-      await removeProject(removeButton.dataset.removeProject);
+      await withButtonFeedback(removeButton, "Removing", () => removeProject(removeButton.dataset.removeProject));
     } else if (removeMachineButton) {
-      await removeMachine(removeMachineButton.dataset.removeMachine);
+      await withButtonFeedback(removeMachineButton, "Removing", () => removeMachine(removeMachineButton.dataset.removeMachine));
     } else if (installButton) {
-      await installTool(installButton.dataset.installTool);
+      await withButtonFeedback(installButton, "Installing", () => installTool(installButton.dataset.installTool));
     } else if (toolActionButton) {
-      await toolAction(toolActionButton.dataset.toolId, toolActionButton.dataset.toolAction);
+      await withButtonFeedback(toolActionButton, busyLabelForButton(toolActionButton), () => toolAction(toolActionButton.dataset.toolId, toolActionButton.dataset.toolAction));
     } else if (memoryInitButton) {
-      const result = await api(`/api/projects/${encodeURIComponent(memoryInitButton.dataset.memoryInit)}/memory/init`, { method: "POST" });
-      log(result.ok ? "Project memory initialized." : "Memory initialization failed.", result.message);
-      await refresh();
+      await withButtonFeedback(memoryInitButton, "Creating memory", async () => {
+        const result = await api(`/api/projects/${encodeURIComponent(memoryInitButton.dataset.memoryInit)}/memory/init`, { method: "POST" });
+        log(result.ok ? "Project memory initialized." : "Memory initialization failed.", result.message);
+        await refresh();
+      });
     } else if (autoHandoffButton) {
-      await autoRefreshHandoff(autoHandoffButton.dataset.autoHandoff);
+      await withButtonFeedback(autoHandoffButton, "Refreshing handoff", () => autoRefreshHandoff(autoHandoffButton.dataset.autoHandoff));
     } else if (memoryHandoffButton) {
       activeHandoffProjectId = memoryHandoffButton.dataset.memoryHandoff;
       activeSwitchTarget = null;
@@ -1185,7 +1269,7 @@ document.addEventListener("click", async (event) => {
       selectors.handoffSummaryInput.value = "";
       selectors.handoffDialog.showModal();
     } else if (switchAgentButton) {
-      await autoSwitchAgent(switchAgentButton.dataset.projectId, switchAgentButton.dataset.switchAgent);
+      await withButtonFeedback(switchAgentButton, busyLabelForButton(switchAgentButton), () => autoSwitchAgent(switchAgentButton.dataset.projectId, switchAgentButton.dataset.switchAgent));
     }
   } catch (error) {
     log("Action failed.", error.message);
@@ -1197,9 +1281,7 @@ selectors.startWorkButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  selectors.startWorkButton.disabled = true;
-  setWorkflowFeedback("Checking the active project...", "neutral");
-  try {
+  await withButtonFeedback(selectors.startWorkButton, "Checking project", async () => {
     await refresh();
     const project = activeProject();
     const memory = memoryForProject(project);
@@ -1235,12 +1317,10 @@ selectors.startWorkButton.addEventListener("click", async () => {
     }
     setWorkflowFeedback(`${project.name} is ready. Continue in Claude or Codex.`, "ok");
     log(`Start Work complete: ${project.name} is ready.`);
-  } catch (error) {
+  }).catch((error) => {
     setWorkflowFeedback(`Start Work failed: ${error.message}`, "bad");
     log("Start Work failed.", error.message);
-  } finally {
-    selectors.startWorkButton.disabled = false;
-  }
+  });
 });
 
 async function switchActiveProject(targetAgent) {
@@ -1257,16 +1337,19 @@ async function switchActiveProject(targetAgent) {
   await autoSwitchAgent(projectId, targetAgent);
 }
 
-selectors.switchClaudeButton.addEventListener("click", () => switchActiveProject("claude"));
-selectors.switchCodexButton.addEventListener("click", () => switchActiveProject("codex"));
+selectors.switchClaudeButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Switching to Claude", () => switchActiveProject("claude")));
+selectors.switchCodexButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Switching to Codex", () => switchActiveProject("codex")));
 
 selectors.endWorkButton.addEventListener("click", async () => {
   if (isHostedDashboard()) {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("End Work: refreshing status. Use Save WIP and Push on projects that need it.");
-  await refresh();
+  await withButtonFeedback(selectors.endWorkButton, "Checking handoff", async () => {
+    log("End Work: refreshing status. Use Save WIP and Push on projects that need it.");
+    await refresh();
+    setWorkflowFeedback("End Work check complete. Follow any highlighted actions before changing machines.", "ok");
+  });
 });
 
 selectors.syncEverythingButton.addEventListener("click", async () => {
@@ -1274,18 +1357,21 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("Sync Everything: running safe checks and pulls where possible.");
-  await refresh();
-  for (const project of state.summary.projects.filter((item) => item.state === "behind")) {
-    await projectAction(project.id, "pull");
-  }
-  const environment = await api("/api/environment/sync-local", { method: "POST" });
-  log(environment.ok ? "Agent environment sync finished." : "Agent environment sync failed.", environment);
-  const skillshare = toolById("skillshare");
-  if (skillshare?.exists) await toolAction("skillshare", "sync");
-  const config = toolById("aiConfigSync");
-  if (config?.exists) await toolAction("aiConfigSync", "preview");
-  log("Sync Everything complete.");
+  await withButtonFeedback(selectors.syncEverythingButton, "Syncing", async () => {
+    log("Sync Everything: running safe checks and pulls where possible.");
+    await refresh();
+    for (const project of state.summary.projects.filter((item) => item.state === "behind")) {
+      await projectAction(project.id, "pull");
+    }
+    const environment = await api("/api/environment/sync-local", { method: "POST" });
+    log(environment.ok ? "Agent environment sync finished." : "Agent environment sync failed.", environment);
+    const skillshare = toolById("skillshare");
+    if (skillshare?.exists) await toolAction("skillshare", "sync");
+    const config = toolById("aiConfigSync");
+    if (config?.exists) await toolAction("aiConfigSync", "preview");
+    log("Sync Everything complete.");
+    setWorkflowFeedback("Sync complete.", "ok");
+  });
 });
 
 selectors.syncSkillsButton.addEventListener("click", async () => {
@@ -1295,10 +1381,12 @@ selectors.syncSkillsButton.addEventListener("click", async () => {
   }
   const ok = window.confirm("Copy shared skills into local Claude, Codex, and Shared Agents folders?");
   if (!ok) return;
-  log("Syncing local skills.");
-  const result = await api("/api/skills/sync-local", { method: "POST" });
-  log(result.ok ? "Local skill sync finished." : "Local skill sync failed.", result);
-  await refresh();
+  await withButtonFeedback(selectors.syncSkillsButton, "Syncing skills", async () => {
+    log("Syncing local skills.");
+    const result = await api("/api/skills/sync-local", { method: "POST" });
+    log(result.ok ? "Local skill sync finished." : "Local skill sync failed.", result);
+    await refresh();
+  });
 });
 
 selectors.syncEnvironmentButton.addEventListener("click", async () => {
@@ -1308,10 +1396,12 @@ selectors.syncEnvironmentButton.addEventListener("click", async () => {
   }
   const ok = window.confirm("Sync Claude/Codex shared instructions, hooks, rules, and skills on this machine? Local auth, sessions, logs, and databases will be left alone.");
   if (!ok) return;
-  log("Syncing Claude/Codex agent environment.");
-  const result = await api("/api/environment/sync-local", { method: "POST" });
-  log(result.ok ? "Agent environment sync finished." : "Agent environment sync failed.", result);
-  await refresh();
+  await withButtonFeedback(selectors.syncEnvironmentButton, "Syncing environment", async () => {
+    log("Syncing Claude/Codex agent environment.");
+    const result = await api("/api/environment/sync-local", { method: "POST" });
+    log(result.ok ? "Agent environment sync finished." : "Agent environment sync failed.", result);
+    await refresh();
+  });
 });
 
 selectors.importSkillsButton.addEventListener("click", async () => {
@@ -1321,10 +1411,12 @@ selectors.importSkillsButton.addEventListener("click", async () => {
   }
   const ok = window.confirm("Build the shared skill source from local Claude, Codex, and Shared Agents skills?");
   if (!ok) return;
-  log("Building shared skill source from local skills.");
-  const result = await api("/api/skills/import-local", { method: "POST" });
-  log(result.ok ? `Shared skill source built with ${result.importedCount} skills.` : "Shared skill import failed.", result);
-  await refresh();
+  await withButtonFeedback(selectors.importSkillsButton, "Building skills", async () => {
+    log("Building shared skill source from local skills.");
+    const result = await api("/api/skills/import-local", { method: "POST" });
+    log(result.ok ? `Shared skill source built with ${result.importedCount} skills.` : "Shared skill import failed.", result);
+    await refresh();
+  });
 });
 
 selectors.prepareSetupButton.addEventListener("click", async () => {
@@ -1332,10 +1424,12 @@ selectors.prepareSetupButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("Preparing one-click setup files.");
-  const result = await api("/api/setup/prepare", { method: "POST" });
-  log(result.ok ? "Setup files prepared." : `Setup files not ready: ${result.message}`, result);
-  await refresh();
+  await withButtonFeedback(selectors.prepareSetupButton, "Preparing files", async () => {
+    log("Preparing one-click setup files.");
+    const result = await api("/api/setup/prepare", { method: "POST" });
+    log(result.ok ? "Setup files prepared." : `Setup files not ready: ${result.message}`, result);
+    await refresh();
+  });
 });
 
 selectors.openSetupFolderButton.addEventListener("click", async () => {
@@ -1343,9 +1437,11 @@ selectors.openSetupFolderButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("Opening setup folder.");
-  const result = await api("/api/setup/open-folder", { method: "POST" });
-  log(result.ok ? "Setup folder opened." : "Could not open setup folder.", result);
+  await withButtonFeedback(selectors.openSetupFolderButton, "Opening folder", async () => {
+    log("Opening setup folder.");
+    const result = await api("/api/setup/open-folder", { method: "POST" });
+    log(result.ok ? "Setup folder opened." : "Could not open setup folder.", result);
+  });
 });
 
 selectors.openMemoryButton.addEventListener("click", () => {
@@ -1357,10 +1453,12 @@ selectors.publishCloudButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("Publishing this machine status to Supabase.");
-  const result = await api("/api/cloud/publish", { method: "POST" });
-  log(result.ok ? "Cloud status published." : `Cloud publish failed: ${result.message || "needs setup"}`);
-  await refresh();
+  await withButtonFeedback(selectors.publishCloudButton, "Publishing status", async () => {
+    log("Publishing this machine status to Supabase.");
+    const result = await api("/api/cloud/publish", { method: "POST" });
+    log(result.ok ? "Cloud status published." : `Cloud publish failed: ${result.message || "needs setup"}`);
+    await refresh();
+  });
 });
 
 refresh();
