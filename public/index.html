@@ -346,15 +346,15 @@
 
     <dialog id="handoffDialog">
       <form method="dialog" class="dialog-card">
-        <h2>Prepare Handoff</h2>
-        <p id="handoffHelp" class="dialog-help">Write the short handoff that the next machine, Claude, Codex, GLM, or Hermes should read first.</p>
+        <h2>Manual Handoff Note</h2>
+        <p id="handoffHelp" class="dialog-help">Optional note. Tool switching now generates the handoff automatically.</p>
         <label>
-          Handoff summary
-          <textarea id="handoffSummaryInput" rows="7" placeholder="What changed, what matters, and what should happen next?"></textarea>
+          Extra context
+          <textarea id="handoffSummaryInput" rows="7" placeholder="Only type here when you want to add something the console cannot infer."></textarea>
         </label>
         <div class="dialog-actions">
           <button value="cancel">Cancel</button>
-          <button id="saveHandoffButton" value="default" class="primary">Save Handoff</button>
+          <button id="saveHandoffButton" value="default" class="primary">Save Note</button>
         </div>
       </form>
     </dialog>

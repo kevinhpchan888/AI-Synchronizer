@@ -59,16 +59,18 @@ Use this on AMVPC when switching between Claude Code and Codex.
 2. If the work is in a loose folder, click **Adopt Workspace** instead of **Add Project**.
 3. Adopt Workspace creates local Git and `.ai-memory/` so Claude and Codex share the same project files and memory.
 4. Click **Start Work** before opening Claude Code or Codex.
-5. When switching from Claude Code to Codex, click **Switch To Codex** and write the handoff.
-6. When switching from Codex to Claude Code, click **Switch To Claude** and write the handoff.
+5. When switching from Claude Code to Codex, click **Use Codex**. The console generates and saves the handoff.
+6. When switching from Codex to Claude Code, click **Use Claude**. The console generates and saves the handoff.
 7. Keep both tools pointed at the same workspace folder.
-8. Before stopping, use **Prepare Handoff** or **End Work**.
+8. Before stopping or changing machines, use **End Work**. If memory is yellow, click **Refresh Handoff**.
 
 The rule is simple:
 
 ```text
 Do not switch tools from chat memory. Switch through the workspace folder and handoff.
 ```
+
+You should not need to type a handoff for normal switching. The manual handoff note is only for extra context the console cannot infer.
 
 For projects without GitHub repos:
 

@@ -11,7 +11,7 @@ import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
-import { adoptWorkspace, checkpointWorkspace, switchWorkspaceAgent } from "./lib/workspaces.mjs";
+import { adoptWorkspace, checkpointWorkspace, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -337,7 +337,10 @@ async function handleApi(req, res, url) {
       const projects = await readProjects();
       const project = projects.find((item) => item.id === id);
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
-      return send(res, 200, await writeProjectHandoff(await getProjectStatus(project), body.summary));
+      if (body.summary?.trim()) {
+        return send(res, 200, await writeProjectHandoff(await getProjectStatus(project), body.summary));
+      }
+      return send(res, 200, await refreshWorkspaceHandoff(project, body.targetAgent || "handoff"));
     }
 
     if (req.method === "POST" && url.pathname === "/api/workspaces/adopt") {

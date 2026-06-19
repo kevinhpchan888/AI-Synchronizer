@@ -200,7 +200,7 @@ function activeActions(project, memory) {
         return [{ tone: "warn", title: "Create context memory", body: "This space needs its portable memory pack.", action: actionButton("Initialize Memory", { "data-memory-init": project.id }, true) }];
       }
       if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
-        return [{ tone: "warn", title: "Refresh context handoff", body: "Update the handoff before moving this context elsewhere.", action: actionButton("Prepare Handoff", { "data-memory-handoff": project.id }, true) }];
+        return [{ tone: "warn", title: "Refresh context handoff", body: "One click updates this context memory before you move it elsewhere.", action: actionButton("Refresh Handoff", { "data-auto-handoff": project.id }, true) }];
       }
       return [{ tone: "ok", title: "Context is ready", body: "Use this for non-project work, then promote it to a repo later if needed.", action: actionButton("Use Codex", { "data-switch-agent": "codex", "data-project-id": project.id }, true) }];
     }
@@ -223,7 +223,7 @@ function activeActions(project, memory) {
   if (!memory || memory.state === "missing") {
     actions.push({ tone: "warn", title: "Create memory pack", body: "This project has no portable .ai-memory context yet.", action: actionButton("Initialize Memory", { "data-memory-init": project.id }, true) });
   } else if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
-    actions.push({ tone: "warn", title: "Refresh handoff", body: "Update project memory before switching tools or machines.", action: actionButton("Prepare Handoff", { "data-memory-handoff": project.id }, true) });
+    actions.push({ tone: "warn", title: "Refresh handoff", body: "One click updates project memory before switching tools or machines.", action: actionButton("Refresh Handoff", { "data-auto-handoff": project.id }, true) });
   }
   if (!actions.length) {
     actions.push({ tone: "ok", title: "Project is level", body: "You can continue here or switch to Claude/Codex.", action: actionButton("Use Codex", { "data-switch-agent": "codex", "data-project-id": project.id }, true) });
@@ -735,7 +735,7 @@ function renderProjects() {
           <button data-project-action="push" data-project-id="${project.id}" ${disabled}>Push</button>
           <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
           <button data-memory-init="${project.id}" ${memoryDisabled}>Initialize Memory</button>
-          <button data-memory-handoff="${project.id}" ${memoryDisabled}>Prepare Handoff</button>
+          <button data-auto-handoff="${project.id}" ${memoryDisabled}>Refresh Handoff</button>
           <button data-switch-agent="claude" data-project-id="${project.id}" ${memoryDisabled}>Use Claude</button>
           <button data-switch-agent="codex" data-project-id="${project.id}" ${memoryDisabled}>Use Codex</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
@@ -905,6 +905,33 @@ async function selectProject(projectId) {
     body: JSON.stringify({ projectId })
   });
   log(result.ok ? `Active project switched to ${project.name}.` : "Project switch failed.", result.message);
+  await refresh();
+}
+
+async function autoSwitchAgent(projectId, targetAgent) {
+  const project = state.summary.projects.find((item) => item.id === projectId);
+  if (!project) return;
+  const label = targetAgent === "codex" ? "Codex" : "Claude Code";
+  setWorkflowFeedback(`Generating handoff and switching ${project.name} to ${label}...`, "neutral");
+  const result = await api(`/api/projects/${encodeURIComponent(projectId)}/switch-agent`, {
+    method: "POST",
+    body: JSON.stringify({ targetAgent })
+  });
+  log(result.ok ? `Auto handoff saved. ${project.name} is ready for ${label}.` : "Switch failed.", result.message);
+  setWorkflowFeedback(`${project.name} is ready for ${label}. Auto handoff saved.`, result.ok ? "ok" : "bad");
+  await refresh();
+}
+
+async function autoRefreshHandoff(projectId) {
+  const project = state.summary.projects.find((item) => item.id === projectId);
+  if (!project) return;
+  setWorkflowFeedback(`Refreshing ${project.name} handoff automatically...`, "neutral");
+  const result = await api(`/api/projects/${encodeURIComponent(projectId)}/memory/handoff`, {
+    method: "POST",
+    body: JSON.stringify({})
+  });
+  log(result.ok ? `Automatic handoff refreshed for ${project.name}.` : "Handoff refresh failed.", result.message);
+  setWorkflowFeedback(result.ok ? `${project.name} handoff refreshed. No typing needed.` : `Could not refresh ${project.name} handoff.`, result.ok ? "ok" : "bad");
   await refresh();
 }
 
@@ -1113,6 +1140,7 @@ document.addEventListener("click", async (event) => {
   const removeMachineButton = event.target.closest("[data-remove-machine]");
   const memoryInitButton = event.target.closest("[data-memory-init]");
   const memoryHandoffButton = event.target.closest("[data-memory-handoff]");
+  const autoHandoffButton = event.target.closest("[data-auto-handoff]");
   const switchAgentButton = event.target.closest("[data-switch-agent]");
   const selectProjectButton = event.target.closest("[data-select-project]");
   const openAddProjectButton = event.target.closest("[data-open-add-project]");
@@ -1144,18 +1172,16 @@ document.addEventListener("click", async (event) => {
       const result = await api(`/api/projects/${encodeURIComponent(memoryInitButton.dataset.memoryInit)}/memory/init`, { method: "POST" });
       log(result.ok ? "Project memory initialized." : "Memory initialization failed.", result.message);
       await refresh();
+    } else if (autoHandoffButton) {
+      await autoRefreshHandoff(autoHandoffButton.dataset.autoHandoff);
     } else if (memoryHandoffButton) {
       activeHandoffProjectId = memoryHandoffButton.dataset.memoryHandoff;
       activeSwitchTarget = null;
-      document.querySelector("#handoffHelp").textContent = "Write what the next tool should know before continuing.";
+      document.querySelector("#handoffHelp").textContent = "Optional manual note. Use this only when you want to add extra context beyond the automatic handoff.";
       selectors.handoffSummaryInput.value = "";
       selectors.handoffDialog.showModal();
     } else if (switchAgentButton) {
-      activeHandoffProjectId = switchAgentButton.dataset.projectId;
-      activeSwitchTarget = switchAgentButton.dataset.switchAgent;
-      document.querySelector("#handoffHelp").textContent = `Write the handoff before switching to ${activeSwitchTarget === "codex" ? "Codex" : "Claude Code"}.`;
-      selectors.handoffSummaryInput.value = "";
-      selectors.handoffDialog.showModal();
+      await autoSwitchAgent(switchAgentButton.dataset.projectId, switchAgentButton.dataset.switchAgent);
     }
   } catch (error) {
     log("Action failed.", error.message);
@@ -1200,7 +1226,7 @@ selectors.startWorkButton.addEventListener("click", async () => {
       return;
     }
     if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
-      setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Prepare Handoff.`, "warn");
+      setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Refresh Handoff; the console will write it automatically.`, "warn");
       return;
     }
     setWorkflowFeedback(`${project.name} is ready. Continue in Claude or Codex.`, "ok");
@@ -1224,11 +1250,7 @@ async function switchActiveProject(targetAgent) {
     log("Add or adopt a workspace first.");
     return;
   }
-  activeHandoffProjectId = projectId;
-  activeSwitchTarget = targetAgent;
-  document.querySelector("#handoffHelp").textContent = `Write the handoff before switching to ${targetAgent === "codex" ? "Codex" : "Claude Code"}.`;
-  selectors.handoffSummaryInput.value = "";
-  selectors.handoffDialog.showModal();
+  await autoSwitchAgent(projectId, targetAgent);
 }
 
 selectors.switchClaudeButton.addEventListener("click", () => switchActiveProject("claude"));
