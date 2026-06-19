@@ -35,6 +35,7 @@ const selectors = {
   skillMatrix: document.querySelector("#skillMatrix"),
   agentProfileSummary: document.querySelector("#agentProfileSummary"),
   agentProfilesList: document.querySelector("#agentProfilesList"),
+  projectsPanel: document.querySelector("#projectsPanel"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
   activityLog: document.querySelector("#activityLog"),
@@ -146,6 +147,13 @@ function activeProject() {
 function memoryForProject(project) {
   if (!project) return null;
   return state.summary.memory.projects.find((item) => item.projectId === project.id) ?? null;
+}
+
+function projectMemoryPath(project) {
+  if (!project?.path) return ".ai-memory";
+  const sep = project.path.includes("\\") ? "\\" : "/";
+  const suffix = project.path.endsWith("\\") || project.path.endsWith("/") ? "" : sep;
+  return `${project.path}${suffix}.ai-memory`;
 }
 
 function setFlowStep(step, tone, title, detail) {
@@ -816,6 +824,7 @@ function renderProjects() {
 }
 
 function toolActions(tool) {
+  if (tool.legacy) return `<span class="tool-note">Optional legacy tool</span>`;
   const install = tool.exists ? "" : `<button data-install-tool="${tool.id}">Install</button>`;
   const actions = {
     skillshare: [
@@ -859,14 +868,15 @@ function renderTools() {
   }
 
   selectors.toolsList.innerHTML = state.summary.tools.map((tool) => {
-    const tone = tool.exists ? "ok" : tool.required ? "bad" : "warn";
+    const tone = tool.legacy ? "neutral" : tool.exists ? "ok" : tool.required ? "bad" : "warn";
+    const status = tool.legacy ? "Legacy optional" : tool.exists ? "Installed" : tool.required ? "Required" : "Missing";
     return `
       <article class="row">
         <div class="row-title">
           <span class="status-dot ${tone}"></span>
           <div>
             <strong>${escapeHtml(tool.label)}</strong>
-            <div>${pill(tool.exists ? "Installed" : tool.required ? "Required" : "Missing", tone)}</div>
+            <div>${pill(status, tone)}</div>
           </div>
         </div>
         <div class="row-detail">${escapeHtml(tool.path || tool.command)}</div>
@@ -1444,8 +1454,42 @@ selectors.openSetupFolderButton.addEventListener("click", async () => {
   });
 });
 
-selectors.openMemoryButton.addEventListener("click", () => {
-  window.open("http://localhost:3211", "_blank", "noopener,noreferrer");
+async function showProjectMemoryStatus() {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
+
+  await refresh();
+  const project = activeProject();
+  const memory = memoryForProject(project);
+  let tone = "warn";
+  let message = "Choose a project first, then click Memory Status again.";
+
+  if (project && (!memory || memory.state === "missing")) {
+    message = `${project.name} needs a memory pack. In Projects, click Initialize Memory.`;
+  } else if (project && memory.state === "fresh") {
+    tone = "ok";
+    message = `${project.name} memory is ready. It lives in ${projectMemoryPath(project)}.`;
+  } else if (project) {
+    message = `${project.name} memory needs a refresh. In Projects, click Refresh Handoff.`;
+  }
+
+  selectors.projectsPanel?.scrollIntoView({ behavior: "smooth", block: "start" });
+  selectors.projectsPanel?.classList.remove("attention-flash");
+  selectors.memoryCard?.classList.remove("attention-flash");
+  await nextPaint();
+  selectors.projectsPanel?.classList.add("attention-flash");
+  selectors.memoryCard?.classList.add("attention-flash");
+  setWorkflowFeedback(message, tone);
+  window.setTimeout(() => {
+    selectors.projectsPanel?.classList.remove("attention-flash");
+    selectors.memoryCard?.classList.remove("attention-flash");
+  }, 1800);
+}
+
+selectors.openMemoryButton.addEventListener("click", (event) => {
+  withButtonFeedback(event.currentTarget, "Showing memory", showProjectMemoryStatus);
 });
 
 selectors.publishCloudButton.addEventListener("click", async () => {

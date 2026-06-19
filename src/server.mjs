@@ -89,7 +89,7 @@ function normalizeSession(session, projects) {
 
 function buildRecommendations({ tools, projects, cloud, machines, skills, agents, memory }) {
   const items = [];
-  const missingTools = tools.filter((tool) => !tool.exists);
+  const missingTools = tools.filter((tool) => !tool.exists && !tool.legacy);
   const dirty = projects.filter((project) => project.state === "dirty");
   const behind = projects.filter((project) => project.state === "behind");
   const ahead = projects.filter((project) => project.state === "ahead");

@@ -39,7 +39,7 @@ const TOOL_DEFINITIONS = [
       : [path.join(userBin, "skillshare"), path.join(portableNodeBin, "skillshare")]
   },
   { id: "aiConfigSync", label: "Claude/Codex Config Sync", command: "ai-config-sync", required: false, fallbackPaths: [path.join(portableNodeBin, "ai-config-sync")] },
-  { id: "memorix", label: "Memorix", command: "memorix", required: false, fallbackPaths: [path.join(portableNodeBin, "memorix")] },
+  { id: "memorix", label: "Legacy MemoRix", command: "memorix", required: false, legacy: true, fallbackPaths: [path.join(portableNodeBin, "memorix")] },
   { id: "vercel", label: "Vercel", command: "vercel", required: false, fallbackPaths: [path.join(portableNodeBin, "vercel")] },
   { id: "supabase", label: "Supabase", command: "supabase", required: false, fallbackPaths: [path.join(portableNodeBin, "supabase")] }
 ];

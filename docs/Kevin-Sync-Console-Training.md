@@ -64,6 +64,8 @@ Use this on AMVPC when switching between Claude Code and Codex.
 7. Keep both tools pointed at the same workspace folder.
 8. Before stopping or changing machines, use **End Work**. If memory is yellow, click **Refresh Handoff**.
 
+The **Memory Status** button stays inside AI Sync Console. It highlights the project memory status and tells you whether to initialize `.ai-memory`, refresh the handoff, or continue. MemoRix is legacy/optional here; it is not the daily control plane.
+
 The rule is simple:
 
 ```text
