@@ -1,5 +1,6 @@
 import { execFile } from "node:child_process";
 import { platform } from "node:os";
+import path from "node:path";
 
 const SECRET_PATTERNS = [
   /(SUPABASE_[A-Z_]*KEY=)[^\s]+/gi,
@@ -55,10 +56,12 @@ export async function commandExists(name) {
     ? await run("where.exe", [name], { timeout: 8000 })
     : await runShell(`command -v ${JSON.stringify(name)}`, { timeout: 8000 });
 
-  const firstLine = result.stdout.split(/\r?\n/).find(Boolean);
+  const lines = result.stdout.split(/\r?\n/).filter(Boolean);
+  const firstLine = isWindows
+    ? lines.find((line) => [".exe", ".cmd", ".bat"].includes(path.extname(line).toLowerCase())) ?? lines[0]
+    : lines[0];
   return {
     exists: result.ok && Boolean(firstLine),
     path: firstLine ?? null
   };
 }
-

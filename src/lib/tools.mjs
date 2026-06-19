@@ -93,11 +93,11 @@ export async function runToolAction(toolId, action) {
   }
 
   if (toolId === "vercel") {
-    if (action === "whoami") return run("vercel", ["whoami"], { timeout: 60000 });
+    if (action === "whoami") return runShell("vercel whoami", { timeout: 60000 });
   }
 
   if (toolId === "supabase") {
-    if (action === "version") return run("supabase", ["--version"], { timeout: 60000 });
+    if (action === "version") return runShell("supabase --version", { timeout: 60000 });
   }
 
   return { ok: false, message: `Unsupported action ${action} for ${toolId}` };

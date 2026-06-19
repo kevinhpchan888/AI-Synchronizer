@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { run } from "./command.mjs";
+import { commandExists, run, runShell } from "./command.mjs";
 
 async function readEnvLocal() {
   const keys = {};
@@ -47,7 +47,10 @@ export async function getCloudStatus() {
   const envKeys = await readEnvLocal();
   const vercelProjectFile = path.join(process.cwd(), ".vercel", "project.json");
   const vercelLinked = await exists(vercelProjectFile);
-  const vercelWhoami = await run("vercel", ["whoami"], { timeout: 15000 });
+  const vercelCommand = await commandExists("vercel");
+  const vercelWhoami = vercelCommand.exists
+    ? await runShell("vercel whoami", { timeout: 15000 })
+    : { ok: false };
 
   return {
     vercel: {
