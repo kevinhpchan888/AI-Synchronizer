@@ -8,6 +8,7 @@ const REGISTRY_DIR = path.join(ROOT, "registry");
 const PROJECTS_FILE = path.join(REGISTRY_DIR, "projects.json");
 const SETTINGS_FILE = path.join(REGISTRY_DIR, "settings.json");
 const LOCAL_MACHINE_FILE = path.join(REGISTRY_DIR, "local-machine.json");
+const SESSION_FILE = path.join(REGISTRY_DIR, "session.json");
 
 async function readJson(file, fallback) {
   try {
@@ -79,4 +80,22 @@ export async function removeProject(id) {
   const next = projects.filter((project) => project.id !== id);
   await saveProjects(next);
   return { removed: projects.length !== next.length };
+}
+
+export async function readSession() {
+  return readJson(SESSION_FILE, {
+    activeProjectId: null,
+    activeAgent: "claude",
+    lastSwitchAt: null,
+    lastHandoffAt: null
+  });
+}
+
+export async function saveSession(session) {
+  await writeJson(SESSION_FILE, {
+    activeProjectId: session.activeProjectId ?? null,
+    activeAgent: session.activeAgent ?? "claude",
+    lastSwitchAt: session.lastSwitchAt ?? null,
+    lastHandoffAt: session.lastHandoffAt ?? null
+  });
 }

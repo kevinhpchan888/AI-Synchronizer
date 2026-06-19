@@ -98,6 +98,44 @@ function ageHours(date) {
   return Math.round((Date.now() - date.getTime()) / 36_000) / 100;
 }
 
+async function newestProjectFile(projectPath) {
+  let newest = null;
+  async function walk(folder) {
+    let entries = [];
+    try {
+      entries = await fs.readdir(folder, { withFileTypes: true });
+    } catch {
+      return;
+    }
+    for (const entry of entries) {
+      if ([
+        ".git",
+        MEMORY_DIR,
+        "node_modules",
+        ".venv",
+        "venv",
+        "__pycache__",
+        "logs",
+        "backups",
+        "setup-package",
+        ".vercel"
+      ].includes(entry.name)) continue;
+      const fullPath = path.join(folder, entry.name);
+      const relativePath = path.relative(projectPath, fullPath).replaceAll("\\", "/");
+      if (["registry/local-machine.json", "registry/session.json"].includes(relativePath)) continue;
+      const stat = await statOrNull(fullPath);
+      if (!stat) continue;
+      if (entry.isDirectory()) {
+        await walk(fullPath);
+      } else if (!newest || stat.mtime > newest) {
+        newest = stat.mtime;
+      }
+    }
+  }
+  await walk(projectPath);
+  return newest;
+}
+
 export async function getProjectMemoryStatus(project) {
   if (!project.exists || !project.isRepo) {
     return {
@@ -112,9 +150,11 @@ export async function getProjectMemoryStatus(project) {
   }
 
   const memoryPath = path.join(project.path, MEMORY_DIR);
+  const handoffPath = path.join(memoryPath, "HANDOFF.md");
   const files = [];
   const missing = [];
   let newest = null;
+  const handoffStat = await statOrNull(handoffPath);
 
   for (const file of REQUIRED_FILES) {
     const fullPath = path.join(memoryPath, file);
@@ -135,6 +175,9 @@ export async function getProjectMemoryStatus(project) {
 
   const packExists = await exists(memoryPath);
   const staleHours = ageHours(newest);
+  const handoffAge = ageHours(handoffStat?.mtime ?? null);
+  const newestProjectUpdate = await newestProjectFile(project.path);
+  const handoffBehindWork = Boolean(handoffStat?.mtime && newestProjectUpdate && handoffStat.mtime < newestProjectUpdate);
   let state = "fresh";
   let tone = "ok";
   let message = "Project memory is ready";
@@ -155,6 +198,11 @@ export async function getProjectMemoryStatus(project) {
     tone = "warn";
     message = `Memory last updated ${Math.round(staleHours)}h ago`;
     freshness = 70;
+  } else if (!handoffStat || handoffBehindWork || (handoffAge !== null && handoffAge > 8)) {
+    state = "handoff-needed";
+    tone = "warn";
+    message = "Handoff recommended before switching tools";
+    freshness = 85;
   }
 
   return {
@@ -169,6 +217,9 @@ export async function getProjectMemoryStatus(project) {
     files,
     eventFiles: eventFiles.length,
     lastUpdated: newest?.toISOString() ?? null,
+    handoffUpdatedAt: handoffStat?.mtime?.toISOString() ?? null,
+    handoffAgeHours: handoffAge,
+    handoffBehindWork,
     packHash: packExists ? await hashMemoryPack(memoryPath) : null
   };
 }
@@ -176,7 +227,7 @@ export async function getProjectMemoryStatus(project) {
 export async function getMemoryInventory(projects) {
   const projectsMemory = await Promise.all(projects.map(getProjectMemoryStatus));
   const missing = projectsMemory.filter((item) => item.state === "missing").length;
-  const stale = projectsMemory.filter((item) => ["stale", "incomplete"].includes(item.state)).length;
+  const stale = projectsMemory.filter((item) => ["stale", "incomplete", "handoff-needed"].includes(item.state)).length;
   const fresh = projectsMemory.filter((item) => item.state === "fresh").length;
   const lowestFreshness = projectsMemory.length ? Math.min(...projectsMemory.map((item) => item.freshness)) : 0;
   return {

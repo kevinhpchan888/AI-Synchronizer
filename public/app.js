@@ -19,6 +19,7 @@ const selectors = {
   cloudCard: document.querySelector("#cloudCard"),
   recommendationsList: document.querySelector("#recommendationsList"),
   machinesList: document.querySelector("#machinesList"),
+  cloudFleetList: document.querySelector("#cloudFleetList"),
   setupStatus: document.querySelector("#setupStatus"),
   skillSummary: document.querySelector("#skillSummary"),
   skillMatrix: document.querySelector("#skillMatrix"),
@@ -29,18 +30,23 @@ const selectors = {
   activityLog: document.querySelector("#activityLog"),
   clearLogButton: document.querySelector("#clearLogButton"),
   addProjectButton: document.querySelector("#addProjectButton"),
+  adoptWorkspaceButton: document.querySelector("#adoptWorkspaceButton"),
   addMachineButton: document.querySelector("#addMachineButton"),
   projectDialog: document.querySelector("#projectDialog"),
+  workspaceDialog: document.querySelector("#workspaceDialog"),
   machineDialog: document.querySelector("#machineDialog"),
   handoffDialog: document.querySelector("#handoffDialog"),
   projectNameInput: document.querySelector("#projectNameInput"),
   projectPathInput: document.querySelector("#projectPathInput"),
+  workspaceNameInput: document.querySelector("#workspaceNameInput"),
+  workspacePathInput: document.querySelector("#workspacePathInput"),
   machineNameInput: document.querySelector("#machineNameInput"),
   machinePlatformInput: document.querySelector("#machinePlatformInput"),
   glmDialog: document.querySelector("#glmDialog"),
   glmApiKeyInput: document.querySelector("#glmApiKeyInput"),
   handoffSummaryInput: document.querySelector("#handoffSummaryInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
+  saveWorkspaceButton: document.querySelector("#saveWorkspaceButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
   saveGlmButton: document.querySelector("#saveGlmButton"),
   saveHandoffButton: document.querySelector("#saveHandoffButton"),
@@ -52,6 +58,8 @@ const selectors = {
   importSkillsButton: document.querySelector("#importSkillsButton"),
   syncSkillsButton: document.querySelector("#syncSkillsButton"),
   startWorkButton: document.querySelector("#startWorkButton"),
+  switchClaudeButton: document.querySelector("#switchClaudeButton"),
+  switchCodexButton: document.querySelector("#switchCodexButton"),
   endWorkButton: document.querySelector("#endWorkButton"),
   syncEverythingButton: document.querySelector("#syncEverythingButton"),
   publishCloudButton: document.querySelector("#publishCloudButton"),
@@ -59,6 +67,7 @@ const selectors = {
 };
 
 let activeHandoffProjectId = null;
+let activeSwitchTarget = null;
 
 function log(message, data = null) {
   const timestamp = new Date().toLocaleTimeString();
@@ -172,7 +181,8 @@ function renderMissionControl() {
 
   const route = state.summary.agents.activeRoute === "glm" ? "GLM 5.2" : "Claude";
   const glmReady = state.summary.agents.glm.configuredFor52;
-  setMissionTile(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", route, "Codex skills synced locally");
+  const sessionAgent = state.summary.session?.activeAgent === "codex" ? "Codex" : route;
+  setMissionTile(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", sessionAgent, state.summary.session?.activeProjectName || "No active project");
 }
 
 function renderReadiness() {
@@ -254,6 +264,50 @@ function renderMachines() {
       </article>
     `;
   }).join("");
+}
+
+function renderCloudFleet() {
+  const cloud = state.summary.cloudControl;
+  if (!cloud?.ok || (!cloud.machines.length && !cloud.projects.length)) {
+    selectors.cloudFleetList.innerHTML = `<div class="row"><div class="row-detail">No published cloud status yet. Use Publish Cloud Status on this PC.</div></div>`;
+    return;
+  }
+
+  const machineRows = cloud.machines.map((machine) => {
+    const age = machine.last_seen ? new Date(machine.last_seen).toLocaleString() : "No heartbeat yet";
+    return `
+      <article class="row compact-row">
+        <div class="row-title">
+          <span class="status-dot ok"></span>
+          <div>
+            <strong>${escapeHtml(machine.name)}</strong>
+            <div>${pill("published", "ok")}</div>
+          </div>
+        </div>
+        <div class="row-detail">Last seen: ${escapeHtml(age)}</div>
+        <div class="row-actions"></div>
+      </article>
+    `;
+  });
+
+  const projectRows = cloud.projects.map((project) => {
+    const tone = project.memory_state === "fresh" ? "ok" : project.memory_state === "missing" ? "bad" : "warn";
+    return `
+      <article class="row compact-row">
+        <div class="row-title">
+          <span class="status-dot ${tone}"></span>
+          <div>
+            <strong>${escapeHtml(project.name)}</strong>
+            <div>${pill(escapeHtml(project.memory_state), tone)}</div>
+          </div>
+        </div>
+        <div class="row-detail">Git: ${escapeHtml(project.git_state)} · Memory: ${escapeHtml(project.memory_freshness)}%</div>
+        <div class="row-actions"></div>
+      </article>
+    `;
+  });
+
+  selectors.cloudFleetList.innerHTML = [...machineRows, ...projectRows].join("");
 }
 
 function targetTone(target) {
@@ -381,6 +435,8 @@ function renderProjects() {
           <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
           <button data-memory-init="${project.id}" ${disabled}>Initialize Memory</button>
           <button data-memory-handoff="${project.id}" ${disabled}>Prepare Handoff</button>
+          <button data-switch-agent="claude" data-project-id="${project.id}" ${disabled}>Use Claude</button>
+          <button data-switch-agent="codex" data-project-id="${project.id}" ${disabled}>Use Codex</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
         </div>
       </article>
@@ -449,6 +505,7 @@ async function refresh() {
   renderCards();
   renderSetupStatus();
   renderMachines();
+  renderCloudFleet();
     renderSkillCoverage();
     renderAgentProfiles();
     renderProjects();
@@ -543,6 +600,12 @@ selectors.addProjectButton.addEventListener("click", () => {
   selectors.projectDialog.showModal();
 });
 
+selectors.adoptWorkspaceButton.addEventListener("click", () => {
+  selectors.workspaceNameInput.value = "";
+  selectors.workspacePathInput.value = "";
+  selectors.workspaceDialog.showModal();
+});
+
 selectors.addMachineButton.addEventListener("click", () => {
   selectors.machineNameInput.value = "";
   selectors.machinePlatformInput.value = "";
@@ -569,6 +632,20 @@ selectors.saveProjectButton.addEventListener("click", async (event) => {
   await api("/api/projects", { method: "POST", body: JSON.stringify({ name, path }) });
   selectors.projectDialog.close();
   log("Project added.");
+  await refresh();
+});
+
+selectors.saveWorkspaceButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const path = selectors.workspacePathInput.value.trim();
+  const name = selectors.workspaceNameInput.value.trim();
+  if (!path) {
+    log("Workspace folder path is required.");
+    return;
+  }
+  const result = await api("/api/workspaces/adopt", { method: "POST", body: JSON.stringify({ name, path }) });
+  selectors.workspaceDialog.close();
+  log(result.ok ? "Workspace adopted." : "Workspace adoption failed.", result.message);
   await refresh();
 });
 
@@ -607,13 +684,18 @@ selectors.saveHandoffButton.addEventListener("click", async (event) => {
   event.preventDefault();
   if (!activeHandoffProjectId) return;
   const summary = selectors.handoffSummaryInput.value.trim();
-  const result = await api(`/api/projects/${encodeURIComponent(activeHandoffProjectId)}/memory/handoff`, {
+  const endpoint = activeSwitchTarget
+    ? `/api/projects/${encodeURIComponent(activeHandoffProjectId)}/switch-agent`
+    : `/api/projects/${encodeURIComponent(activeHandoffProjectId)}/memory/handoff`;
+  const body = activeSwitchTarget ? { summary, targetAgent: activeSwitchTarget } : { summary };
+  const result = await api(endpoint, {
     method: "POST",
-    body: JSON.stringify({ summary })
+    body: JSON.stringify(body)
   });
   selectors.handoffSummaryInput.value = "";
   selectors.handoffDialog.close();
   activeHandoffProjectId = null;
+  activeSwitchTarget = null;
   log(result.ok ? "Handoff saved." : "Handoff failed.", result.message);
   await refresh();
 });
@@ -634,6 +716,7 @@ document.addEventListener("click", async (event) => {
   const removeMachineButton = event.target.closest("[data-remove-machine]");
   const memoryInitButton = event.target.closest("[data-memory-init]");
   const memoryHandoffButton = event.target.closest("[data-memory-handoff]");
+  const switchAgentButton = event.target.closest("[data-switch-agent]");
 
   try {
     if (projectActionButton) {
@@ -652,6 +735,14 @@ document.addEventListener("click", async (event) => {
       await refresh();
     } else if (memoryHandoffButton) {
       activeHandoffProjectId = memoryHandoffButton.dataset.memoryHandoff;
+      activeSwitchTarget = null;
+      document.querySelector("#handoffHelp").textContent = "Write what the next tool should know before continuing.";
+      selectors.handoffSummaryInput.value = "";
+      selectors.handoffDialog.showModal();
+    } else if (switchAgentButton) {
+      activeHandoffProjectId = switchAgentButton.dataset.projectId;
+      activeSwitchTarget = switchAgentButton.dataset.switchAgent;
+      document.querySelector("#handoffHelp").textContent = `Write the handoff before switching to ${activeSwitchTarget === "codex" ? "Codex" : "Claude Code"}.`;
       selectors.handoffSummaryInput.value = "";
       selectors.handoffDialog.showModal();
     }
@@ -667,6 +758,23 @@ selectors.startWorkButton.addEventListener("click", async () => {
   for (const project of pullTargets) await projectAction(project.id, "pull");
   log("Start Work complete.");
 });
+
+async function switchActiveProject(targetAgent) {
+  await refresh();
+  const projectId = state.summary.session?.activeProjectId || state.summary.projects[0]?.id;
+  if (!projectId) {
+    log("Add or adopt a workspace first.");
+    return;
+  }
+  activeHandoffProjectId = projectId;
+  activeSwitchTarget = targetAgent;
+  document.querySelector("#handoffHelp").textContent = `Write the handoff before switching to ${targetAgent === "codex" ? "Codex" : "Claude Code"}.`;
+  selectors.handoffSummaryInput.value = "";
+  selectors.handoffDialog.showModal();
+}
+
+selectors.switchClaudeButton.addEventListener("click", () => switchActiveProject("claude"));
+selectors.switchCodexButton.addEventListener("click", () => switchActiveProject("codex"));
 
 selectors.endWorkButton.addEventListener("click", async () => {
   log("End Work: refreshing status. Use Save WIP and Push on projects that need it.");

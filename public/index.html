@@ -29,6 +29,8 @@
         </div>
         <div class="hero-actions">
           <button id="startWorkButton" class="primary">Start Work</button>
+          <button id="switchClaudeButton">Switch To Claude</button>
+          <button id="switchCodexButton">Switch To Codex</button>
           <button id="endWorkButton">End Work</button>
           <button id="syncEverythingButton">Sync Everything</button>
           <button id="openMemoryButton">Open Memory Dashboard</button>
@@ -190,6 +192,16 @@
       <section class="panel">
         <div class="panel-heading">
           <div>
+            <h2>Cloud Fleet</h2>
+            <p>Published Supabase status for machines, workspaces, handoffs, and memory freshness.</p>
+          </div>
+        </div>
+        <div id="cloudFleetList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
             <h2>Skill Coverage</h2>
             <p>Compare Claude Code, Codex, and shared agent skills across the PC, MacBook Pro, and Mac Mini.</p>
           </div>
@@ -226,6 +238,7 @@
           </div>
           <div class="split-actions">
             <button id="publishCloudButton">Publish Cloud Status</button>
+            <button id="adoptWorkspaceButton" class="primary">Adopt Workspace</button>
             <button id="addProjectButton">Add Project</button>
           </div>
         </div>
@@ -272,6 +285,25 @@
       </form>
     </dialog>
 
+    <dialog id="workspaceDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Adopt Workspace</h2>
+        <p class="dialog-help">Use this for loose folders that do not have a repo yet. The console will add local Git and a portable memory pack.</p>
+        <label>
+          Workspace name
+          <input id="workspaceNameInput" autocomplete="off" placeholder="Website idea, Course notes, New product" />
+        </label>
+        <label>
+          Folder path
+          <input id="workspacePathInput" autocomplete="off" placeholder="C:\Users\Kevin Chan\Documents\AI Workspaces\Project Name" />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveWorkspaceButton" value="default" class="primary">Adopt</button>
+        </div>
+      </form>
+    </dialog>
+
     <dialog id="machineDialog">
       <form method="dialog" class="dialog-card">
         <h2>Add Machine</h2>
@@ -308,7 +340,7 @@
     <dialog id="handoffDialog">
       <form method="dialog" class="dialog-card">
         <h2>Prepare Handoff</h2>
-        <p class="dialog-help">Write the short handoff that the next machine, Claude, Codex, GLM, or Hermes should read first.</p>
+        <p id="handoffHelp" class="dialog-help">Write the short handoff that the next machine, Claude, Codex, GLM, or Hermes should read first.</p>
         <label>
           Handoff summary
           <textarea id="handoffSummaryInput" rows="7" placeholder="What changed, what matters, and what should happen next?"></textarea>

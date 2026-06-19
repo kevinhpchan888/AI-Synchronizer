@@ -2,15 +2,16 @@ import http from "node:http";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getLocalMachine, readProjects, addProject, removeProject, readSettings } from "./lib/registry.mjs";
+import { getLocalMachine, readProjects, addProject, removeProject, readSettings, readSession, saveSession } from "./lib/registry.mjs";
 import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
-import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
+import { getCloudControlPlaneStatus, getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
 import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
+import { adoptWorkspace, checkpointWorkspace, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -36,12 +37,14 @@ async function readBody(req) {
 }
 
 async function summary() {
-  const [machine, tools, projects, cloud, setup] = await Promise.all([
+  const [machine, tools, projects, cloud, setup, session, cloudControl] = await Promise.all([
     getLocalMachine(),
     getToolStatus(),
     readProjects(),
     getCloudStatus(),
-    getSetupStatus()
+    getSetupStatus(),
+    readSession(),
+    getCloudControlPlaneStatus()
   ]);
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
   const machines = await readMachines();
@@ -54,12 +57,25 @@ async function summary() {
     skills,
     agents,
     memory,
+    session: normalizeSession(session, projectStatuses),
     setup,
     tools,
     projects: projectStatuses,
     cloud,
+    cloudControl,
     recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents, memory }),
     generatedAt: new Date().toISOString()
+  };
+}
+
+function normalizeSession(session, projects) {
+  const activeProject = projects.find((project) => project.id === session.activeProjectId) ?? projects[0] ?? null;
+  return {
+    activeProjectId: activeProject?.id ?? null,
+    activeProjectName: activeProject?.name ?? null,
+    activeAgent: session.activeAgent ?? "claude",
+    lastSwitchAt: session.lastSwitchAt ?? null,
+    lastHandoffAt: session.lastHandoffAt ?? null
   };
 }
 
@@ -78,7 +94,7 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   const unevenSkillTargets = localSkillTargets.filter((target) => target.extraCount > 0 || target.missingCanonicalCount > 0);
   const glmProfile = agents?.profiles?.find((profile) => profile.id === "claude-code-glm52");
   const missingMemory = memory?.projects?.filter((project) => project.state === "missing") ?? [];
-  const staleMemory = memory?.projects?.filter((project) => ["stale", "incomplete"].includes(project.state)) ?? [];
+  const staleMemory = memory?.projects?.filter((project) => ["stale", "incomplete", "handoff-needed"].includes(project.state)) ?? [];
 
   if (missingTools.length) {
     items.push({
@@ -227,6 +243,16 @@ async function handleApi(req, res, url) {
       return send(res, 200, await publishMachineStatus(await summary()));
     }
 
+    if (req.method === "GET" && url.pathname === "/api/cloud/status") {
+      return send(res, 200, await getCloudControlPlaneStatus());
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/session") {
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, normalizeSession(await readSession(), projectStatuses));
+    }
+
     if (req.method === "GET" && url.pathname === "/api/tools") {
       return send(res, 200, await getToolStatus());
     }
@@ -281,6 +307,39 @@ async function handleApi(req, res, url) {
       const project = projects.find((item) => item.id === id);
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
       return send(res, 200, await writeProjectHandoff(await getProjectStatus(project), body.summary));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/workspaces/adopt") {
+      const body = await readBody(req);
+      if (!body.path) return send(res, 400, { ok: false, message: "Workspace folder path is required." });
+      return send(res, 200, await adoptWorkspace(body));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/workspace\/checkpoint$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      return send(res, 200, await checkpointWorkspace(project));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/switch-agent$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const body = await readBody(req);
+      const targetAgent = body.targetAgent === "codex" ? "codex" : "claude";
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const result = await switchWorkspaceAgent(project, targetAgent, body.summary);
+      if (result.ok) {
+        await saveSession({
+          activeProjectId: id,
+          activeAgent: targetAgent,
+          lastSwitchAt: new Date().toISOString(),
+          lastHandoffAt: new Date().toISOString()
+        });
+      }
+      return send(res, 200, result);
     }
 
     if (req.method === "POST" && url.pathname === "/api/skills/sync-local") {

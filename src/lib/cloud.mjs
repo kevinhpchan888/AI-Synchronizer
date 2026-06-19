@@ -63,7 +63,42 @@ export async function getCloudStatus() {
       hasPublicKey: Boolean(envKeys.SUPABASE_ANON_KEY || envKeys.SUPABASE_PUBLISHABLE_KEY),
       hasServiceKey: Boolean(envKeys.SUPABASE_SERVICE_ROLE_KEY || envKeys.SUPABASE_SECRET_KEY)
     },
-    envLocalPresent: Object.keys(envKeys).length > 0
+    envLocalPresent: Object.keys(envKeys).length > 0,
+    hostedRuntime: Boolean(process.env.VERCEL)
+  };
+}
+
+async function cloudFetch(table, query = "select=*") {
+  const env = await readEnvLocal();
+  const url = env.SUPABASE_URL;
+  const key = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY || env.SUPABASE_ANON_KEY || env.SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !key) return { ok: false, rows: [], message: "Supabase is not connected." };
+  const endpoint = `${url.replace(/\/$/, "")}/rest/v1/${table}?${query}`;
+  const response = await fetch(endpoint, {
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`
+    }
+  });
+  if (!response.ok) return { ok: false, rows: [], status: response.status, message: await response.text() };
+  return { ok: true, rows: await response.json() };
+}
+
+export async function getCloudControlPlaneStatus() {
+  const [machines, projects, snapshots, jobs] = await Promise.all([
+    cloudFetch("kevin_sync_machines", "select=*&order=last_seen.desc&limit=25"),
+    cloudFetch("kevin_sync_projects", "select=*&order=updated_at.desc&limit=50"),
+    cloudFetch("kevin_sync_memory_snapshots", "select=*&order=created_at.desc&limit=50"),
+    cloudFetch("kevin_sync_jobs", "select=*&order=created_at.desc&limit=50")
+  ]);
+  return {
+    ok: machines.ok && projects.ok,
+    hostedRuntime: Boolean(process.env.VERCEL),
+    machines: machines.rows,
+    projects: projects.rows,
+    memorySnapshots: snapshots.rows,
+    jobs: jobs.rows,
+    errors: [machines, projects, snapshots, jobs].filter((item) => !item.ok).map((item) => item.message)
   };
 }
 

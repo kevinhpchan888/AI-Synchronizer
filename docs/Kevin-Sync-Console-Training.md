@@ -51,6 +51,31 @@ For the Mac-specific checklist, use `docs/Mac-Setup-Checklist.md`.
 
 ## Daily Flow
 
+## PC-First Claude / Codex Workflow
+
+Use this on AMVPC when switching between Claude Code and Codex.
+
+1. Open Kevin Sync Console.
+2. If the work is in a loose folder, click **Adopt Workspace** instead of **Add Project**.
+3. Adopt Workspace creates local Git and `.ai-memory/` so Claude and Codex share the same project files and memory.
+4. Click **Start Work** before opening Claude Code or Codex.
+5. When switching from Claude Code to Codex, click **Switch To Codex** and write the handoff.
+6. When switching from Codex to Claude Code, click **Switch To Claude** and write the handoff.
+7. Keep both tools pointed at the same workspace folder.
+8. Before stopping, use **Prepare Handoff** or **End Work**.
+
+The rule is simple:
+
+```text
+Do not switch tools from chat memory. Switch through the workspace folder and handoff.
+```
+
+For projects without GitHub repos:
+
+```text
+Loose folder -> Adopt Workspace -> local Git + .ai-memory -> optional GitHub later
+```
+
 ### Starting Work
 
 1. Open **Kevin Sync Console**.

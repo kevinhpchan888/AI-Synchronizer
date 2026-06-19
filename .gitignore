@@ -12,6 +12,7 @@ backups/*
 Thumbs.db
 .vercel/
 registry/local-machine.json
+registry/session.json
 setup-package/
 skills/**/.git/
 skills/**/.venv/

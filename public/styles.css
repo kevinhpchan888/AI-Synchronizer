@@ -673,6 +673,15 @@ dialog::backdrop {
     grid-template-columns: 1fr;
   }
 
+  .recommendation {
+    grid-template-columns: 1fr;
+  }
+
+  .recommendation .action-note {
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+
   .training-grid {
     grid-template-columns: 1fr;
   }
