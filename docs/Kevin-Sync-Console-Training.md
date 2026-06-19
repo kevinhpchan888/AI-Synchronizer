@@ -21,6 +21,19 @@ Your planned machines are:
 
 Use this when setting up the MacBook Pro, Mac Mini, or a freshly wiped computer.
 
+Preferred one-click path:
+
+1. On the current machine, connect `ClaudeCodex Sync` to a private GitHub repo.
+2. In the dashboard, click **Prepare Setup Files**.
+3. Click **Open Setup Folder**.
+4. Copy the Mac or Windows setup file to the new machine.
+5. Double-click the setup file.
+6. The setup file clones the repo, installs/checks tools, runs restore, and opens Kevin Sync Console.
+7. In the dashboard, click **Sync Local Skills**.
+8. Click **Publish Cloud Status** once Supabase is connected.
+
+Manual fallback:
+
 1. Install Git and Node.js if they are not already installed.
 2. Clone the private `ClaudeCodex Sync` GitHub repo onto the machine.
 3. Open the cloned folder.
@@ -29,8 +42,8 @@ Use this when setting up the MacBook Pro, Mac Mini, or a freshly wiped computer.
    - Mac: `restore-kevin-sync-console.sh`
 5. Open the dashboard.
 6. Confirm the machine appears in **Machines**.
-7. Click **Publish Cloud Status** once Supabase is connected.
-8. Click **Sync Local Skills** to copy shared skills into Claude, Codex, and Shared Agents on that machine.
+7. Click **Sync Local Skills**.
+8. Click **Publish Cloud Status** once Supabase is connected.
 
 If GitHub is not connected yet, the dashboard will keep warning that restore is not fully protected. That warning is expected until the sync-console repo has a private GitHub remote.
 
@@ -91,15 +104,16 @@ When the shared source is empty, use **Build Shared Skill Source** first. That i
 
 Use this when a machine is refreshed, wiped, or replaced.
 
-1. Install Git and Node.js.
-2. Clone the private `ClaudeCodex Sync` repo.
-3. Run the restore launcher.
-4. Open Kevin Sync Console.
-5. Check **Machines** and **Skill Coverage**.
-6. Add local project folders again if they are not already cloned.
-7. Click **Sync Local Skills**.
-8. Click **Publish Cloud Status** after cloud credentials are connected.
-9. Start work only after the top readiness panel is not red.
+1. Use the generated one-click setup file if available.
+2. If not available, install Git and Node.js.
+3. Clone the private `ClaudeCodex Sync` repo.
+4. Run the restore launcher.
+5. Open Kevin Sync Console.
+6. Check **Machines** and **Skill Coverage**.
+7. Add local project folders again if they are not already cloned.
+8. Click **Sync Local Skills**.
+9. Click **Publish Cloud Status** after cloud credentials are connected.
+10. Start work only after the top readiness panel is not red.
 
 ## What To Do When Something Is Wrong
 

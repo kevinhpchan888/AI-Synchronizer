@@ -4,6 +4,17 @@ Use this on the MacBook Pro first, then repeat on the Mac Mini when ready.
 
 ## One-Time Setup
 
+Preferred path:
+
+1. On AMVPC, open Kevin Sync Console.
+2. Click **Prepare Setup Files**.
+3. Click **Open Setup Folder**.
+4. Copy `Setup-KevinSync-Mac.command` to the Mac.
+5. Double-click it on the Mac.
+6. When the dashboard opens, click **Sync Local Skills**.
+
+Manual fallback:
+
 1. Install Git.
 2. Install Node.js 20 or newer.
 3. Install Claude Code.

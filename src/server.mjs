@@ -8,6 +8,7 @@ import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
 import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
 import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
+import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -33,11 +34,12 @@ async function readBody(req) {
 }
 
 async function summary() {
-  const [machine, tools, projects, cloud] = await Promise.all([
+  const [machine, tools, projects, cloud, setup] = await Promise.all([
     getLocalMachine(),
     getToolStatus(),
     readProjects(),
-    getCloudStatus()
+    getCloudStatus(),
+    getSetupStatus()
   ]);
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
   const machines = await readMachines();
@@ -46,6 +48,7 @@ async function summary() {
     machine,
     machines,
     skills,
+    setup,
     tools,
     projects: projectStatuses,
     cloud,
@@ -194,6 +197,18 @@ async function handleApi(req, res, url) {
 
     if (req.method === "GET" && url.pathname === "/api/tools") {
       return send(res, 200, await getToolStatus());
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/setup") {
+      return send(res, 200, await getSetupStatus());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/setup/prepare") {
+      return send(res, 200, await prepareSetupPackage());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/setup/open-folder") {
+      return send(res, 200, await openSetupPackageFolder());
     }
 
     if (req.method === "GET" && url.pathname === "/api/skills") {

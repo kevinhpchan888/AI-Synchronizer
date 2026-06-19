@@ -15,6 +15,7 @@ const selectors = {
   cloudCard: document.querySelector("#cloudCard"),
   recommendationsList: document.querySelector("#recommendationsList"),
   machinesList: document.querySelector("#machinesList"),
+  setupStatus: document.querySelector("#setupStatus"),
   skillSummary: document.querySelector("#skillSummary"),
   skillMatrix: document.querySelector("#skillMatrix"),
   projectsList: document.querySelector("#projectsList"),
@@ -31,6 +32,8 @@ const selectors = {
   machinePlatformInput: document.querySelector("#machinePlatformInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
+  prepareSetupButton: document.querySelector("#prepareSetupButton"),
+  openSetupFolderButton: document.querySelector("#openSetupFolderButton"),
   importSkillsButton: document.querySelector("#importSkillsButton"),
   syncSkillsButton: document.querySelector("#syncSkillsButton"),
   startWorkButton: document.querySelector("#startWorkButton"),
@@ -351,8 +354,9 @@ async function refresh() {
   try {
     state.summary = await api("/api/summary");
     selectors.machineLine.textContent = `${state.summary.machine.name} (${state.summary.machine.platform}) · ${new Date(state.summary.generatedAt).toLocaleString()}`;
-    renderCards();
-    renderMachines();
+  renderCards();
+  renderSetupStatus();
+  renderMachines();
     renderSkillCoverage();
     renderProjects();
     renderTools();
@@ -362,6 +366,32 @@ async function refresh() {
   } finally {
     selectors.refreshButton.disabled = false;
   }
+}
+
+function renderSetupStatus() {
+  const setup = state.summary.setup;
+  const tone = setup.ready ? "ok" : setup.remoteReady ? "warn" : "bad";
+  const headline = setup.ready
+    ? "Setup files are ready"
+    : setup.remoteReady
+      ? "GitHub is connected. Generate setup files next."
+      : "Connect this console to GitHub first";
+  const body = setup.ready
+    ? "Copy the Mac or Windows setup file to a new machine and double-click it."
+    : setup.remoteReady
+      ? "Click Prepare Setup Files to create one-click installers for Mac and Windows."
+      : "A new machine needs a GitHub repo URL so it can clone and restore this console.";
+
+  selectors.setupStatus.innerHTML = `
+    <div class="setup-card">
+      <span class="status-dot ${tone}"></span>
+      <div>
+        <strong>${escapeHtml(headline)}</strong>
+        <p>${escapeHtml(body)}</p>
+        <p>${escapeHtml(setup.remoteUrl || "No GitHub remote connected yet.")}</p>
+      </div>
+    </div>
+  `;
 }
 
 async function projectAction(projectId, action) {
@@ -520,6 +550,19 @@ selectors.importSkillsButton.addEventListener("click", async () => {
   const result = await api("/api/skills/import-local", { method: "POST" });
   log(result.ok ? `Shared skill source built with ${result.importedCount} skills.` : "Shared skill import failed.", result);
   await refresh();
+});
+
+selectors.prepareSetupButton.addEventListener("click", async () => {
+  log("Preparing one-click setup files.");
+  const result = await api("/api/setup/prepare", { method: "POST" });
+  log(result.ok ? "Setup files prepared." : `Setup files not ready: ${result.message}`, result);
+  await refresh();
+});
+
+selectors.openSetupFolderButton.addEventListener("click", async () => {
+  log("Opening setup folder.");
+  const result = await api("/api/setup/open-folder", { method: "POST" });
+  log(result.ok ? "Setup folder opened." : "Could not open setup folder.", result);
 });
 
 selectors.openMemoryButton.addEventListener("click", () => {
