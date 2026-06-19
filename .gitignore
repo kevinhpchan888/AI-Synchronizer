@@ -21,3 +21,5 @@ skills/**/node_modules/
 skills/**/__pycache__/
 skills/**/.mypy_cache/
 skills/**/.pytest_cache/
+
+.vercel

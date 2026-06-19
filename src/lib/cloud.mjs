@@ -3,10 +3,23 @@ import path from "node:path";
 import { run } from "./command.mjs";
 
 async function readEnvLocal() {
+  const keys = {};
+  for (const key of [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "SUPABASE_SECRET_KEY",
+    "SUPABASE_ANON_KEY",
+    "SUPABASE_PUBLISHABLE_KEY",
+    "SUPABASE_PROJECT_REF",
+    "VERCEL_TEAM",
+    "VERCEL_PROJECT"
+  ]) {
+    if (process.env[key]) keys[key] = process.env[key];
+  }
+
   const file = path.join(process.cwd(), ".env.local");
   try {
     const raw = await fs.readFile(file, "utf8");
-    const keys = {};
     for (const line of raw.split(/\r?\n/)) {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
@@ -17,7 +30,7 @@ async function readEnvLocal() {
     }
     return keys;
   } catch {
-    return {};
+    return keys;
   }
 }
 
