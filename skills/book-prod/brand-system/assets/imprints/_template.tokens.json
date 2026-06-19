@@ -1,0 +1,31 @@
+{
+  "imprint": {
+    "slug": "TODO-slug",
+    "display_name": "TODO Display Name",
+    "tagline": "TODO tagline",
+    "positioning": "TODO target reader",
+    "logo_paths": {
+      "primary_svg":   "../logos/TODO/primary.svg",
+      "icon_svg":      "../logos/TODO/icon.svg",
+      "monochrome_svg":"../logos/TODO/mono.svg"
+    }
+  },
+  "color": {
+    "primary":   { "name": "TODO", "hex": "#000000" },
+    "secondary": { "name": "TODO", "hex": "#FFFFFF" },
+    "accents": [],
+    "neutrals": { "ink": "#1A1A1A", "paper": "#FFFFFF", "cream": "#F7F1E1", "muted": "#6B6B6B" }
+  },
+  "typography": {
+    "display": { "family": "TODO", "weights": [400, 700] },
+    "heading": { "family": "TODO", "weights": [600, 800] },
+    "body":    { "family": "TODO", "weights": [400, 500], "size_pt": 11, "leading": 1.45 },
+    "ui_sans": { "family": "Inter", "weights": [400, 600] },
+    "mono":    { "family": "JetBrains Mono", "weights": [400] },
+    "scale": [9, 10, 11, 12, 14, 18, 24, 32, 48]
+  },
+  "spacing": { "base_pt": 6, "scale": [0, 3, 6, 9, 12, 18, 24, 36, 48, 72] },
+  "page_geometry": {},
+  "illustration": { "style_notes": "TODO", "prompt_prefix": "TODO", "do_not": "TODO" },
+  "voice": { "reading_age": 0, "tone": "TODO", "must_use": [], "must_avoid": [] }
+}

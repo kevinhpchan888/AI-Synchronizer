@@ -1,0 +1,22 @@
+slug: lumosread-phonics-2026-05
+imprint: lumosread
+title: "Phonics Adventures"
+subtitle: "A-Z letter sounds for kindergarten"
+author: "LumosRead"
+content_type: workbook
+trim: "8.5x11"
+page_count: 60
+paper: white
+interior_color: color
+engine: typst
+cover_art: "%USERPROFILE%/Downloads/lumos-phonics-cover.png"
+blurb: |
+  26 letter pages. Each page has a tracing exercise, a sound-matching exercise,
+  and a coloring panel. For ages 4-6.
+activities:
+  - type: tracing
+    letters: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+  - type: fill_blank
+    pattern: "letter_sound"
+  - type: coloring
+    style: animal_per_letter

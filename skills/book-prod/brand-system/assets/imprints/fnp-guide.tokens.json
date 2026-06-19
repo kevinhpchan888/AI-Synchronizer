@@ -1,0 +1,67 @@
+{
+  "imprint": {
+    "slug": "fnp-guide",
+    "display_name": "FNP Guide",
+    "tagline": "Your real-world companion — from first shift to confident practice.",
+    "positioning": "Family Nurse Practitioner study and clinical reference for nursing students, RNs, FNP candidates, and practicing nurse practitioners.",
+    "logo_paths": {
+      "primary_svg":   "../logos/fnp-guide/primary.svg",
+      "icon_svg":      "../logos/fnp-guide/icon.svg",
+      "monochrome_svg":"../logos/fnp-guide/mono.svg"
+    }
+  },
+  "color": {
+    "primary":   { "name": "fnp-deep-teal", "hex": "#1F4E5F", "rgb": [31, 78, 95],   "cmyk": [67, 18, 0, 63] },
+    "secondary": { "name": "fnp-warm-gold", "hex": "#C9A227", "rgb": [201, 162, 39], "cmyk": [0, 19, 81, 21] },
+    "accents": [
+      { "name": "garnet",       "hex": "#7C2D2A" },
+      { "name": "walnut",       "hex": "#5C4033" },
+      { "name": "slate-blue",   "hex": "#3E5C76" },
+      { "name": "sage",         "hex": "#5B7553" },
+      { "name": "midnight",     "hex": "#1B1B3A" },
+      { "name": "sienna",       "hex": "#A0522D" },
+      { "name": "graphite",     "hex": "#4A4A4A" },
+      { "name": "redflag",      "hex": "#B33A3A" },
+      { "name": "pearl-gold",   "hex": "#C9A227" },
+      { "name": "memory-green", "hex": "#3B7A57" },
+      { "name": "script-plum",  "hex": "#6B5B95" }
+    ],
+    "neutrals": {
+      "ink":   "#1A1A1A",
+      "paper": "#FAFAF7",
+      "cream": "#F0EFEA",
+      "muted": "#5A5A5A"
+    }
+  },
+  "typography": {
+    "display": { "family": "Inter",            "weights": [600, 700, 800], "tracking": "-0.5%" },
+    "heading": { "family": "Inter",            "weights": [600, 700] },
+    "body":    { "family": "Source Serif Pro", "weights": [400, 600], "size_pt": 10.5, "leading": 1.43 },
+    "ui_sans": { "family": "Inter",            "weights": [400, 500, 600] },
+    "mono":    { "family": "JetBrains Mono",   "weights": [400] },
+    "scale":   [8, 9, 10, 10.5, 12, 14, 16, 18, 22, 28, 42, 72]
+  },
+  "spacing": { "base_pt": 6, "scale": [0, 3, 6, 9, 12, 18, 24, 36, 48, 72] },
+  "page_geometry": {
+    "kdp_8.5x11": {
+      "trim": [8.5, 11.0],
+      "bleed_in": 0.125,
+      "inside_margin_in": 0.75,
+      "outside_margin_in": 0.625,
+      "top_margin_in": 0.75,
+      "bottom_margin_in": 0.875,
+      "page_count_target": 360
+    }
+  },
+  "illustration": {
+    "style_notes": "Modern medical line art. Single-color line illustrations on warm off-white background. Graphite line work with one accent color matching the section. Clean, anatomical, museum-poster aesthetic. Never photorealistic, never cartoon, never stocky.",
+    "prompt_prefix": "Modern medical line illustration, graphite line work on warm off-white background (#FAFAF7), single accent color, museum-poster aesthetic, clean and anatomical,",
+    "do_not": "no photorealism, no cartoon, no stock-photo aesthetic, no rainbow palettes, no smiling-nurse imagery, no text in image"
+  },
+  "voice": {
+    "reading_age": 14,
+    "tone": "warm, friendly, inclusive, never preachy or gatekeeping",
+    "must_use": ["we", "you", "let's", "borrow this"],
+    "must_avoid": ["em-dash", "kiddo", "hustle", "grind", "in conclusion", "dive into", "leverage as a verb", "synergy", "game-changer"]
+  }
+}

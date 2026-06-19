@@ -1,0 +1,70 @@
+{
+  "imprint": {
+    "slug": "lumosread",
+    "display_name": "LumosRead",
+    "tagline": "Bright minds, bright futures.",
+    "positioning": "Children's educational content, ages 3-10",
+    "logo_paths": {
+      "primary_svg":   "../logos/lumosread/primary.svg",
+      "icon_svg":      "../logos/lumosread/lightbulb.svg",
+      "monochrome_svg":"../logos/lumosread/mono.svg"
+    }
+  },
+  "color": {
+    "primary":    { "name": "lumos-navy", "hex": "#0F2A4A", "rgb": [15, 42, 74],   "cmyk": [100, 80, 30, 50] },
+    "secondary":  { "name": "lumos-gold", "hex": "#E5B53D", "rgb": [229, 181, 61], "cmyk": [10, 25, 90, 0] },
+    "accents": [
+      { "name": "sky",   "hex": "#7FB7E8" },
+      { "name": "coral", "hex": "#F08C7A" },
+      { "name": "leaf",  "hex": "#7BB36F" },
+      { "name": "blush", "hex": "#F4D6CF" }
+    ],
+    "neutrals": {
+      "ink":   "#1A1A1A",
+      "paper": "#FFFFFF",
+      "cream": "#F7F1E1",
+      "muted": "#6B6B6B"
+    }
+  },
+  "typography": {
+    "display": { "family": "EB Garamond",   "weights": [400, 700], "tracking": "-0.5%" },
+    "heading": { "family": "EB Garamond",   "weights": [600, 800] },
+    "body":    { "family": "EB Garamond",   "weights": [400, 500], "size_pt": 11, "leading": 1.45 },
+    "ui_sans": { "family": "Inter",         "weights": [400, 600] },
+    "mono":    { "family": "JetBrains Mono","weights": [400] },
+    "scale": [9, 10, 11, 12, 14, 18, 24, 32, 48]
+  },
+  "spacing": { "base_pt": 6, "scale": [0, 3, 6, 9, 12, 18, 24, 36, 48, 72] },
+  "page_geometry": {
+    "kdp_8.5x11": {
+      "trim": [8.5, 11.0],
+      "bleed_in": 0.125,
+      "outside_margin_no_bleed_in": 0.5,
+      "outside_margin_with_bleed_in": 0.5,
+      "top_bottom_margin_in": 0.75
+    },
+    "kdp_6x9": {
+      "trim": [6.0, 9.0],
+      "bleed_in": 0.125,
+      "outside_margin_no_bleed_in": 0.5,
+      "top_bottom_margin_in": 0.75
+    },
+    "kdp_8.5x8.5": {
+      "trim": [8.5, 8.5],
+      "bleed_in": 0.125,
+      "outside_margin_with_bleed_in": 0.5,
+      "top_bottom_margin_in": 0.75
+    }
+  },
+  "illustration": {
+    "style_notes": "Soft watercolor + clean ink line. Diverse, friendly characters. Warm lighting. Low background detail so type can sit on the image.",
+    "prompt_prefix": "Children's book illustration, soft watercolor with clean ink line, diverse friendly characters, warm light, simple background, navy and gold accents,",
+    "do_not": "no photorealism, no text in the image, no Disney pastiche"
+  },
+  "voice": {
+    "reading_age": 6,
+    "tone": "warm, curious, encouraging, never condescending",
+    "must_use": ["let's", "you can", "try this"],
+    "must_avoid": ["cute", "kiddo", "easy peasy"]
+  }
+}

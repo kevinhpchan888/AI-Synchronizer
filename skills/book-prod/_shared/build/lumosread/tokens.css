@@ -1,0 +1,19 @@
+/* AUTO-GENERATED from brand-tokens.json. Do not edit. */
+:root {
+  --primary: #0F2A4A;
+  --secondary: #E5B53D;
+  --ink: #1A1A1A;
+  --paper: #FFFFFF;
+  --muted: #6B6B6B;
+  --accent-sky: #7FB7E8;
+  --accent-coral: #F08C7A;
+  --accent-leaf: #7BB36F;
+  --accent-blush: #F4D6CF;
+  --body-font: "EB Garamond", serif;
+  --display-font: "EB Garamond", serif;
+  --ui-sans: "Inter", sans-serif;
+  --body-size: 11pt;
+  --body-leading: 1.45;
+  --space-unit: 6pt;
+}
+body { font-family: var(--body-font); color: var(--ink); background: var(--paper); }

@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LumosBooks Brand Tokens",
+  "type": "object",
+  "required": ["imprint", "color", "typography", "spacing", "page_geometry", "voice"],
+  "properties": {
+    "imprint": {
+      "type": "object",
+      "required": ["slug", "display_name"],
+      "properties": {
+        "slug": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "display_name": { "type": "string" },
+        "tagline": { "type": "string" },
+        "positioning": { "type": "string" },
+        "logo_paths": { "type": "object" }
+      }
+    },
+    "color": {
+      "type": "object",
+      "required": ["primary", "secondary", "neutrals"],
+      "properties": {
+        "primary":   { "type": "object", "required": ["hex"] },
+        "secondary": { "type": "object", "required": ["hex"] },
+        "accents":   { "type": "array" },
+        "neutrals":  { "type": "object", "required": ["ink", "paper"] }
+      }
+    },
+    "typography": { "type": "object", "required": ["body"] },
+    "spacing":    { "type": "object" },
+    "page_geometry": { "type": "object" },
+    "illustration": { "type": "object" },
+    "voice": { "type": "object" }
+  }
+}

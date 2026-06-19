@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Brief",
+  "type": "object",
+  "required": ["slug", "imprint", "title", "content_type", "trim", "page_count"],
+  "properties": {
+    "slug": { "type": "string" },
+    "imprint": { "type": "string" },
+    "title": { "type": "string" },
+    "subtitle": { "type": "string" },
+    "author": { "type": "string" },
+    "content_type": {
+      "type": "string",
+      "enum": ["workbook", "activity-book", "study-guide", "non-fiction-reference", "prose", "chapter-book", "journal", "planner"]
+    },
+    "trim": {
+      "type": "string",
+      "enum": ["5x8", "5.5x8.5", "6x9", "7x10", "8x10", "8.5x8.5", "8.5x11", "8.27x11.69"]
+    },
+    "page_count": { "type": "integer", "minimum": 24, "maximum": 828 },
+    "paper": { "type": "string", "enum": ["white", "cream"] },
+    "interior_color": { "type": "string", "enum": ["bw", "color"] },
+    "engine": { "type": "string", "enum": ["typst", "latex", "vivliostyle"] },
+    "activities": { "type": "array" },
+    "cover_art": { "type": "string" },
+    "blurb": { "type": "string" }
+  }
+}

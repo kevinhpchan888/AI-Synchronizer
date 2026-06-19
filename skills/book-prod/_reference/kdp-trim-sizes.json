@@ -1,0 +1,20 @@
+{
+  "trims": [
+    { "label": "5x8",       "w": 5.0,  "h": 8.0,  "category": "regular" },
+    { "label": "5.06x7.81", "w": 5.06, "h": 7.81, "category": "regular" },
+    { "label": "5.25x8",    "w": 5.25, "h": 8.0,  "category": "regular" },
+    { "label": "5.5x8.5",   "w": 5.5,  "h": 8.5,  "category": "regular" },
+    { "label": "6x9",       "w": 6.0,  "h": 9.0,  "category": "regular" },
+    { "label": "6.14x9.21", "w": 6.14, "h": 9.21, "category": "large" },
+    { "label": "6.69x9.61", "w": 6.69, "h": 9.61, "category": "large" },
+    { "label": "7x10",      "w": 7.0,  "h": 10.0, "category": "large" },
+    { "label": "7.44x9.69", "w": 7.44, "h": 9.69, "category": "large" },
+    { "label": "7.5x9.25",  "w": 7.5,  "h": 9.25, "category": "large" },
+    { "label": "8x10",      "w": 8.0,  "h": 10.0, "category": "large" },
+    { "label": "8.25x6",    "w": 8.25, "h": 6.0,  "category": "large" },
+    { "label": "8.25x8.25", "w": 8.25, "h": 8.25, "category": "large" },
+    { "label": "8.5x8.5",   "w": 8.5,  "h": 8.5,  "category": "large" },
+    { "label": "8.5x11",    "w": 8.5,  "h": 11.0, "category": "large" },
+    { "label": "8.27x11.69 (A4)", "w": 8.27, "h": 11.69, "category": "large" }
+  ]
+}

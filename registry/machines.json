@@ -1,1 +1,26 @@
-[]
+[
+  {
+    "id": "macbook-pro",
+    "name": "MacBook Pro",
+    "platform": "macOS",
+    "role": "Primary portable machine",
+    "address": "pending",
+    "status": "pending",
+    "lastSeen": null,
+    "canRunActions": false,
+    "pairingCode": "MBP-SETUP",
+    "createdAt": "2026-06-19T00:00:00.000Z"
+  },
+  {
+    "id": "mac-mini",
+    "name": "Mac Mini",
+    "platform": "macOS",
+    "role": "Hub / standby machine",
+    "address": "100.88.103.85",
+    "status": "pending",
+    "lastSeen": null,
+    "canRunActions": false,
+    "pairingCode": "MINI-SETUP",
+    "createdAt": "2026-06-19T00:00:00.000Z"
+  }
+]

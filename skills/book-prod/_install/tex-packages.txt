@@ -1,0 +1,8 @@
+fontspec microtype lettrine tikz pgf pgfplots
+adjustbox babel-german background bidi collectbox csquotes
+everypage filehook footmisc footnotebackref framed fvextra
+letltxmacro ly1 mdframed mweights needspace pagecolor sourcecodepro
+sourcesanspro titling ucharcat ulem unicode-math upquote xurl zref
+biber biblatex koma-script scrlttr2 enumitem multirow
+makeindex memoir tufte-latex hyperref bookmark cleveref
+amsmath amssymb amsfonts mathtools pdfx

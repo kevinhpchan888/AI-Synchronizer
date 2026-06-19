@@ -1,0 +1,23 @@
+// AUTO-GENERATED from brand-tokens.json. Do not edit.
+#let primary   = rgb("#1F4E5F")
+#let secondary = rgb("#C9A227")
+#let ink       = rgb("#1A1A1A")
+#let paper     = rgb("#FAFAF7")
+#let muted     = rgb("#5A5A5A")
+#let accent_garnet = rgb("#7C2D2A")
+#let accent_walnut = rgb("#5C4033")
+#let accent_slate-blue = rgb("#3E5C76")
+#let accent_sage = rgb("#5B7553")
+#let accent_midnight = rgb("#1B1B3A")
+#let accent_sienna = rgb("#A0522D")
+#let accent_graphite = rgb("#4A4A4A")
+#let accent_redflag = rgb("#B33A3A")
+#let accent_pearl-gold = rgb("#C9A227")
+#let accent_memory-green = rgb("#3B7A57")
+#let accent_script-plum = rgb("#6B5B95")
+#let body_font     = "Source Serif Pro"
+#let body_size     = 10.5pt
+#let body_leading  = 1.43em
+#let display_font  = "Inter"
+#let ui_sans       = "Inter"
+#let space_unit    = 6pt

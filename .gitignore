@@ -12,3 +12,11 @@ backups/*
 Thumbs.db
 .vercel/
 registry/local-machine.json
+skills/**/.git/
+skills/**/.venv/
+skills/**/venv/
+skills/**/_install/venv/
+skills/**/node_modules/
+skills/**/__pycache__/
+skills/**/.mypy_cache/
+skills/**/.pytest_cache/

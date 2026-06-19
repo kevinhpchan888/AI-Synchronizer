@@ -342,6 +342,63 @@ main {
   color: var(--muted);
 }
 
+.skill-summary {
+  margin-bottom: 12px;
+}
+
+.skill-source,
+.skill-target,
+.skill-machine-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.skill-source {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: var(--blue-soft);
+}
+
+.skill-source p,
+.skill-machine-heading p,
+.skill-target p {
+  color: var(--muted);
+}
+
+.skill-matrix {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.skill-machine {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-soft);
+  padding: 13px;
+}
+
+.skill-machine-heading {
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 12px;
+}
+
+.skill-targets {
+  display: grid;
+  gap: 10px;
+}
+
+.skill-target {
+  min-height: 58px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--surface);
+}
+
 .list {
   display: grid;
   gap: 10px;
@@ -495,6 +552,10 @@ dialog::backdrop {
   }
 
   .training-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-matrix {
     grid-template-columns: 1fr;
   }
 

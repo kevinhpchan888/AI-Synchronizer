@@ -1,0 +1,8 @@
+{
+  "white_paper": { "per_page_in": 0.002252, "cover_thickness_in": 0.06 },
+  "cream_paper": { "per_page_in": 0.0025,   "cover_thickness_in": 0.06 },
+  "hardcover":   { "wrap_in": 0.591, "top_hinge_in": 0.236, "no_cover_thickness": true },
+  "bleed_in": 0.125,
+  "spine_text_min_pages": 79,
+  "spine_text_min_margin_in": 0.0625
+}

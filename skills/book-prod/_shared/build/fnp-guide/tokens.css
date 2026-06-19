@@ -1,0 +1,26 @@
+/* AUTO-GENERATED from brand-tokens.json. Do not edit. */
+:root {
+  --primary: #1F4E5F;
+  --secondary: #C9A227;
+  --ink: #1A1A1A;
+  --paper: #FAFAF7;
+  --muted: #5A5A5A;
+  --accent-garnet: #7C2D2A;
+  --accent-walnut: #5C4033;
+  --accent-slate-blue: #3E5C76;
+  --accent-sage: #5B7553;
+  --accent-midnight: #1B1B3A;
+  --accent-sienna: #A0522D;
+  --accent-graphite: #4A4A4A;
+  --accent-redflag: #B33A3A;
+  --accent-pearl-gold: #C9A227;
+  --accent-memory-green: #3B7A57;
+  --accent-script-plum: #6B5B95;
+  --body-font: "Source Serif Pro", serif;
+  --display-font: "Inter", serif;
+  --ui-sans: "Inter", sans-serif;
+  --body-size: 10.5pt;
+  --body-leading: 1.43;
+  --space-unit: 6pt;
+}
+body { font-family: var(--body-font); color: var(--ink); background: var(--paper); }

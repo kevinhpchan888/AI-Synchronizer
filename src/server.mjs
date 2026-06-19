@@ -7,6 +7,7 @@ import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
 import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
 import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
+import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -40,18 +41,20 @@ async function summary() {
   ]);
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
   const machines = await readMachines();
+  const skills = await getSkillInventory(machines);
   return {
     machine,
     machines,
+    skills,
     tools,
     projects: projectStatuses,
     cloud,
-    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines }),
+    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills }),
     generatedAt: new Date().toISOString()
   };
 }
 
-function buildRecommendations({ tools, projects, cloud, machines }) {
+function buildRecommendations({ tools, projects, cloud, machines, skills }) {
   const items = [];
   const missingTools = tools.filter((tool) => !tool.exists);
   const dirty = projects.filter((project) => project.state === "dirty");
@@ -62,6 +65,8 @@ function buildRecommendations({ tools, projects, cloud, machines }) {
   const notRepos = projects.filter((project) => project.state === "not-repo");
   const noUpstream = projects.filter((project) => project.message === "No upstream branch");
   const pendingMachines = machines.filter((machine) => machine.status === "pending");
+  const localSkillTargets = skills?.machines?.find((machine) => machine.status === "online")?.targets ?? [];
+  const unevenSkillTargets = localSkillTargets.filter((target) => target.extraCount > 0 || target.missingCanonicalCount > 0);
 
   if (missingTools.length) {
     items.push({
@@ -151,6 +156,21 @@ function buildRecommendations({ tools, projects, cloud, machines }) {
       action: "Use the pairing code on that machine after cloning the sync console repo."
     });
   }
+  if (skills?.canonical?.count === 0) {
+    items.push({
+      level: "warning",
+      title: "Choose a canonical skill source",
+      body: "The shared skills folder is empty, so the console cannot yet make Claude and Codex skill sets match from one source of truth.",
+      action: "Import your preferred Claude/Codex skills into the shared skills folder, then use Sync Local Skills."
+    });
+  } else if (unevenSkillTargets.length) {
+    items.push({
+      level: "info",
+      title: "Skill coverage differs locally",
+      body: `${unevenSkillTargets.length} local agent skill target${unevenSkillTargets.length === 1 ? " differs" : "s differ"} from the shared skills folder.`,
+      action: "Use Sync Local Skills to copy canonical skills into Claude, Codex, and Shared Agents."
+    });
+  }
   if (!items.length) {
     items.push({
       level: "success",
@@ -174,6 +194,18 @@ async function handleApi(req, res, url) {
 
     if (req.method === "GET" && url.pathname === "/api/tools") {
       return send(res, 200, await getToolStatus());
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/skills") {
+      return send(res, 200, await getSkillInventory(await readMachines()));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/skills/sync-local") {
+      return send(res, 200, await syncLocalSkills());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/skills/import-local") {
+      return send(res, 200, await importLocalSkillsToCanonical());
     }
 
     if (req.method === "POST" && url.pathname.match(/^\/api\/tools\/[^/]+\/install$/)) {

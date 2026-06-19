@@ -15,6 +15,8 @@ const selectors = {
   cloudCard: document.querySelector("#cloudCard"),
   recommendationsList: document.querySelector("#recommendationsList"),
   machinesList: document.querySelector("#machinesList"),
+  skillSummary: document.querySelector("#skillSummary"),
+  skillMatrix: document.querySelector("#skillMatrix"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
   activityLog: document.querySelector("#activityLog"),
@@ -29,6 +31,8 @@ const selectors = {
   machinePlatformInput: document.querySelector("#machinePlatformInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
+  importSkillsButton: document.querySelector("#importSkillsButton"),
+  syncSkillsButton: document.querySelector("#syncSkillsButton"),
   startWorkButton: document.querySelector("#startWorkButton"),
   endWorkButton: document.querySelector("#endWorkButton"),
   syncEverythingButton: document.querySelector("#syncEverythingButton"),
@@ -177,7 +181,9 @@ function renderMachines() {
   selectors.machinesList.innerHTML = state.summary.machines.map((machine) => {
     const tone = toneForMachine(machine);
     const details = [
+      machine.role ? `Role: ${machine.role}` : null,
       machine.platform ? `Platform: ${machine.platform}` : null,
+      machine.address ? `Address: ${machine.address}` : null,
       machine.lastSeen ? `Last seen: ${new Date(machine.lastSeen).toLocaleString()}` : "Waiting for first connection",
       machine.pairingCode ? `Pairing code: ${machine.pairingCode}` : null
     ].filter(Boolean).join("\n");
@@ -196,6 +202,57 @@ function renderMachines() {
       </article>
     `;
   }).join("");
+}
+
+function targetTone(target) {
+  if (target.pending) return "neutral";
+  if (target.missingCanonicalCount > 0 || target.extraCount > 0) return "warn";
+  return "ok";
+}
+
+function targetLabel(target) {
+  if (target.pending) return "Pending setup";
+  if (target.count === null) return "Unknown";
+  if (state.summary.skills.canonical.count === 0) return `${target.count} skills`;
+  if (target.missingCanonicalCount > 0) return `${target.count} skills, ${target.missingCanonicalCount} missing`;
+  if (target.extraCount > 0) return `${target.count} skills, ${target.extraCount} extra`;
+  return `${target.count} skills`;
+}
+
+function renderSkillCoverage() {
+  const inventory = state.summary.skills;
+  selectors.skillSummary.innerHTML = `
+    <div class="skill-source">
+      <span class="status-dot ${inventory.canonical.count > 0 ? "ok" : "warn"}"></span>
+      <div>
+        <strong>Shared skill source</strong>
+        <p>${inventory.canonical.count} skill${inventory.canonical.count === 1 ? "" : "s"} in ${escapeHtml(inventory.canonical.path)}</p>
+      </div>
+    </div>
+  `;
+
+  selectors.skillMatrix.innerHTML = inventory.machines.map((machine) => `
+    <article class="skill-machine">
+      <div class="skill-machine-heading">
+        <span class="status-dot ${toneForMachine(machine)}"></span>
+        <div>
+          <strong>${escapeHtml(machine.name)}</strong>
+          <p>${escapeHtml(machine.platform)} · ${escapeHtml(machine.status)}</p>
+        </div>
+      </div>
+      <div class="skill-targets">
+        ${machine.targets.map((target) => `
+          <div class="skill-target">
+            <span class="status-dot ${targetTone(target)}"></span>
+            <div>
+              <strong>${escapeHtml(target.label)}</strong>
+              <p>${escapeHtml(targetLabel(target))}</p>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </article>
+  `).join("");
 }
 
 function renderProjects() {
@@ -296,6 +353,7 @@ async function refresh() {
     selectors.machineLine.textContent = `${state.summary.machine.name} (${state.summary.machine.platform}) · ${new Date(state.summary.generatedAt).toLocaleString()}`;
     renderCards();
     renderMachines();
+    renderSkillCoverage();
     renderProjects();
     renderTools();
     log("Status refreshed.");
@@ -444,6 +502,24 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
   const config = toolById("aiConfigSync");
   if (config?.exists) await toolAction("aiConfigSync", "preview");
   log("Sync Everything complete.");
+});
+
+selectors.syncSkillsButton.addEventListener("click", async () => {
+  const ok = window.confirm("Copy shared skills into local Claude, Codex, and Shared Agents folders?");
+  if (!ok) return;
+  log("Syncing local skills.");
+  const result = await api("/api/skills/sync-local", { method: "POST" });
+  log(result.ok ? "Local skill sync finished." : "Local skill sync failed.", result);
+  await refresh();
+});
+
+selectors.importSkillsButton.addEventListener("click", async () => {
+  const ok = window.confirm("Build the shared skill source from local Claude, Codex, and Shared Agents skills?");
+  if (!ok) return;
+  log("Building shared skill source from local skills.");
+  const result = await api("/api/skills/import-local", { method: "POST" });
+  log(result.ok ? `Shared skill source built with ${result.importedCount} skills.` : "Shared skill import failed.", result);
+  await refresh();
 });
 
 selectors.openMemoryButton.addEventListener("click", () => {

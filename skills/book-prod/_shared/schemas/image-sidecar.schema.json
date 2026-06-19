@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Image Sidecar",
+  "type": "object",
+  "required": ["source_file", "dimensions_px", "color_space", "intended_use", "license"],
+  "properties": {
+    "source_file":   { "type": "string" },
+    "source_prompt": { "type": "string" },
+    "generator":     { "type": "string" },
+    "generated_at":  { "type": "string", "format": "date-time" },
+    "dimensions_px": { "type": "array", "items": { "type": "integer" }, "minItems": 2, "maxItems": 2 },
+    "dpi":           { "type": "integer" },
+    "color_space":   { "type": "string", "enum": ["sRGB", "CMYK", "AdobeRGB"] },
+    "intended_use":  { "type": "array", "items": { "type": "string" } },
+    "license":       { "type": "string" }
+  }
+}

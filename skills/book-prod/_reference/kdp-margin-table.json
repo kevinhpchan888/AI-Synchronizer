@@ -1,0 +1,17 @@
+{
+  "source_url": "https://kdp.amazon.com/en_US/help/topic/GVBQ3CMEQW3W2VL6",
+  "fetched": "2026-05-03",
+  "bleed_in": 0.125,
+  "min_top_bottom_margin_in_no_bleed": 0.25,
+  "min_top_bottom_margin_in_with_bleed": 0.375,
+  "inside_margin_by_page_count": [
+    { "from": 24,  "to": 150, "in": 0.375, "mm": 9.6 },
+    { "from": 151, "to": 300, "in": 0.5,   "mm": 12.7 },
+    { "from": 301, "to": 500, "in": 0.625, "mm": 15.9 },
+    { "from": 501, "to": 700, "in": 0.75,  "mm": 19.1 },
+    { "from": 701, "to": 828, "in": 0.875, "mm": 22.3 }
+  ],
+  "max_pages_paperback_bw_white": 828,
+  "min_pages_paperback": 24,
+  "spine_text_min_pages": 79
+}

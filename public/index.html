@@ -123,7 +123,7 @@
           <article><strong>1. Start Work</strong><p>Click this before using Claude or Codex on a machine.</p></article>
           <article><strong>2. Watch the colors</strong><p>Green is ready. Yellow needs a normal sync. Red means stop and fix first.</p></article>
           <article><strong>3. End Work</strong><p>Use this before moving from PC to Mac or Codex to Claude.</p></article>
-          <article><strong>4. Add machines visually</strong><p>Add a machine, restore the repo there, then publish status.</p></article>
+          <article><strong>4. Set up machines</strong><p>Restore the repo on MacBook/Mac Mini, publish status, then sync skills.</p></article>
         </div>
       </section>
 
@@ -136,6 +136,21 @@
           <button id="addMachineButton">Add Machine</button>
         </div>
         <div id="machinesList" class="list"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
+            <h2>Skill Coverage</h2>
+            <p>Compare Claude Code, Codex, and shared agent skills across the PC, MacBook Pro, and Mac Mini.</p>
+          </div>
+          <div class="split-actions">
+            <button id="importSkillsButton">Build Shared Skill Source</button>
+            <button id="syncSkillsButton" class="primary">Sync Local Skills</button>
+          </div>
+        </div>
+        <div id="skillSummary" class="skill-summary"></div>
+        <div id="skillMatrix" class="skill-matrix"></div>
       </section>
 
       <section class="panel">

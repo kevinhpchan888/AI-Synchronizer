@@ -1,0 +1,97 @@
+# Reddit research briefing template.
+# Fill this in for each research session. The output of this template
+# is what dropship-creative-engine consumes for ad-angle development.
+
+session:
+  date: 2026-04-28
+  researcher: Donny
+  product_or_niche: ""        # e.g., "posture corrector for desk workers"
+  research_question: ""        # e.g., "what language do back-pain sufferers use to describe their problem"
+  duration_hours: 0
+
+sources:
+  subs_mined:
+    # Each entry: name, subscriber_count, threads_read, date_range, notes
+    - name: ""
+      subscribers: 0
+      threads_read: 0
+      date_range: ""
+      notes: ""
+  search_queries_used:
+    - ""
+
+pain_themes:
+  # 3-7 themes ranked by frequency. Each has a name, frequency_count,
+  # representative_quote (verbatim, with permalink), and emotional_intensity (1-5).
+  - theme: ""
+    frequency: 0
+    representative_quote: ""
+    permalink: ""
+    emotional_intensity: 0
+
+hook_phrases:
+  # 10-30 verbatim phrases that could become ad hooks. 3-12 words each.
+  # Include permalink so we can revisit context.
+  - phrase: ""
+    permalink: ""
+    pain_theme: ""
+
+metaphors:
+  # 5-15 metaphors customers use to describe the problem.
+  - metaphor: ""
+    permalink: ""
+    used_for: ""              # what they're describing
+
+niche_slang:
+  # Insider terms — use these in copy, NEVER use marketer-speak alternatives.
+  - term: ""
+    means: ""
+
+objections:
+  # 5-10 objections that will kill your conversion if not addressed.
+  - objection: ""
+    frequency: 0
+    proof_needed: ""           # what kind of evidence answers it
+    where_to_address: ""       # ad creative / product page / FAQ / email flow
+
+jtbd:
+  # One sentence. "When [situation], I want to [motivation], so I can [outcome]."
+  statement: ""
+
+competitor_sentiment:
+  # If a specific competitor brand was mentioned, what's the consensus?
+  - brand: ""
+    sentiment: ""             # positive / negative / mixed
+    common_complaints: []
+    common_praise: []
+
+astroturf_flags:
+  # Anything suspicious — vendor accounts, brigading, mod-owned brands.
+  - sub: ""
+    flag: ""
+    evidence: ""
+
+triangulation:
+  google_trends_check:
+    phrase_searched: ""
+    direction: ""              # rising / flat / declining
+    confidence: ""             # see googletrends-mastery
+  amazon_review_check:
+    asin: ""
+    review_count_supporting_pain: 0
+    notes: ""
+  youtube_comment_check:
+    video_url: ""
+    notes: ""
+
+confidence_overall: ""         # Low / Medium / High
+ready_for_creative: false      # only true if Confidence >= Medium AND triangulated >= 2 sources
+
+next_actions:
+  # What to hand to which downstream skill.
+  - action: ""
+    skill: ""                  # dropship-creative-engine / dropship-product-evaluation / etc.
+
+raw_dumps:
+  # File paths to JSON dumps from reddit_backend.py for traceability.
+  - ""

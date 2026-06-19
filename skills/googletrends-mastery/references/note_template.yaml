@@ -1,0 +1,97 @@
+# Trends Research Note Template
+# Author: Donny (Kevin Chan)
+# Use one file per investigation. File name: YYYY-MM-DD-<query-slug>.yaml
+
+investigation:
+  id: "2026-04-27-ai-agents"
+  date: 2026-04-27
+  analyst: "Donny (Kevin Chan)"
+  question: "Is 'AI agents' in sustained-breakout phase or peak-fad phase?"
+
+query_stack:
+  primary_terms:
+    - "AI agents"
+    - "AI agent"
+  topic_or_category:
+    topic_id: "/g/11kxyz_example"   # if used; null otherwise
+    category: 0                     # 0 = All categories
+  comparison_set:
+    - "AI assistant"
+    - "chatbot"
+    - "LLM agent"
+  geography: ["US", "GB", "AU", "CA"]
+  time_window: "today 5-y"
+  granularity: "weekly"
+  sampling:
+    n_pulls: 4
+    avg_method: "per-bucket mean"
+    cv_threshold_pct: 10
+    actual_max_cv_pct: 7.3
+
+baseline_and_anomalies:
+  seasonal_fingerprint: "Mild Q1 dip, otherwise weak seasonality"
+  long_term_trend: "Rising since Q4 2024"
+  detected_anomalies:
+    - timestamp: "2025-03-15"
+      magnitude: "+38% vs 4-week MA"
+      cause: "OpenAI agents preview keynote"
+    - timestamp: "2025-11-04"
+      magnitude: "+22% vs 4-week MA"
+      cause: "Unknown (no obvious news event)"
+
+hypothesis_acH:  # Heuer Analysis of Competing Hypotheses
+  preferred:
+    statement: "Sustained breakout, structural category emergence"
+    supporting_evidence:
+      - "Trend slope +0.42/week"
+      - "Wikipedia YoY 4.2x"
+      - "Multi-geo replication"
+  alternatives:
+    - statement: "News-cycle driven spike"
+      ruled: "PARTIAL"
+      reasoning: "GDELT elevated but does not lead Trends"
+    - statement: "Algorithmic artifact (autosuggest change)"
+      ruled: "OUT"
+      reasoning: "Pattern replicates across 4 independent geos"
+    - statement: "Sampling noise"
+      ruled: "OUT"
+      reasoning: "Max CV across 4 pulls is 7.3%"
+  null_hypothesis:
+    statement: "Flat baseline + event spikes"
+    ruled: "OUT"
+    reasoning: "STL trend component slope significantly positive"
+
+validation_sources:
+  - source: "Wikipedia en pageviews 'AI_agent'"
+    direction_agrees: true
+    magnitude_within_oom: true
+  - source: "Wikipedia de pageviews 'KI-Agent'"
+    direction_agrees: true
+    magnitude_within_oom: true
+  - source: "GDELT timelinevol"
+    direction_agrees: true
+    magnitude_within_oom: false
+    notes: "Higher amplitude than Trends — partial news-cycle component"
+  - source: "GitHub stars on top 5 agent frameworks"
+    direction_agrees: true
+    magnitude_within_oom: true
+  - source: "Crunchbase funding momentum 'AI agents' tag"
+    direction_agrees: true
+    magnitude_within_oom: null
+    notes: "Funding peaked Q3 2025; check anti-pattern"
+
+decision_action:
+  conclusion_likelihood: "likely"
+  conclusion_confidence: "MODERATE"
+  recommended_action: "Publish creator content within 4 weeks"
+  decision_trigger: "If 2026-05-27 re-pull shows Trends slope > +0.3 and Wikipedia YoY > 3x, proceed"
+
+follow_up:
+  re_pull_date: "2026-05-27"
+  archive_trigger: "Trend slope < 0 for 8 consecutive weeks"
+  related_notes: []
+
+caveats:
+  - "AI Mode and AI Overviews queries excluded from Trends — likely undercounts"
+  - "Only 9 months post-emergence history; concept drift risk on 26w persistence check"
+  - "Funding peak Q3 2025 — Clubhouse anti-pattern check needed"
