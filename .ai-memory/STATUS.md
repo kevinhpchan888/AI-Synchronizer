@@ -4,11 +4,11 @@ Current state: active
 
 ## Last Known Good State
 
-Not recorded yet.
+APC cloned and synchronized on AMVPC, MacBook Pro, and Mac Mini at $HOME/Documents/GitHub/APC. All three are on main at 794f77d with .ai-memory present.
 
 ## Current Focus
 
-Not recorded yet.
+Keep AI-Synchronizer registry/deployment current so APC appears as a first-class visual project in the console on every machine.
 
 ## Blockers
 

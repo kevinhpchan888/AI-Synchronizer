@@ -4,5 +4,11 @@
     "name": "Kevin Sync Console",
     "path": "$AI_SYNC_ROOT",
     "createdAt": "2026-06-18T15:42:35.904Z"
+  },
+  {
+    "id": "7a9ff1d2-3048-4cb3-8a0d-f18efc918f21",
+    "name": "APC",
+    "path": "$HOME/Documents/GitHub/APC",
+    "createdAt": "2026-06-19T11:30:00.000Z"
   }
 ]

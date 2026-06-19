@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Missing tools installed and sync detection fixed. MacBook now has Claude Code CLI, Codex CLI, VS Code, Skillshare, ai-config-sync, Memorix, Vercel, and Supabase installed. Skill inventory now understands nested skills and Skillshare flattened names, so canonical/Claude/Codex/Agents all align at 65 skills. Stale placeholder machine records removed; Cloud Fleet tracks real PC/MacBook/Mac Mini.
+APC is now Kevin's dominant synced project. Canonical repo: https://github.com/kevinhpchan888/APC on branch main. Canonical portable local path: $HOME/Documents/GitHub/APC on AMVPC, MacBook Pro, and Mac Mini. APC memory pack was initialized in .ai-memory, committed as 794f77d ("Add AI sync memory baseline"), pushed to origin/main, and pulled onto MacBook Pro and Mac Mini. The AI Sync Console registry includes APC with project id 7a9ff1d2-3048-4cb3-8a0d-f18efc918f21 and portable $HOME path expansion. Before switching machines/tools, sync APC project files, .ai-memory, skills, and Claude/Codex environment from the console.
 
-Updated: 2026-06-19T11:09:02.366Z
+Updated: 2026-06-19T11:45:00.000Z

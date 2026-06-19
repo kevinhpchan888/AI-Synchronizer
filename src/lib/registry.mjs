@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
-import { hostname, platform } from "node:os";
+import { homedir, hostname, platform } from "node:os";
 
 const ROOT = process.cwd();
 const REGISTRY_DIR = path.join(ROOT, "registry");
@@ -45,6 +45,10 @@ function expandProjectPath(projectPath) {
   if (projectPath === "$AI_SYNC_ROOT") return ROOT;
   if (typeof projectPath === "string" && projectPath.startsWith("$AI_SYNC_ROOT/")) {
     return path.join(ROOT, projectPath.slice("$AI_SYNC_ROOT/".length));
+  }
+  if (projectPath === "$HOME") return homedir();
+  if (typeof projectPath === "string" && projectPath.startsWith("$HOME/")) {
+    return path.join(homedir(), projectPath.slice("$HOME/".length));
   }
   return projectPath;
 }
