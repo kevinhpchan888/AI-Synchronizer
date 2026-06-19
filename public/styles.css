@@ -851,6 +851,35 @@ select {
   font-weight: 680;
 }
 
+.command-feedback {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--muted);
+  background: var(--surface-soft);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.command-feedback.ok {
+  border-color: #b8dec9;
+  color: var(--green);
+  background: var(--green-soft);
+}
+
+.command-feedback.warn {
+  border-color: #ead29d;
+  color: var(--yellow);
+  background: var(--yellow-soft);
+}
+
+.command-feedback.bad {
+  border-color: #e7a7ad;
+  color: var(--red);
+  background: var(--red-soft);
+}
+
 .flow-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Hosted/local mode split fixed. The hosted domain aisync.amvnow.com is now a read-only cloud fleet view and blocks local POST actions with a clear "Open http://127.0.0.1:47831" message. It no longer renders Vercel sandbox paths like /var/task or /home/sbx_user... as project paths. File-changing actions, project switching, scan/import, memory initialization, handoffs, tool installs, and Claude/Codex switching are local-console only. Use the hosted domain to inspect fleet status; use http://127.0.0.1:47831 on the current machine to act.
+Start Work feedback fixed. The button now evaluates the active project only and displays a visible command-feedback strip: ready, pull needed, save WIP needed, push needed, memory needed, handoff needed, diverged history, or failure. Browser click test on local console returned "APC is ready. Continue in Claude or Codex." with ok styling. This prevents the Start Work button from feeling dead when the active project is already clean.
 
-Updated: 2026-06-19T13:30:00.000Z
+Updated: 2026-06-19T13:45:00.000Z

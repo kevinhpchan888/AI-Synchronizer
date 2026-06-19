@@ -15,6 +15,7 @@ const selectors = {
   readinessLabel: document.querySelector("#readinessLabel"),
   readinessTitle: document.querySelector("#readinessTitle"),
   readinessBody: document.querySelector("#readinessBody"),
+  workflowFeedback: document.querySelector("#workflowFeedback"),
   gitStep: document.querySelector("#gitStep"),
   activeActionList: document.querySelector("#activeActionList"),
   memoryMissionTile: document.querySelector("#memoryMissionTile"),
@@ -151,6 +152,11 @@ function setFlowStep(step, tone, title, detail) {
   step.querySelector(".status-dot").className = `status-dot ${tone}`;
   step.querySelector("strong").textContent = title;
   step.querySelector("small").textContent = detail;
+}
+
+function setWorkflowFeedback(message, tone = "neutral") {
+  selectors.workflowFeedback.className = `command-feedback ${tone}`;
+  selectors.workflowFeedback.textContent = message;
 }
 
 function toneForMemory(memory) {
@@ -1161,11 +1167,50 @@ selectors.startWorkButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  log("Start Work: refreshing status and pulling behind projects.");
-  await refresh();
-  const pullTargets = state.summary.projects.filter((project) => project.state === "behind");
-  for (const project of pullTargets) await projectAction(project.id, "pull");
-  log("Start Work complete.");
+  selectors.startWorkButton.disabled = true;
+  setWorkflowFeedback("Checking the active project...", "neutral");
+  try {
+    await refresh();
+    const project = activeProject();
+    const memory = memoryForProject(project);
+    if (!project) {
+      setWorkflowFeedback("No active project selected. Choose a project first.", "warn");
+      return;
+    }
+    if (project.state === "behind") {
+      setWorkflowFeedback(`${project.name} is behind GitHub. Pulling latest work now...`, "warn");
+      await projectAction(project.id, "pull");
+      setWorkflowFeedback(`${project.name} pulled latest work. Review readiness again.`, "ok");
+      return;
+    }
+    if (project.state === "dirty") {
+      setWorkflowFeedback(`${project.name} has unsaved local changes. Use Save WIP before switching machines.`, "warn");
+      return;
+    }
+    if (project.state === "ahead") {
+      setWorkflowFeedback(`${project.name} has commits to push. Use Push before switching machines.`, "warn");
+      return;
+    }
+    if (project.state === "diverged") {
+      setWorkflowFeedback(`${project.name} has diverged history. Stop and resolve before continuing.`, "bad");
+      return;
+    }
+    if (!memory || memory.state === "missing") {
+      setWorkflowFeedback(`${project.name} needs a memory pack. Click Initialize Memory.`, "warn");
+      return;
+    }
+    if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
+      setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Prepare Handoff.`, "warn");
+      return;
+    }
+    setWorkflowFeedback(`${project.name} is ready. Continue in Claude or Codex.`, "ok");
+    log(`Start Work complete: ${project.name} is ready.`);
+  } catch (error) {
+    setWorkflowFeedback(`Start Work failed: ${error.message}`, "bad");
+    log("Start Work failed.", error.message);
+  } finally {
+    selectors.startWorkButton.disabled = false;
+  }
 });
 
 async function switchActiveProject(targetAgent) {
