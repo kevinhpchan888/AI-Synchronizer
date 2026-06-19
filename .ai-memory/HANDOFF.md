@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Mac Mini worker empty-response fix complete. Supabase return=minimal responses are now handled without JSON parse errors. Checks pass. Restart Mac Mini worker after pulling this commit, then verify cloud heartbeat.
+Final permission fix complete. Mac shell scripts now have executable Git metadata so the Mac Mini checkout stays clean after launchd install. Queue smoke test already passed: mac-mini heartbeat job completed successfully.
 
-Updated: 2026-06-19T10:18:31.399Z
+Updated: 2026-06-19T10:22:49.859Z
