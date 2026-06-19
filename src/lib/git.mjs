@@ -18,6 +18,20 @@ function clean(value) {
   return String(value ?? "").trim();
 }
 
+function parsePorcelainFiles(output) {
+  return String(output ?? "").split(/\r?\n/)
+    .filter(Boolean)
+    .map((line) => {
+      const file = line.slice(3).trim();
+      const normalized = file.includes(" -> ") ? file.split(" -> ").pop() : file;
+      return normalized.replace(/\\/g, "/");
+    });
+}
+
+function isAutoHandoffFile(file) {
+  return file === ".ai-memory/HANDOFF.md" || file.startsWith(".ai-memory/events/");
+}
+
 export async function getProjectStatus(project) {
   const exists = await pathExists(project.path);
   if (!exists) {
@@ -64,12 +78,17 @@ export async function getProjectStatus(project) {
     }
   }
 
-  const dirtyCount = clean(porcelain.stdout) ? clean(porcelain.stdout).split(/\r?\n/).length : 0;
+  const changedFiles = parsePorcelainFiles(porcelain.stdout);
+  const dirtyCount = changedFiles.length;
+  const handoffOnlyDirty = dirtyCount > 0 && changedFiles.every(isAutoHandoffFile);
   let state = "synced";
   let message = "Synced";
   if (!upstream.ok) {
     state = "warning";
     message = "No upstream branch";
+  } else if (handoffOnlyDirty) {
+    state = "handoff-local";
+    message = "Handoff saved locally";
   } else if (dirtyCount > 0) {
     state = "dirty";
     message = `${dirtyCount} local change${dirtyCount === 1 ? "" : "s"}`;
@@ -92,6 +111,8 @@ export async function getProjectStatus(project) {
     remote: clean(remote.stdout) || null,
     upstream: upstream.ok ? clean(upstream.stdout) : null,
     dirtyCount,
+    changedFiles,
+    handoffOnlyDirty,
     ahead,
     behind,
     state,
@@ -100,6 +121,22 @@ export async function getProjectStatus(project) {
 }
 
 export async function runProjectAction(project, action) {
+  if (action === "saveHandoff") {
+    await git(project.path, ["add", ".ai-memory/HANDOFF.md", ".ai-memory/events"], 30000);
+    const commit = await git(project.path, ["commit", "-m", "Update AI handoff"], 120000);
+    if (!commit.ok && !/nothing to commit/i.test(commit.stdout + commit.stderr)) {
+      return { ok: false, action, stdout: commit.stdout, stderr: commit.stderr, message: commit.stderr || commit.message };
+    }
+    const push = await git(project.path, ["push"], 120000);
+    return {
+      ok: push.ok,
+      action,
+      stdout: `${commit.stdout}\n${push.stdout}`,
+      stderr: `${commit.stderr}\n${push.stderr}`,
+      message: push.ok ? "Handoff saved and pushed." : push.stderr || push.message
+    };
+  }
+
   const commands = {
     fetch: ["fetch", "--all", "--prune"],
     pull: ["pull", "--ff-only"],

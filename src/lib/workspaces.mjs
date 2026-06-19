@@ -43,6 +43,42 @@ function agentLabel(agent) {
   return "the next AI tool";
 }
 
+function parsePorcelainFiles(output) {
+  return String(output ?? "").split(/\r?\n/)
+    .filter(Boolean)
+    .map((line) => {
+      const file = line.slice(3).trim();
+      const normalized = file.includes(" -> ") ? file.split(" -> ").pop() : file;
+      return normalized.replace(/\\/g, "/");
+    });
+}
+
+function isAutoHandoffFile(file) {
+  return file === ".ai-memory/HANDOFF.md" || file.startsWith(".ai-memory/events/");
+}
+
+async function saveHandoffIfIsolated(status) {
+  if (!status.isRepo || !status.upstream) return { saved: false, pushed: false, message: "Handoff saved locally." };
+  const porcelain = await run("git", ["status", "--porcelain=v1"], { cwd: status.path, timeout: 10000 });
+  if (!porcelain.ok) return { saved: false, pushed: false, message: porcelain.stderr || porcelain.message };
+  const changedFiles = parsePorcelainFiles(porcelain.stdout);
+  if (!changedFiles.length || !changedFiles.every(isAutoHandoffFile)) {
+    return { saved: false, pushed: false, message: "Handoff saved locally with other project changes present." };
+  }
+
+  await run("git", ["add", ".ai-memory/HANDOFF.md", ".ai-memory/events"], { cwd: status.path, timeout: 30000 });
+  const commit = await run("git", ["commit", "-m", "Update AI handoff"], { cwd: status.path, timeout: 120000 });
+  if (!commit.ok && !/nothing to commit/i.test(`${commit.stdout}\n${commit.stderr}`)) {
+    return { saved: false, pushed: false, message: commit.stderr || commit.message };
+  }
+  const push = await run("git", ["push"], { cwd: status.path, timeout: 120000 });
+  return {
+    saved: commit.ok,
+    pushed: push.ok,
+    message: push.ok ? "Handoff saved and pushed." : push.stderr || push.message
+  };
+}
+
 export async function generateWorkspaceHandoff(project, targetAgent) {
   const status = await getProjectStatus(project);
   if (!status.exists || (!status.isRepo && !status.isContext)) return "";
@@ -122,10 +158,12 @@ export async function switchWorkspaceAgent(project, targetAgent, handoffSummary)
     handoffSummary: summary,
     generated: !handoffSummary?.trim()
   });
+  const handoffSync = await saveHandoffIfIsolated(status);
   return {
     ok: true,
-    message: `Ready to continue in ${agentLabel(targetAgent)}.`,
+    message: handoffSync.pushed ? `Ready to continue in ${agentLabel(targetAgent)}. Handoff saved and pushed.` : `Ready to continue in ${agentLabel(targetAgent)}.`,
     generatedHandoff: summary,
+    handoffSync,
     handoff
   };
 }

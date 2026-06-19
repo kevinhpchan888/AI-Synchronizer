@@ -109,7 +109,7 @@ function setCard(card, tone, value, message) {
 
 function toneForProject(project) {
   if (project.isContext || project.state === "context") return "ok";
-  if (["synced"].includes(project.state)) return "ok";
+  if (["synced", "handoff-local"].includes(project.state)) return "ok";
   if (["dirty", "ahead", "behind", "warning"].includes(project.state)) return "warn";
   if (["diverged", "missing", "not-repo"].includes(project.state)) return "bad";
   return "neutral";
@@ -210,6 +210,9 @@ function activeActions(project, memory) {
   const actions = [];
   if (project.state === "behind") {
     actions.push({ tone: "warn", title: "Pull newer work", body: `${project.name} has changes on GitHub.`, action: actionButton("Pull", { "data-project-action": "pull", "data-project-id": project.id }, true) });
+  }
+  if (project.state === "handoff-local") {
+    actions.push({ tone: "ok", title: "Handoff is saved here", body: "Ready for Claude/Codex on this machine. Save it to GitHub before changing machines.", action: actionButton("Save Handoff", { "data-project-action": "saveHandoff", "data-project-id": project.id }, true) });
   }
   if (project.state === "dirty") {
     actions.push({ tone: "warn", title: "Save local work", body: "There are uncommitted local changes.", action: actionButton("Save WIP", { "data-project-action": "commitWip", "data-project-id": project.id }, true) });
@@ -917,8 +920,9 @@ async function autoSwitchAgent(projectId, targetAgent) {
     method: "POST",
     body: JSON.stringify({ targetAgent })
   });
-  log(result.ok ? `Auto handoff saved. ${project.name} is ready for ${label}.` : "Switch failed.", result.message);
-  setWorkflowFeedback(`${project.name} is ready for ${label}. Auto handoff saved.`, result.ok ? "ok" : "bad");
+  const savedDetail = result.handoffSync?.pushed ? " Handoff saved to GitHub." : " Auto handoff saved.";
+  log(result.ok ? `${project.name} is ready for ${label}.${savedDetail}` : "Switch failed.", result.message);
+  setWorkflowFeedback(`${project.name} is ready for ${label}.${savedDetail}`, result.ok ? "ok" : "bad");
   await refresh();
 }
 
