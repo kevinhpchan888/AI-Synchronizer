@@ -19,6 +19,7 @@ const ROOT = path.resolve(__dirname, "..");
 const PUBLIC_DIR = path.join(ROOT, "public");
 const settings = await readSettings();
 const PORT = Number(process.env.PORT || settings.port || 47831);
+const HOSTED_RUNTIME = Boolean(process.env.VERCEL);
 
 function send(res, status, body, headers = {}) {
   const payload = typeof body === "string" ? body : JSON.stringify(body, null, 2);
@@ -242,6 +243,13 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
 
 async function handleApi(req, res, url) {
   try {
+    if (HOSTED_RUNTIME && req.method !== "GET") {
+      return send(res, 409, {
+        ok: false,
+        message: "This is the hosted cloud dashboard. Open http://127.0.0.1:47831 on the machine you are using for local actions."
+      });
+    }
+
     if (req.method === "GET" && url.pathname === "/api/summary") {
       return send(res, 200, await summary());
     }

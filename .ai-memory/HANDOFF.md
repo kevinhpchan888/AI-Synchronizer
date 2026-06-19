@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Project discovery is now automated. The console has a "Scan GitHub Folder" button that scans $PROJECTS_HOME for cloned Git repos, registers them using portable $PROJECTS_HOME/<repo> paths, and skips duplicate repos by path or GitHub remote. On AMVPC this discovered AutoResearch, Comfy-LTX-Desktop, DuoSages, DuoSages2, DuoSages3, and moneytrack in addition to existing APC. AI-Synchronizer under Documents/GitHub is skipped because Kevin Sync Console already tracks the same remote. The active project dropdown now includes all registered repo projects plus General / Other context space.
+Hosted/local mode split fixed. The hosted domain aisync.amvnow.com is now a read-only cloud fleet view and blocks local POST actions with a clear "Open http://127.0.0.1:47831" message. It no longer renders Vercel sandbox paths like /var/task or /home/sbx_user... as project paths. File-changing actions, project switching, scan/import, memory initialization, handoffs, tool installs, and Claude/Codex switching are local-console only. Use the hosted domain to inspect fleet status; use http://127.0.0.1:47831 on the current machine to act.
 
-Updated: 2026-06-19T13:05:00.000Z
+Updated: 2026-06-19T13:30:00.000Z

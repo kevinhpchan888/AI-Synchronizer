@@ -127,6 +127,14 @@ function toolById(id) {
   return state.summary.tools.find((tool) => tool.id === id);
 }
 
+function isHostedDashboard() {
+  return Boolean(state.summary?.cloud?.hostedRuntime);
+}
+
+function localConsoleUrl() {
+  return "http://127.0.0.1:47831";
+}
+
 function activeProject() {
   return state.summary.projects.find((project) => project.id === state.summary.session?.activeProjectId)
     ?? state.summary.projects.find((project) => !String(project.remote || "").includes("AI-Synchronizer") && !/sync console/i.test(project.name))
@@ -218,6 +226,13 @@ function activeActions(project, memory) {
 }
 
 function renderCards() {
+  if (isHostedDashboard()) {
+    renderHostedCards();
+    renderHostedCockpit();
+    renderRecommendations();
+    return;
+  }
+
   const [projectTone, projectTitle, projectMessage] = summarizeProjects(state.summary.projects);
   setCard(selectors.projectsCard, projectTone, projectTitle, projectMessage);
 
@@ -256,6 +271,54 @@ function renderCards() {
   renderProjectSwitcher();
   renderActiveProjectCockpit();
   renderRecommendations();
+}
+
+function renderHostedCards() {
+  const cloud = state.summary.cloudControl;
+  const machines = cloud?.machines ?? [];
+  const projects = cloud?.projects ?? [];
+  const fresh = projects.filter((project) => project.memory_state === "fresh").length;
+  const missing = projects.filter((project) => project.memory_state === "missing").length;
+  setCard(selectors.projectsCard, missing ? "warn" : "ok", String(projects.length), "Cloud projects");
+  setCard(selectors.machinesCard, machines.length ? "ok" : "warn", String(machines.length), "Published machines");
+  setCard(selectors.skillsCard, "neutral", "Local", "Open local console");
+  setCard(selectors.configCard, "neutral", "Local", "Open local console");
+  setCard(selectors.memoryCard, missing ? "warn" : "ok", `${fresh}/${projects.length}`, "Fresh memory");
+  setCard(selectors.cloudCard, "ok", "Online", "Cloud view");
+}
+
+function renderHostedCockpit() {
+  selectors.projectSwitcher.innerHTML = `<option>Cloud Fleet View</option>`;
+  selectors.projectSwitcher.disabled = true;
+  selectors.scanProjectsButton.textContent = "Open Local Console";
+
+  selectors.readinessOrb.className = "readiness-gauge neutral";
+  selectors.readinessLabel.textContent = "VIEW";
+  selectors.readinessTitle.textContent = "Read-only cloud view";
+  selectors.readinessBody.textContent = "Use local console for file actions.";
+  selectors.activeProjectTitle.textContent = "AI Sync Cloud";
+  selectors.activeProjectSubtitle.textContent = "This page shows fleet status only. It cannot touch files on your PC or Mac.";
+  selectors.activeProjectPath.textContent = localConsoleUrl();
+
+  const cloud = state.summary.cloudControl;
+  const machineCount = cloud?.machines?.length ?? 0;
+  const projectCount = cloud?.projects?.length ?? 0;
+  const staleCount = (cloud?.projects ?? []).filter((project) => project.memory_state !== "fresh").length;
+  setFlowStep(selectors.gitStep, projectCount ? "ok" : "warn", `${projectCount} tracked`, "Cloud projects");
+  setFlowStep(selectors.memoryMissionTile, staleCount ? "warn" : "ok", staleCount ? `${staleCount} need memory` : "Memory fresh", "Published state");
+  setFlowStep(selectors.hermesMissionTile, machineCount ? "ok" : "warn", `${machineCount} machines`, "Cloud fleet");
+  setFlowStep(selectors.agentMissionTile, "neutral", "Local only", "Claude / Codex actions");
+
+  selectors.activeActionList.innerHTML = `
+    <article class="active-action warn">
+      <span class="status-dot warn"></span>
+      <div>
+        <strong>Open the local console to click action buttons</strong>
+        <small>The hosted domain cannot read or change your PC files.</small>
+      </div>
+      <div><button class="primary" data-open-local-console="true">Open Local Console</button></div>
+    </article>
+  `;
 }
 
 function renderMissionControl() {
@@ -349,6 +412,20 @@ function toneForRecommendation(level) {
 }
 
 function renderRecommendations() {
+  if (isHostedDashboard()) {
+    selectors.recommendationsList.innerHTML = `
+      <article class="recommendation">
+        <span class="status-dot warn"></span>
+        <div>
+          <h3>Hosted dashboard is read-only</h3>
+          <p>Use this page to see which machines and projects are out of sync. Use the local console on the machine you are sitting at to fix them.</p>
+        </div>
+        <p class="action-note">Open ${escapeHtml(localConsoleUrl())}</p>
+      </article>
+    `;
+    return;
+  }
+
   selectors.recommendationsList.innerHTML = state.summary.recommendations.map((item) => {
     const tone = toneForRecommendation(item.level);
     return `
@@ -376,6 +453,28 @@ function toneForMachine(machine) {
 }
 
 function renderMachines() {
+  if (isHostedDashboard()) {
+    const machines = state.summary.cloudControl?.machines ?? [];
+    selectors.machinesList.innerHTML = machines.map((machine) => {
+      const projectCount = machine.status?.projects?.length ?? 0;
+      const heartbeat = machine.status?.hermesWorker === "online" ? "online" : "published";
+      return `
+        <article class="row compact-row">
+          <div class="row-title">
+            <span class="status-dot ok"></span>
+            <div>
+              <strong>${escapeHtml(machine.name)}</strong>
+              <div>${pill(escapeHtml(heartbeat), "ok")}</div>
+            </div>
+          </div>
+          <div class="row-detail">${projectCount} tracked projects · Last seen: ${escapeHtml(machine.last_seen ? new Date(machine.last_seen).toLocaleString() : "unknown")}</div>
+          <div class="row-actions"></div>
+        </article>
+      `;
+    }).join("");
+    return;
+  }
+
   selectors.machinesList.innerHTML = state.summary.machines.map((machine) => {
     const tone = toneForMachine(machine);
     const details = [
@@ -462,6 +561,20 @@ function targetLabel(target) {
 }
 
 function renderSkillCoverage() {
+  if (isHostedDashboard()) {
+    selectors.skillSummary.innerHTML = `
+      <div class="setup-card">
+        <span class="status-dot neutral"></span>
+        <div>
+          <strong>Skill sync is local-only</strong>
+          <p>Open ${escapeHtml(localConsoleUrl())} on the machine you are using to sync Claude/Codex skills.</p>
+        </div>
+      </div>
+    `;
+    selectors.skillMatrix.innerHTML = "";
+    return;
+  }
+
   const inventory = state.summary.skills;
   selectors.skillSummary.innerHTML = `
     <div class="skill-source">
@@ -498,6 +611,20 @@ function renderSkillCoverage() {
 }
 
 function renderAgentProfiles() {
+  if (isHostedDashboard()) {
+    selectors.agentProfileSummary.innerHTML = `
+      <div class="setup-card">
+        <span class="status-dot neutral"></span>
+        <div>
+          <strong>Agent switching is local-only</strong>
+          <p>Open ${escapeHtml(localConsoleUrl())} to switch Claude, Codex, or GLM on your current machine.</p>
+        </div>
+      </div>
+    `;
+    selectors.agentProfilesList.innerHTML = "";
+    return;
+  }
+
   const agents = state.summary.agents;
   const active = agents.activeRoute === "glm"
     ? "Claude Code currently routes to GLM 5.2"
@@ -536,6 +663,33 @@ function renderAgentProfiles() {
 }
 
 function renderProjects() {
+  if (isHostedDashboard()) {
+    const projects = state.summary.cloudControl?.projects ?? [];
+    if (!projects.length) {
+      selectors.projectsList.innerHTML = `<div class="row"><div class="row-detail">No cloud project status has been published yet. Open the local console and click Publish Cloud Status.</div></div>`;
+      return;
+    }
+    selectors.projectsList.innerHTML = projects.map((project) => {
+      const tone = project.memory_state === "fresh" && project.git_state !== "missing" ? "ok" : project.git_state === "diverged" || project.git_state === "missing" ? "bad" : "warn";
+      return `
+        <article class="row compact-row">
+          <div class="row-title">
+            <span class="status-dot ${tone}"></span>
+            <div>
+              <strong>${escapeHtml(project.name)}</strong>
+              <div>${pill(escapeHtml(project.git_state || "unknown"), tone)} ${pill(escapeHtml(project.memory_state || "unknown"), project.memory_state === "fresh" ? "ok" : "warn")}</div>
+            </div>
+          </div>
+          <div class="row-detail">Cloud status only. Local actions run at ${escapeHtml(localConsoleUrl())}</div>
+          <div class="row-actions">
+            <button data-open-local-console="true">Open Local Console</button>
+          </div>
+        </article>
+      `;
+    }).join("");
+    return;
+  }
+
   if (!state.summary.projects.length) {
     selectors.projectsList.innerHTML = `<div class="row"><div class="row-detail">No projects yet. Add a project folder to monitor an existing GitHub repo.</div></div>`;
     return;
@@ -611,6 +765,23 @@ function toolActions(tool) {
 }
 
 function renderTools() {
+  if (isHostedDashboard()) {
+    selectors.toolsList.innerHTML = `
+      <article class="row">
+        <div class="row-title">
+          <span class="status-dot neutral"></span>
+          <div>
+            <strong>Local tools</strong>
+            <div>${pill("local-only", "neutral")}</div>
+          </div>
+        </div>
+        <div class="row-detail">Tool installs and checks run on your PC or Mac local console.</div>
+        <div class="row-actions"><button data-open-local-console="true">Open Local Console</button></div>
+      </article>
+    `;
+    return;
+  }
+
   selectors.toolsList.innerHTML = state.summary.tools.map((tool) => {
     const tone = tool.exists ? "ok" : tool.required ? "bad" : "warn";
     return `
@@ -660,6 +831,19 @@ async function refresh() {
 }
 
 function renderSetupStatus() {
+  if (isHostedDashboard()) {
+    selectors.setupStatus.innerHTML = `
+      <div class="setup-card">
+        <span class="status-dot neutral"></span>
+        <div>
+          <strong>Setup actions run locally</strong>
+          <p>Open ${escapeHtml(localConsoleUrl())} on the machine you are setting up, then prepare or run setup files there.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
   const setup = state.summary.setup;
   const tone = setup.ready ? "ok" : setup.remoteReady ? "warn" : "bad";
   const headline = setup.ready
@@ -719,6 +903,10 @@ async function selectProject(projectId) {
 }
 
 async function scanProjectsHome() {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   selectors.scanProjectsButton.disabled = true;
   selectors.scanProjectsPanelButton.disabled = true;
   try {
@@ -778,24 +966,40 @@ selectors.clearLogButton.addEventListener("click", () => {
 });
 
 selectors.addProjectButton.addEventListener("click", () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   selectors.projectNameInput.value = "";
   selectors.projectPathInput.value = "";
   selectors.projectDialog.showModal();
 });
 
 selectors.adoptWorkspaceButton.addEventListener("click", () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   selectors.workspaceNameInput.value = "";
   selectors.workspacePathInput.value = "";
   selectors.workspaceDialog.showModal();
 });
 
 selectors.addMachineButton.addEventListener("click", () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   selectors.machineNameInput.value = "";
   selectors.machinePlatformInput.value = "";
   selectors.machineDialog.showModal();
 });
 
 selectors.configureGlmButton.addEventListener("click", () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   selectors.glmApiKeyInput.value = "";
   selectors.glmDialog.showModal();
 });
@@ -884,6 +1088,10 @@ selectors.saveHandoffButton.addEventListener("click", async (event) => {
 });
 
 selectors.restoreClaudeButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   const ok = window.confirm("Switch Claude Code on this PC back to the normal Claude model setup?");
   if (!ok) return;
   const result = await api("/api/agents/claude/restore", { method: "POST" });
@@ -903,9 +1111,14 @@ document.addEventListener("click", async (event) => {
   const selectProjectButton = event.target.closest("[data-select-project]");
   const openAddProjectButton = event.target.closest("[data-open-add-project]");
   const openAdoptWorkspaceButton = event.target.closest("[data-open-adopt-workspace]");
+  const openLocalConsoleButton = event.target.closest("[data-open-local-console]");
 
   try {
-    if (projectActionButton) {
+    if (openLocalConsoleButton) {
+      window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    } else if (isHostedDashboard()) {
+      log("This hosted dashboard is read-only. Open the local console for actions.");
+    } else if (projectActionButton) {
       await projectAction(projectActionButton.dataset.projectId, projectActionButton.dataset.projectAction);
     } else if (selectProjectButton) {
       await selectProject(selectProjectButton.dataset.selectProject);
@@ -944,6 +1157,10 @@ document.addEventListener("click", async (event) => {
 });
 
 selectors.startWorkButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("Start Work: refreshing status and pulling behind projects.");
   await refresh();
   const pullTargets = state.summary.projects.filter((project) => project.state === "behind");
@@ -952,6 +1169,10 @@ selectors.startWorkButton.addEventListener("click", async () => {
 });
 
 async function switchActiveProject(targetAgent) {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   await refresh();
   const projectId = state.summary.session?.activeProjectId || state.summary.projects[0]?.id;
   if (!projectId) {
@@ -969,11 +1190,19 @@ selectors.switchClaudeButton.addEventListener("click", () => switchActiveProject
 selectors.switchCodexButton.addEventListener("click", () => switchActiveProject("codex"));
 
 selectors.endWorkButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("End Work: refreshing status. Use Save WIP and Push on projects that need it.");
   await refresh();
 });
 
 selectors.syncEverythingButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("Sync Everything: running safe checks and pulls where possible.");
   await refresh();
   for (const project of state.summary.projects.filter((item) => item.state === "behind")) {
@@ -989,6 +1218,10 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
 });
 
 selectors.syncSkillsButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   const ok = window.confirm("Copy shared skills into local Claude, Codex, and Shared Agents folders?");
   if (!ok) return;
   log("Syncing local skills.");
@@ -998,6 +1231,10 @@ selectors.syncSkillsButton.addEventListener("click", async () => {
 });
 
 selectors.syncEnvironmentButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   const ok = window.confirm("Sync Claude/Codex shared instructions, hooks, rules, and skills on this machine? Local auth, sessions, logs, and databases will be left alone.");
   if (!ok) return;
   log("Syncing Claude/Codex agent environment.");
@@ -1007,6 +1244,10 @@ selectors.syncEnvironmentButton.addEventListener("click", async () => {
 });
 
 selectors.importSkillsButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   const ok = window.confirm("Build the shared skill source from local Claude, Codex, and Shared Agents skills?");
   if (!ok) return;
   log("Building shared skill source from local skills.");
@@ -1016,6 +1257,10 @@ selectors.importSkillsButton.addEventListener("click", async () => {
 });
 
 selectors.prepareSetupButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("Preparing one-click setup files.");
   const result = await api("/api/setup/prepare", { method: "POST" });
   log(result.ok ? "Setup files prepared." : `Setup files not ready: ${result.message}`, result);
@@ -1023,6 +1268,10 @@ selectors.prepareSetupButton.addEventListener("click", async () => {
 });
 
 selectors.openSetupFolderButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("Opening setup folder.");
   const result = await api("/api/setup/open-folder", { method: "POST" });
   log(result.ok ? "Setup folder opened." : "Could not open setup folder.", result);
@@ -1033,6 +1282,10 @@ selectors.openMemoryButton.addEventListener("click", () => {
 });
 
 selectors.publishCloudButton.addEventListener("click", async () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
   log("Publishing this machine status to Supabase.");
   const result = await api("/api/cloud/publish", { method: "POST" });
   log(result.ok ? "Cloud status published." : `Cloud publish failed: ${result.message || "needs setup"}`);
