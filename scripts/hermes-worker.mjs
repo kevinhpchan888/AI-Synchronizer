@@ -26,10 +26,29 @@ async function readEnv() {
 }
 
 async function readMachine() {
+  const env = await readEnv();
+  if (env.AI_SYNC_MACHINE_ID) {
+    return {
+      id: env.AI_SYNC_MACHINE_ID,
+      name: env.AI_SYNC_MACHINE_NAME || hostname(),
+      platform: env.AI_SYNC_MACHINE_PLATFORM || platform(),
+      role: env.AI_SYNC_MACHINE_ROLE || "Hermes coordinator"
+    };
+  }
+
   try {
     return JSON.parse(await fs.readFile(LOCAL_MACHINE_FILE, "utf8"));
   } catch {
-    return { id: randomUUID(), name: hostname(), platform: platform() };
+    const machine = {
+      id: randomUUID(),
+      name: hostname(),
+      platform: platform(),
+      role: "Hermes coordinator",
+      createdAt: new Date().toISOString()
+    };
+    await fs.mkdir(path.dirname(LOCAL_MACHINE_FILE), { recursive: true });
+    await fs.writeFile(LOCAL_MACHINE_FILE, JSON.stringify(machine, null, 2));
+    return machine;
   }
 }
 
@@ -76,10 +95,15 @@ async function publishHeartbeat() {
 }
 
 async function getQueuedJobs() {
+  const machine = await readMachine();
+  const targets = [machine.id, "hermes", "mac-mini"]
+    .filter(Boolean)
+    .map((target) => `target_machine_key.eq.${encodeURIComponent(target)}`)
+    .join(",");
   const query = [
     "select=*",
     "status=eq.queued",
-    "or=(target_machine_key.eq.hermes,target_machine_key.eq.mac-mini)",
+    `or=(${targets})`,
     "order=created_at.asc",
     "limit=5"
   ].join("&");

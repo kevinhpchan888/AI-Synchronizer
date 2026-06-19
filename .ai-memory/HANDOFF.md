@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Final PC baseline complete and checked. Visual console supports Adopt Workspace, local Git bootstrap for loose folders, .ai-memory initialization, Claude/Codex switching with handoff, stale-handoff detection that ignores local runtime session files, Cloud Fleet from Supabase, and Hermes worker scaffolding. npm syntax checks pass after the final memory freshness fix. Next phase: MacBook onboarding and Mac Mini Hermes worker install once SSH credentials are available.
+Final PC baseline plus Mac Mini worker hardening complete. Hermes worker now keeps a stable machine identity, honors AI_SYNC_MACHINE_ID/NAME/ROLE env values, polls jobs for its own key plus hermes/mac-mini, and has a launchd installer for the Mac Mini. Local checks pass. GitHub/Vercel/Supabase publish should be refreshed after this handoff.
 
-Updated: 2026-06-19T10:09:17.803Z
+Updated: 2026-06-19T10:14:13.759Z
