@@ -465,7 +465,12 @@ async function serveStatic(req, res, url) {
       ".js": "text/javascript; charset=utf-8",
       ".json": "application/json; charset=utf-8"
     };
-    res.writeHead(200, { "Content-Type": contentTypes[ext] || "application/octet-stream" });
+    res.writeHead(200, {
+      "Content-Type": contentTypes[ext] || "application/octet-stream",
+      "Cache-Control": "no-store, max-age=0",
+      "Pragma": "no-cache",
+      "Expires": "0"
+    });
     res.end(data);
   } catch {
     send(res, 404, "Not found");
