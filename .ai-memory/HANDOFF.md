@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Memory freshness false positive fixed. .env.local is now ignored by project freshness scanning, like registry local-machine/session files, so machine-specific credentials and identity do not force a handoff warning. Next: pull on MacBook and restart console to verify memory fresh.
+Git-aware memory freshness fixed. Handoff-behind-work now only triggers when the project is not synced; clean synced clones/pulls no longer become stale due to file mtimes. Next: pull on MacBook and verify memory fresh.
 
-Updated: 2026-06-19T10:45:54.437Z
+Updated: 2026-06-19T10:47:22.670Z

@@ -177,7 +177,8 @@ export async function getProjectMemoryStatus(project) {
   const staleHours = ageHours(newest);
   const handoffAge = ageHours(handoffStat?.mtime ?? null);
   const newestProjectUpdate = await newestProjectFile(project.path);
-  const handoffBehindWork = Boolean(handoffStat?.mtime && newestProjectUpdate && handoffStat.mtime < newestProjectUpdate);
+  const handoffBehindWork = project.state !== "synced"
+    && Boolean(handoffStat?.mtime && newestProjectUpdate && handoffStat.mtime < newestProjectUpdate);
   let state = "fresh";
   let tone = "ok";
   let message = "Project memory is ready";
