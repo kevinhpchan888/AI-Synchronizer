@@ -2,7 +2,7 @@ import http from "node:http";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { getLocalMachine, readProjects, addProject, removeProject, readSettings, readSession, saveSession } from "./lib/registry.mjs";
+import { getLocalMachine, readProjects, addProject, removeProject, readSettings, readSession, saveSession, discoverProjectsHomeRepos } from "./lib/registry.mjs";
 import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
 import { getCloudControlPlaneStatus, getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
@@ -414,6 +414,10 @@ async function handleApi(req, res, url) {
       const body = await readBody(req);
       if (!body.path) return send(res, 400, { ok: false, message: "Project path is required." });
       return send(res, 200, await addProject(body));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/projects/discover") {
+      return send(res, 200, await discoverProjectsHomeRepos());
     }
 
     if (req.method === "DELETE" && url.pathname.match(/^\/api\/projects\/[^/]+$/)) {

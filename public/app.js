@@ -6,6 +6,8 @@ const selectors = {
   machineLine: document.querySelector("#machineLine"),
   refreshButton: document.querySelector("#refreshButton"),
   projectSwitcher: document.querySelector("#projectSwitcher"),
+  scanProjectsButton: document.querySelector("#scanProjectsButton"),
+  scanProjectsPanelButton: document.querySelector("#scanProjectsPanelButton"),
   activeProjectTitle: document.querySelector("#activeProjectTitle"),
   activeProjectSubtitle: document.querySelector("#activeProjectSubtitle"),
   activeProjectPath: document.querySelector("#activeProjectPath"),
@@ -716,6 +718,28 @@ async function selectProject(projectId) {
   await refresh();
 }
 
+async function scanProjectsHome() {
+  selectors.scanProjectsButton.disabled = true;
+  selectors.scanProjectsPanelButton.disabled = true;
+  try {
+    log("Scanning GitHub folder for cloned repos.");
+    const result = await api("/api/projects/discover", { method: "POST" });
+    log(
+      `Scan complete: ${result.discoveredCount} found, ${result.addedCount} added.`,
+      result.added?.map((project) => project.name).join(", ") || "No new repos added."
+    );
+    await refresh();
+    if (result.addedCount === 1 && result.added?.[0]?.id) {
+      await selectProject(result.added[0].id);
+    }
+  } catch (error) {
+    log("GitHub folder scan failed.", error.message);
+  } finally {
+    selectors.scanProjectsButton.disabled = false;
+    selectors.scanProjectsPanelButton.disabled = false;
+  }
+}
+
 async function removeMachine(machineId) {
   await api(`/api/machines/${encodeURIComponent(machineId)}`, { method: "DELETE" });
   log("Machine removed.");
@@ -747,6 +771,8 @@ selectors.projectSwitcher.addEventListener("change", async () => {
     log("Project switch failed.", error.message);
   }
 });
+selectors.scanProjectsButton.addEventListener("click", scanProjectsHome);
+selectors.scanProjectsPanelButton.addEventListener("click", scanProjectsHome);
 selectors.clearLogButton.addEventListener("click", () => {
   selectors.activityLog.textContent = "Ready.";
 });

@@ -732,7 +732,7 @@ dialog::backdrop {
 
 .project-selector-row {
   display: grid;
-  grid-template-columns: auto minmax(180px, 280px);
+  grid-template-columns: auto minmax(180px, 280px) auto;
   gap: 12px;
   align-items: center;
 }

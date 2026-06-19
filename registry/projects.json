@@ -17,5 +17,41 @@
     "kind": "context",
     "path": "$AI_SYNC_ROOT/context-spaces/general",
     "createdAt": "2026-06-19T11:45:00.000Z"
+  },
+  {
+    "id": "8adf5663-c5c8-4cf3-86ed-d379cd09d26b",
+    "name": "AutoResearch",
+    "path": "$PROJECTS_HOME/AutoResearch",
+    "createdAt": "2026-06-19T12:57:00.975Z"
+  },
+  {
+    "id": "3f7ca4f4-905c-4bff-8cee-cd2b6e5e67ec",
+    "name": "Comfy-LTX-Desktop",
+    "path": "$PROJECTS_HOME/Comfy-LTX-Desktop",
+    "createdAt": "2026-06-19T12:57:00.975Z"
+  },
+  {
+    "id": "86d09b32-bfd6-4ba8-9bbe-9e0210a882fa",
+    "name": "DuoSages",
+    "path": "$PROJECTS_HOME/DuoSages",
+    "createdAt": "2026-06-19T12:57:00.975Z"
+  },
+  {
+    "id": "c6633a0f-39d0-4e07-a1b0-dab4d3f8e862",
+    "name": "DuoSages2",
+    "path": "$PROJECTS_HOME/DuoSages2",
+    "createdAt": "2026-06-19T12:57:00.975Z"
+  },
+  {
+    "id": "da433b81-7ab9-4d5c-81fb-d0a4441812f0",
+    "name": "DuoSages3",
+    "path": "$PROJECTS_HOME/DuoSages3",
+    "createdAt": "2026-06-19T12:57:00.975Z"
+  },
+  {
+    "id": "6ba3d67d-cb93-4758-8519-62bb3cd31ea1",
+    "name": "moneytrack",
+    "path": "$PROJECTS_HOME/moneytrack",
+    "createdAt": "2026-06-19T12:57:00.976Z"
   }
 ]

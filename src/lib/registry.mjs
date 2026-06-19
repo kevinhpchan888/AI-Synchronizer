@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { homedir, hostname, platform } from "node:os";
+import { run } from "./command.mjs";
 
 const ROOT = process.cwd();
 const REGISTRY_DIR = path.join(ROOT, "registry");
@@ -50,7 +51,7 @@ function expandProjectPath(projectPath) {
   if (typeof projectPath === "string" && projectPath.startsWith("$HOME/")) {
     return path.join(homedir(), projectPath.slice("$HOME/".length));
   }
-  const projectsHome = process.env.AI_SYNC_PROJECTS_HOME || path.join(homedir(), platform() === "win32" ? "Documents/GitHub" : "GitHub");
+  const projectsHome = getProjectsHome();
   if (projectPath === "$PROJECTS_HOME") return projectsHome;
   if (typeof projectPath === "string" && projectPath.startsWith("$PROJECTS_HOME/")) {
     return path.join(projectsHome, projectPath.slice("$PROJECTS_HOME/".length));
@@ -58,9 +59,32 @@ function expandProjectPath(projectPath) {
   return projectPath;
 }
 
-export async function readProjects() {
+function getProjectsHome() {
+  return process.env.AI_SYNC_PROJECTS_HOME || path.join(homedir(), platform() === "win32" ? "Documents/GitHub" : "GitHub");
+}
+
+function collapseProjectPath(projectPath) {
+  const resolved = path.resolve(projectPath);
+  const root = path.resolve(ROOT);
+  const home = path.resolve(homedir());
+  const projectsHome = path.resolve(getProjectsHome());
+
+  if (resolved === root) return "$AI_SYNC_ROOT";
+  if (resolved.startsWith(`${root}${path.sep}`)) return `$AI_SYNC_ROOT/${path.relative(root, resolved).replaceAll("\\", "/")}`;
+  if (resolved === projectsHome) return "$PROJECTS_HOME";
+  if (resolved.startsWith(`${projectsHome}${path.sep}`)) return `$PROJECTS_HOME/${path.relative(projectsHome, resolved).replaceAll("\\", "/")}`;
+  if (resolved === home) return "$HOME";
+  if (resolved.startsWith(`${home}${path.sep}`)) return `$HOME/${path.relative(home, resolved).replaceAll("\\", "/")}`;
+  return projectPath;
+}
+
+async function readRawProjects() {
   const projects = await readJson(PROJECTS_FILE, []);
-  const list = Array.isArray(projects) ? projects : projects && typeof projects === "object" ? [projects] : [];
+  return Array.isArray(projects) ? projects : projects && typeof projects === "object" ? [projects] : [];
+}
+
+export async function readProjects() {
+  const list = await readRawProjects();
   return list.map((project) => ({
     ...project,
     path: expandProjectPath(project.path)
@@ -107,7 +131,8 @@ export async function getLocalMachine() {
 }
 
 export async function addProject(input) {
-  const projects = await readProjects();
+  const rawProjects = await readRawProjects();
+  const projects = rawProjects.map((project) => ({ ...project, path: expandProjectPath(project.path) }));
   const projectPath = path.resolve(input.path);
   const existing = projects.find((project) => path.resolve(project.path) === projectPath);
   if (existing) return existing;
@@ -115,19 +140,88 @@ export async function addProject(input) {
   const project = {
     id: randomUUID(),
     name: input.name?.trim() || path.basename(projectPath),
-    path: projectPath,
+    path: collapseProjectPath(projectPath),
     createdAt: new Date().toISOString()
   };
-  projects.push(project);
-  await saveProjects(projects);
-  return project;
+  rawProjects.push(project);
+  await saveProjects(rawProjects);
+  return { ...project, path: expandProjectPath(project.path) };
 }
 
 export async function removeProject(id) {
-  const projects = await readProjects();
+  const projects = await readRawProjects();
   const next = projects.filter((project) => project.id !== id);
   await saveProjects(next);
   return { removed: projects.length !== next.length };
+}
+
+async function isDirectory(file) {
+  try {
+    return (await fs.stat(file)).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
+async function repoRemote(projectPath) {
+  const result = await run("git", ["remote", "get-url", "origin"], { cwd: projectPath, timeout: 10000 });
+  if (!result.ok) return null;
+  return String(result.stdout || "")
+    .trim()
+    .replace(/\.git$/i, "")
+    .toLowerCase();
+}
+
+export async function discoverProjectsHomeRepos() {
+  const projectsHome = getProjectsHome();
+  await fs.mkdir(projectsHome, { recursive: true });
+  const rawProjects = await readRawProjects();
+  const expandedProjects = rawProjects.map((project) => ({ ...project, path: expandProjectPath(project.path) }));
+  const existingPaths = new Set(expandedProjects.map((project) => path.resolve(project.path).toLowerCase()));
+  const existingRemotes = new Set((await Promise.all(expandedProjects.map((project) => repoRemote(project.path)))).filter(Boolean));
+  const entries = await fs.readdir(projectsHome, { withFileTypes: true });
+  const discovered = [];
+  const added = [];
+  const skipped = [];
+
+  for (const entry of entries) {
+    if (!entry.isDirectory()) continue;
+    const repoPath = path.join(projectsHome, entry.name);
+    if (!(await isDirectory(path.join(repoPath, ".git")))) continue;
+    const remote = await repoRemote(repoPath);
+    const collapsedPath = collapseProjectPath(repoPath);
+    const repo = {
+      id: randomUUID(),
+      name: entry.name,
+      path: collapsedPath,
+      createdAt: new Date().toISOString()
+    };
+    discovered.push({ ...repo, path: expandProjectPath(collapsedPath), remote });
+    if (existingPaths.has(path.resolve(repoPath).toLowerCase())) {
+      skipped.push({ ...repo, path: expandProjectPath(collapsedPath), remote, reason: "already tracked path" });
+      continue;
+    }
+    if (remote && existingRemotes.has(remote)) {
+      skipped.push({ ...repo, path: expandProjectPath(collapsedPath), remote, reason: "already tracked remote" });
+      continue;
+    }
+    rawProjects.push(repo);
+    existingPaths.add(path.resolve(repoPath).toLowerCase());
+    if (remote) existingRemotes.add(remote);
+    added.push({ ...repo, path: expandProjectPath(collapsedPath), remote });
+  }
+
+  if (added.length) await saveProjects(rawProjects);
+  return {
+    ok: true,
+    projectsHome,
+    discoveredCount: discovered.length,
+    addedCount: added.length,
+    skippedCount: skipped.length,
+    added,
+    skipped,
+    discovered
+  };
 }
 
 export async function readSession() {
