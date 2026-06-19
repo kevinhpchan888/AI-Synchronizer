@@ -66,6 +66,34 @@ For the Mac-specific checklist, use `docs/Mac-Setup-Checklist.md`.
 3. If a project says commits need pushing, click **Push**.
 4. When the dashboard is green or only has optional cloud setup warnings, you can switch machines.
 
+## Agent / Model Profiles
+
+Use **Agent / Model Profiles** to see which AI working environment is ready on the current machine.
+
+- **Claude Code + Claude Models**: your normal Claude Code route for Claude/Opus/Sonnet.
+- **Claude Code + GLM 5.2**: Claude Code pointed at Z.ai GLM 5.2 with 1M context.
+- **Codex + OpenAI Models**: Codex using the same synced skills.
+- **VS Code + Cline/Roo + GLM 5.2**: optional future visual editor workflow.
+
+### Setting Up GLM 5.2 On This PC
+
+1. Open **Kevin Sync Console**.
+2. Go to **Agent / Model Profiles**.
+3. Click **Open Z.ai API Keys** if you need to copy your key.
+4. Click **Configure GLM 5.2**.
+5. Paste the Z.ai GLM Coding Plan API key.
+6. Click **Apply GLM 5.2**.
+7. The GLM card should turn green.
+8. Open Claude Code and type `/status` to confirm the active model.
+
+To use normal Claude models again, click **Switch Back To Claude** in the same panel.
+
+### Before Switching Tools
+
+1. Click **Sync Local Skills**.
+2. Confirm Claude Code and Codex show the same skill count.
+3. Use **Agent / Model Profiles** to choose whether Claude Code is currently on Claude models or GLM 5.2.
+
 ### Adding A Project
 
 1. Click **Add Project**.

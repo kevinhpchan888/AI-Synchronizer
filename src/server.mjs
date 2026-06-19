@@ -9,6 +9,7 @@ import { getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
 import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
+import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -44,20 +45,22 @@ async function summary() {
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
   const machines = await readMachines();
   const skills = await getSkillInventory(machines);
+  const agents = await getAgentProfiles(tools);
   return {
     machine,
     machines,
     skills,
+    agents,
     setup,
     tools,
     projects: projectStatuses,
     cloud,
-    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills }),
+    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents }),
     generatedAt: new Date().toISOString()
   };
 }
 
-function buildRecommendations({ tools, projects, cloud, machines, skills }) {
+function buildRecommendations({ tools, projects, cloud, machines, skills, agents }) {
   const items = [];
   const missingTools = tools.filter((tool) => !tool.exists);
   const dirty = projects.filter((project) => project.state === "dirty");
@@ -70,6 +73,7 @@ function buildRecommendations({ tools, projects, cloud, machines, skills }) {
   const pendingMachines = machines.filter((machine) => machine.status === "pending");
   const localSkillTargets = skills?.machines?.find((machine) => machine.status === "online")?.targets ?? [];
   const unevenSkillTargets = localSkillTargets.filter((target) => target.extraCount > 0 || target.missingCanonicalCount > 0);
+  const glmProfile = agents?.profiles?.find((profile) => profile.id === "claude-code-glm52");
 
   if (missingTools.length) {
     items.push({
@@ -151,6 +155,14 @@ function buildRecommendations({ tools, projects, cloud, machines, skills }) {
       action: "Run Vercel login later from the visual setup flow."
     });
   }
+  if (glmProfile && glmProfile.tone !== "ok") {
+    items.push({
+      level: glmProfile.tone === "bad" ? "warning" : "info",
+      title: "GLM 5.2 is not ready yet",
+      body: glmProfile.body,
+      action: glmProfile.action
+    });
+  }
   if (pendingMachines.length) {
     items.push({
       level: "info",
@@ -201,6 +213,19 @@ async function handleApi(req, res, url) {
 
     if (req.method === "GET" && url.pathname === "/api/setup") {
       return send(res, 200, await getSetupStatus());
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/agents") {
+      return send(res, 200, await getAgentProfiles(await getToolStatus()));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/agents/glm52/configure") {
+      const body = await readBody(req);
+      return send(res, 200, await configureClaudeForGlm52(body.apiKey));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/agents/claude/restore") {
+      return send(res, 200, await restoreClaudeRoute());
     }
 
     if (req.method === "POST" && url.pathname === "/api/setup/prepare") {

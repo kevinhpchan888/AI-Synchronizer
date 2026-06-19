@@ -418,6 +418,43 @@ main {
   background: var(--surface);
 }
 
+.agent-summary {
+  margin-bottom: 12px;
+}
+
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.agent-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  min-height: 188px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: var(--surface-soft);
+}
+
+.agent-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.agent-card-heading p,
+.agent-card > p {
+  color: var(--muted);
+}
+
+.agent-card .action-note {
+  color: var(--text);
+  font-weight: 650;
+}
+
 .list {
   display: grid;
   gap: 10px;
@@ -516,6 +553,11 @@ dialog::backdrop {
   color: var(--muted);
 }
 
+.dialog-help {
+  margin-top: 8px;
+  color: var(--muted);
+}
+
 .dialog-card input {
   width: 100%;
   min-height: 40px;
@@ -539,6 +581,10 @@ dialog::backdrop {
 
   .content-grid {
     grid-template-columns: 1fr;
+  }
+
+  .agent-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -575,6 +621,10 @@ dialog::backdrop {
   }
 
   .skill-matrix {
+    grid-template-columns: 1fr;
+  }
+
+  .agent-grid {
     grid-template-columns: 1fr;
   }
 

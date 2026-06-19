@@ -170,6 +170,22 @@
       <section class="panel">
         <div class="panel-heading">
           <div>
+            <h2>Agent / Model Profiles</h2>
+            <p>See which working environment is ready: Claude models, Codex, GLM 5.2, or optional VS Code workflows.</p>
+          </div>
+          <div class="split-actions">
+            <button id="openZaiButton">Open Z.ai API Keys</button>
+            <button id="configureGlmButton" class="primary">Configure GLM 5.2</button>
+            <button id="restoreClaudeButton">Switch Back To Claude</button>
+          </div>
+        </div>
+        <div id="agentProfileSummary" class="agent-summary"></div>
+        <div id="agentProfilesList" class="agent-grid"></div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-heading">
+          <div>
             <h2>Projects</h2>
             <p>Existing GitHub repos stay in their own folders. Add them here to monitor and sync visually.</p>
           </div>
@@ -235,6 +251,21 @@
         <div class="dialog-actions">
           <button value="cancel">Cancel</button>
           <button id="saveMachineButton" value="default" class="primary">Add</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="glmDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Configure GLM 5.2</h2>
+        <p class="dialog-help">Paste your Z.ai GLM Coding Plan API key. The console will update Claude Code on this PC.</p>
+        <label>
+          Z.ai API key
+          <input id="glmApiKeyInput" autocomplete="off" type="password" placeholder="Paste key here" />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveGlmButton" value="default" class="primary">Apply GLM 5.2</button>
         </div>
       </form>
     </dialog>

@@ -12,6 +12,7 @@ Preferred path:
 4. Copy `Setup-KevinSync-Mac.command` to the Mac.
 5. Double-click it on the Mac.
 6. When the dashboard opens, click **Sync Local Skills**.
+7. In **Agent / Model Profiles**, configure GLM 5.2 if you want Claude Code on that Mac to use GLM.
 
 Manual fallback:
 
@@ -31,6 +32,7 @@ Manual fallback:
 9. Confirm the machine appears in **Machines**.
 10. Click **Sync Local Skills**.
 11. Click **Publish Cloud Status** after Supabase is connected.
+12. Configure GLM 5.2 from **Agent / Model Profiles** if you want that Mac to use GLM through Claude Code.
 
 ## What You Should See
 
@@ -38,6 +40,7 @@ Manual fallback:
 - MacBook Pro: online after setup runs there.
 - Mac Mini: pending until you run setup there.
 - Skill Coverage: Claude Code, Codex, and Shared Agents should show the same skill count after sync.
+- Agent / Model Profiles: Claude Code, Codex, and optional GLM should show whether they are ready on the Mac.
 
 ## If The Mac Was Wiped
 
@@ -46,4 +49,5 @@ Manual fallback:
 3. Run `./restore-kevin-sync-console.sh`.
 4. Click **Sync Local Skills**.
 5. Add project folders again if they were not cloned yet.
-6. Use **Start Work** only after red warnings are gone.
+6. Reconfigure GLM 5.2 from **Agent / Model Profiles** if you use it on that Mac.
+7. Use **Start Work** only after red warnings are gone.

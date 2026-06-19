@@ -18,6 +18,8 @@ const selectors = {
   setupStatus: document.querySelector("#setupStatus"),
   skillSummary: document.querySelector("#skillSummary"),
   skillMatrix: document.querySelector("#skillMatrix"),
+  agentProfileSummary: document.querySelector("#agentProfileSummary"),
+  agentProfilesList: document.querySelector("#agentProfilesList"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
   activityLog: document.querySelector("#activityLog"),
@@ -30,8 +32,14 @@ const selectors = {
   projectPathInput: document.querySelector("#projectPathInput"),
   machineNameInput: document.querySelector("#machineNameInput"),
   machinePlatformInput: document.querySelector("#machinePlatformInput"),
+  glmDialog: document.querySelector("#glmDialog"),
+  glmApiKeyInput: document.querySelector("#glmApiKeyInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
+  saveGlmButton: document.querySelector("#saveGlmButton"),
+  configureGlmButton: document.querySelector("#configureGlmButton"),
+  restoreClaudeButton: document.querySelector("#restoreClaudeButton"),
+  openZaiButton: document.querySelector("#openZaiButton"),
   prepareSetupButton: document.querySelector("#prepareSetupButton"),
   openSetupFolderButton: document.querySelector("#openSetupFolderButton"),
   importSkillsButton: document.querySelector("#importSkillsButton"),
@@ -258,6 +266,44 @@ function renderSkillCoverage() {
   `).join("");
 }
 
+function renderAgentProfiles() {
+  const agents = state.summary.agents;
+  const active = agents.activeRoute === "glm"
+    ? "Claude Code currently routes to GLM 5.2"
+    : "Claude Code currently routes to Claude models";
+  const glmTone = agents.glm.configuredFor52 ? "ok" : agents.glm.configured ? "warn" : "neutral";
+
+  selectors.agentProfileSummary.innerHTML = `
+    <div class="setup-card">
+      <span class="status-dot ${glmTone}"></span>
+      <div>
+        <strong>${escapeHtml(active)}</strong>
+        <p>Claude settings: ${escapeHtml(agents.settingsPath)}</p>
+        <p>GLM endpoint: ${escapeHtml(agents.glmBaseUrl)}</p>
+      </div>
+    </div>
+  `;
+
+  selectors.agentProfilesList.innerHTML = agents.profiles.map((profile) => {
+    const tone = profile.tone === "ok" ? "ok" : profile.tone === "bad" ? "bad" : profile.tone === "warn" ? "warn" : "neutral";
+    const label = profile.statusText || (profile.tone === "ok" ? "Ready" : profile.tone === "warn" ? "Needs setup" : profile.tone === "bad" ? "Blocked" : "Optional");
+    return `
+      <article class="agent-card">
+        <div class="agent-card-heading">
+          <span class="status-dot ${tone}"></span>
+          <div>
+            <strong>${escapeHtml(profile.label)}</strong>
+            <p>${escapeHtml(profile.provider)}</p>
+          </div>
+        </div>
+        <div>${pill(escapeHtml(label), tone)}</div>
+        <p>${escapeHtml(profile.body)}</p>
+        <p class="action-note">${escapeHtml(profile.action)}</p>
+      </article>
+    `;
+  }).join("");
+}
+
 function renderProjects() {
   if (!state.summary.projects.length) {
     selectors.projectsList.innerHTML = `<div class="row"><div class="row-detail">No projects yet. Add a project folder to monitor an existing GitHub repo.</div></div>`;
@@ -358,6 +404,7 @@ async function refresh() {
   renderSetupStatus();
   renderMachines();
     renderSkillCoverage();
+    renderAgentProfiles();
     renderProjects();
     renderTools();
     log("Status refreshed.");
@@ -456,6 +503,15 @@ selectors.addMachineButton.addEventListener("click", () => {
   selectors.machineDialog.showModal();
 });
 
+selectors.configureGlmButton.addEventListener("click", () => {
+  selectors.glmApiKeyInput.value = "";
+  selectors.glmDialog.showModal();
+});
+
+selectors.openZaiButton.addEventListener("click", () => {
+  window.open("https://z.ai/manage-apikey/apikey-list", "_blank", "noopener,noreferrer");
+});
+
 selectors.saveProjectButton.addEventListener("click", async (event) => {
   event.preventDefault();
   const path = selectors.projectPathInput.value.trim();
@@ -481,6 +537,31 @@ selectors.saveMachineButton.addEventListener("click", async (event) => {
   const machine = await api("/api/machines", { method: "POST", body: JSON.stringify({ name, platform }) });
   selectors.machineDialog.close();
   log(`Machine added: ${machine.name}. Pairing code: ${machine.pairingCode}`);
+  await refresh();
+});
+
+selectors.saveGlmButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const apiKey = selectors.glmApiKeyInput.value.trim();
+  if (!apiKey) {
+    log("Paste the Z.ai API key first.");
+    return;
+  }
+  const result = await api("/api/agents/glm52/configure", {
+    method: "POST",
+    body: JSON.stringify({ apiKey })
+  });
+  selectors.glmApiKeyInput.value = "";
+  selectors.glmDialog.close();
+  log(result.ok ? "GLM 5.2 configured for Claude Code." : "GLM setup failed.", result.message);
+  await refresh();
+});
+
+selectors.restoreClaudeButton.addEventListener("click", async () => {
+  const ok = window.confirm("Switch Claude Code on this PC back to the normal Claude model setup?");
+  if (!ok) return;
+  const result = await api("/api/agents/claude/restore", { method: "POST" });
+  log(result.ok ? "Claude Code switched back to Claude models." : "Switch back failed.", result.message);
   await refresh();
 });
 
