@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Mac Mini worker fix complete. Hermes worker now separates database UUID identity from friendly routing keys such as mac-mini, reads Tailscale IP from .env.local, and keeps launchd-compatible behavior. npm checks pass. Mac Mini should pull this commit and restart the worker from ~/AI-Synchronizer.
+Mac Mini worker empty-response fix complete. Supabase return=minimal responses are now handled without JSON parse errors. Checks pass. Restart Mac Mini worker after pulling this commit, then verify cloud heartbeat.
 
-Updated: 2026-06-19T10:17:19.085Z
+Updated: 2026-06-19T10:18:31.399Z
