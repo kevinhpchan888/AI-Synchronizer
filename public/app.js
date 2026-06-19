@@ -7,6 +7,10 @@ const selectors = {
   refreshButton: document.querySelector("#refreshButton"),
   readinessTitle: document.querySelector("#readinessTitle"),
   readinessBody: document.querySelector("#readinessBody"),
+  currentProjectTile: document.querySelector("#currentProjectTile"),
+  memoryMissionTile: document.querySelector("#memoryMissionTile"),
+  hermesMissionTile: document.querySelector("#hermesMissionTile"),
+  agentMissionTile: document.querySelector("#agentMissionTile"),
   projectsCard: document.querySelector("#projectsCard"),
   machinesCard: document.querySelector("#machinesCard"),
   skillsCard: document.querySelector("#skillsCard"),
@@ -28,15 +32,18 @@ const selectors = {
   addMachineButton: document.querySelector("#addMachineButton"),
   projectDialog: document.querySelector("#projectDialog"),
   machineDialog: document.querySelector("#machineDialog"),
+  handoffDialog: document.querySelector("#handoffDialog"),
   projectNameInput: document.querySelector("#projectNameInput"),
   projectPathInput: document.querySelector("#projectPathInput"),
   machineNameInput: document.querySelector("#machineNameInput"),
   machinePlatformInput: document.querySelector("#machinePlatformInput"),
   glmDialog: document.querySelector("#glmDialog"),
   glmApiKeyInput: document.querySelector("#glmApiKeyInput"),
+  handoffSummaryInput: document.querySelector("#handoffSummaryInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
   saveGlmButton: document.querySelector("#saveGlmButton"),
+  saveHandoffButton: document.querySelector("#saveHandoffButton"),
   configureGlmButton: document.querySelector("#configureGlmButton"),
   restoreClaudeButton: document.querySelector("#restoreClaudeButton"),
   openZaiButton: document.querySelector("#openZaiButton"),
@@ -50,6 +57,8 @@ const selectors = {
   publishCloudButton: document.querySelector("#publishCloudButton"),
   openMemoryButton: document.querySelector("#openMemoryButton")
 };
+
+let activeHandoffProjectId = null;
 
 function log(message, data = null) {
   const timestamp = new Date().toLocaleTimeString();
@@ -117,8 +126,10 @@ function renderCards() {
   const config = toolById("aiConfigSync");
   setCard(selectors.configCard, config?.exists ? "ok" : "warn", config?.exists ? "Ready" : "Missing", "Config sync");
 
-  const memorix = toolById("memorix");
-  setCard(selectors.memoryCard, memorix?.exists ? "ok" : "warn", memorix?.exists ? "Ready" : "Missing", "Memorix");
+  const memoryState = state.summary.memory.summary.state;
+  const memoryTone = memoryState === "fresh" ? "ok" : memoryState === "missing" ? "bad" : memoryState === "empty" ? "neutral" : "warn";
+  const memoryLabel = memoryState === "fresh" ? "Fresh" : memoryState === "missing" ? "Missing" : memoryState === "stale" ? "Stale" : "Local";
+  setCard(selectors.memoryCard, memoryTone, memoryLabel, "Project memory");
 
   const cloud = state.summary.cloud;
   const cloudReady = cloud.vercel.cliAuthenticated && cloud.supabase.configured;
@@ -131,7 +142,37 @@ function renderCards() {
   );
 
   renderReadiness();
+  renderMissionControl();
   renderRecommendations();
+}
+
+function setMissionTile(tile, tone, title, subtitle) {
+  tile.querySelector(".status-dot").className = `status-dot ${tone}`;
+  tile.querySelector("strong").textContent = title;
+  tile.querySelector("small").textContent = subtitle;
+}
+
+function renderMissionControl() {
+  const projects = state.summary.projects;
+  const primaryProject = projects[0];
+  if (!primaryProject) {
+    setMissionTile(selectors.currentProjectTile, "warn", "No project", "Add a project to track");
+  } else {
+    setMissionTile(selectors.currentProjectTile, toneForProject(primaryProject), primaryProject.name, primaryProject.message || primaryProject.state);
+  }
+
+  const memory = state.summary.memory.summary;
+  const memoryTone = memory.state === "fresh" ? "ok" : memory.state === "missing" ? "bad" : memory.state === "empty" ? "neutral" : "warn";
+  const memoryTitle = memory.state === "fresh" ? `${memory.lowestFreshness}% fresh` : memory.state === "missing" ? "Missing packs" : memory.state === "stale" ? "Needs handoff" : "No projects";
+  setMissionTile(selectors.memoryMissionTile, memoryTone, memoryTitle, `${memory.fresh} fresh / ${memory.stale} stale / ${memory.missing} missing`);
+
+  const macMini = state.summary.machines.find((machine) => machine.id === "mac-mini" || machine.name.toLowerCase().includes("mini"));
+  const hermesTone = macMini?.status === "online" ? "ok" : macMini?.status === "pending" ? "warn" : "neutral";
+  setMissionTile(selectors.hermesMissionTile, hermesTone, macMini?.status === "online" ? "Online" : "Queued", macMini?.address || "Mac Mini coordinator");
+
+  const route = state.summary.agents.activeRoute === "glm" ? "GLM 5.2" : "Claude";
+  const glmReady = state.summary.agents.glm.configuredFor52;
+  setMissionTile(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", route, "Codex skills synced locally");
 }
 
 function renderReadiness() {
@@ -320,13 +361,16 @@ function renderProjects() {
 
     const canRunGit = project.exists && project.isRepo;
     const disabled = canRunGit ? "" : "disabled";
+    const memory = state.summary.memory.projects.find((item) => item.projectId === project.id);
+    const memoryTone = memory?.tone ?? "neutral";
+    const memoryLabel = memory ? memory.message : "Memory unknown";
     return `
       <article class="row">
         <div class="row-title">
           <span class="status-dot ${tone}"></span>
           <div>
             <strong>${escapeHtml(project.name)}</strong>
-            <div>${pill(escapeHtml(project.message || project.state), tone)}</div>
+            <div>${pill(escapeHtml(project.message || project.state), tone)} ${pill(escapeHtml(memoryLabel), memoryTone)}</div>
           </div>
         </div>
         <div class="row-detail">${escapeHtml(details)}</div>
@@ -335,6 +379,8 @@ function renderProjects() {
           <button data-project-action="pull" data-project-id="${project.id}" ${disabled}>Pull</button>
           <button data-project-action="push" data-project-id="${project.id}" ${disabled}>Push</button>
           <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
+          <button data-memory-init="${project.id}" ${disabled}>Initialize Memory</button>
+          <button data-memory-handoff="${project.id}" ${disabled}>Prepare Handoff</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
         </div>
       </article>
@@ -557,6 +603,21 @@ selectors.saveGlmButton.addEventListener("click", async (event) => {
   await refresh();
 });
 
+selectors.saveHandoffButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  if (!activeHandoffProjectId) return;
+  const summary = selectors.handoffSummaryInput.value.trim();
+  const result = await api(`/api/projects/${encodeURIComponent(activeHandoffProjectId)}/memory/handoff`, {
+    method: "POST",
+    body: JSON.stringify({ summary })
+  });
+  selectors.handoffSummaryInput.value = "";
+  selectors.handoffDialog.close();
+  activeHandoffProjectId = null;
+  log(result.ok ? "Handoff saved." : "Handoff failed.", result.message);
+  await refresh();
+});
+
 selectors.restoreClaudeButton.addEventListener("click", async () => {
   const ok = window.confirm("Switch Claude Code on this PC back to the normal Claude model setup?");
   if (!ok) return;
@@ -571,6 +632,8 @@ document.addEventListener("click", async (event) => {
   const installButton = event.target.closest("[data-install-tool]");
   const toolActionButton = event.target.closest("[data-tool-action]");
   const removeMachineButton = event.target.closest("[data-remove-machine]");
+  const memoryInitButton = event.target.closest("[data-memory-init]");
+  const memoryHandoffButton = event.target.closest("[data-memory-handoff]");
 
   try {
     if (projectActionButton) {
@@ -583,6 +646,14 @@ document.addEventListener("click", async (event) => {
       await installTool(installButton.dataset.installTool);
     } else if (toolActionButton) {
       await toolAction(toolActionButton.dataset.toolId, toolActionButton.dataset.toolAction);
+    } else if (memoryInitButton) {
+      const result = await api(`/api/projects/${encodeURIComponent(memoryInitButton.dataset.memoryInit)}/memory/init`, { method: "POST" });
+      log(result.ok ? "Project memory initialized." : "Memory initialization failed.", result.message);
+      await refresh();
+    } else if (memoryHandoffButton) {
+      activeHandoffProjectId = memoryHandoffButton.dataset.memoryHandoff;
+      selectors.handoffSummaryInput.value = "";
+      selectors.handoffDialog.showModal();
     }
   } catch (error) {
     log("Action failed.", error.message);

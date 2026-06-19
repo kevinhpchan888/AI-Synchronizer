@@ -6,7 +6,7 @@
   "description": "Visual local companion for syncing projects, skills, Claude/Codex config, and agent memory.",
   "scripts": {
     "start": "node src/server.mjs",
-    "check": "node --check src/server.mjs && node --check src/lib/command.mjs && node --check src/lib/registry.mjs && node --check src/lib/tools.mjs && node --check src/lib/git.mjs && node --check src/lib/cloud.mjs && node --check src/lib/machines.mjs && node --check src/lib/skills.mjs && node --check src/lib/setup.mjs && node --check src/lib/agents.mjs"
+    "check": "node --check src/server.mjs && node --check src/lib/command.mjs && node --check src/lib/registry.mjs && node --check src/lib/tools.mjs && node --check src/lib/git.mjs && node --check src/lib/cloud.mjs && node --check src/lib/machines.mjs && node --check src/lib/skills.mjs && node --check src/lib/setup.mjs && node --check src/lib/agents.mjs && node --check src/lib/memory.mjs"
   },
   "engines": {
     "node": ">=20"

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "project": "Kevin Sync Console",
+  "createdAt": "2026-06-19T08:54:40.164Z",
+  "memoryEngines": {
+    "cognee": {
+      "role": "project knowledge index",
+      "rebuildable": true
+    },
+    "graphiti": {
+      "role": "temporal event graph",
+      "rebuildable": true
+    },
+    "hermes": {
+      "role": "always-on coordinator",
+      "sourceOfTruth": false
+    }
+  },
+  "requiredFiles": [
+    "PROJECT.md",
+    "STATUS.md",
+    "DECISIONS.md",
+    "TASKS.md",
+    "HANDOFF.md",
+    "RULES.md",
+    "CONTEXT_INDEX.json"
+  ]
+}

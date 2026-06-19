@@ -35,6 +35,41 @@
         </div>
       </section>
 
+      <section class="mission-grid" aria-label="Mission control">
+        <article class="mission-tile" id="currentProjectTile">
+          <span class="status-dot neutral"></span>
+          <div>
+            <p>Current Project</p>
+            <strong>Checking</strong>
+            <small>Project state</small>
+          </div>
+        </article>
+        <article class="mission-tile" id="memoryMissionTile">
+          <span class="status-dot neutral"></span>
+          <div>
+            <p>Project Memory</p>
+            <strong>Checking</strong>
+            <small>Portable .ai-memory</small>
+          </div>
+        </article>
+        <article class="mission-tile" id="hermesMissionTile">
+          <span class="status-dot neutral"></span>
+          <div>
+            <p>Hermes / Mac Mini</p>
+            <strong>Standby</strong>
+            <small>Coordinator queue</small>
+          </div>
+        </article>
+        <article class="mission-tile" id="agentMissionTile">
+          <span class="status-dot neutral"></span>
+          <div>
+            <p>Active Agent Route</p>
+            <strong>Checking</strong>
+            <small>Claude / Codex / GLM</small>
+          </div>
+        </article>
+      </section>
+
       <section class="overview-grid" aria-label="System status">
         <article class="metric-card" id="projectsCard">
           <div class="metric-topline">
@@ -266,6 +301,21 @@
         <div class="dialog-actions">
           <button value="cancel">Cancel</button>
           <button id="saveGlmButton" value="default" class="primary">Apply GLM 5.2</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="handoffDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Prepare Handoff</h2>
+        <p class="dialog-help">Write the short handoff that the next machine, Claude, Codex, GLM, or Hermes should read first.</p>
+        <label>
+          Handoff summary
+          <textarea id="handoffSummaryInput" rows="7" placeholder="What changed, what matters, and what should happen next?"></textarea>
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveHandoffButton" value="default" class="primary">Save Handoff</button>
         </div>
       </form>
     </dialog>

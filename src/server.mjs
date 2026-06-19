@@ -10,6 +10,7 @@ import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
+import { getMemoryInventory, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -46,21 +47,23 @@ async function summary() {
   const machines = await readMachines();
   const skills = await getSkillInventory(machines);
   const agents = await getAgentProfiles(tools);
+  const memory = await getMemoryInventory(projectStatuses);
   return {
     machine,
     machines,
     skills,
     agents,
+    memory,
     setup,
     tools,
     projects: projectStatuses,
     cloud,
-    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents }),
+    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents, memory }),
     generatedAt: new Date().toISOString()
   };
 }
 
-function buildRecommendations({ tools, projects, cloud, machines, skills, agents }) {
+function buildRecommendations({ tools, projects, cloud, machines, skills, agents, memory }) {
   const items = [];
   const missingTools = tools.filter((tool) => !tool.exists);
   const dirty = projects.filter((project) => project.state === "dirty");
@@ -74,6 +77,8 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   const localSkillTargets = skills?.machines?.find((machine) => machine.status === "online")?.targets ?? [];
   const unevenSkillTargets = localSkillTargets.filter((target) => target.extraCount > 0 || target.missingCanonicalCount > 0);
   const glmProfile = agents?.profiles?.find((profile) => profile.id === "claude-code-glm52");
+  const missingMemory = memory?.projects?.filter((project) => project.state === "missing") ?? [];
+  const staleMemory = memory?.projects?.filter((project) => ["stale", "incomplete"].includes(project.state)) ?? [];
 
   if (missingTools.length) {
     items.push({
@@ -137,6 +142,21 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
       title: "Connect the sync console to GitHub",
       body: "This console repo has no upstream branch yet, so it cannot restore onto another machine from GitHub.",
       action: "Create a private GitHub repo and set it as origin."
+    });
+  }
+  if (missingMemory.length) {
+    items.push({
+      level: "warning",
+      title: "Create project memory packs",
+      body: `${missingMemory.length} project${missingMemory.length === 1 ? " has" : "s have"} no portable .ai-memory folder yet.`,
+      action: "Use Initialize Memory in Projects."
+    });
+  } else if (staleMemory.length) {
+    items.push({
+      level: "info",
+      title: "Refresh stale project memory",
+      body: `${staleMemory.length} project memory pack${staleMemory.length === 1 ? " needs" : "s need"} a handoff or status update.`,
+      action: "Use Prepare Handoff before switching machines or agents."
     });
   }
   if (!cloud.supabase.configured) {
@@ -238,6 +258,29 @@ async function handleApi(req, res, url) {
 
     if (req.method === "GET" && url.pathname === "/api/skills") {
       return send(res, 200, await getSkillInventory(await readMachines()));
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/memory") {
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, await getMemoryInventory(projectStatuses));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/init$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      return send(res, 200, await initializeProjectMemory(await getProjectStatus(project)));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/handoff$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const body = await readBody(req);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      return send(res, 200, await writeProjectHandoff(await getProjectStatus(project), body.summary));
     }
 
     if (req.method === "POST" && url.pathname === "/api/skills/sync-local") {

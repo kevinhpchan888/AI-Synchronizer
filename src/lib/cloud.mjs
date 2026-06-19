@@ -59,15 +59,18 @@ export async function publishMachineStatus(summary) {
     return { ok: false, message: "Supabase is not connected yet. Add the Supabase connection details, then try Publish Cloud Status again." };
   }
 
-  const endpoint = `${url.replace(/\/$/, "")}/rest/v1/sync_machines?on_conflict=id`;
-  const response = await fetch(endpoint, {
+  const base = url.replace(/\/$/, "");
+  const headers = {
+    apikey: key,
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json",
+    Prefer: "resolution=merge-duplicates"
+  };
+
+  const machineEndpoint = `${base}/rest/v1/kevin_sync_machines?on_conflict=id`;
+  const response = await fetch(machineEndpoint, {
     method: "POST",
-    headers: {
-      apikey: key,
-      Authorization: `Bearer ${key}`,
-      "Content-Type": "application/json",
-      Prefer: "resolution=merge-duplicates"
-    },
+    headers,
     body: JSON.stringify({
       id: summary.machine.id,
       name: summary.machine.name,
@@ -83,6 +86,7 @@ export async function publishMachineStatus(summary) {
           branch: project.branch,
           remote: project.remote
         })),
+        memory: summary.memory,
         cloud: summary.cloud
       }
     })
@@ -92,5 +96,52 @@ export async function publishMachineStatus(summary) {
     return { ok: false, status: response.status, message: await response.text() };
   }
 
-  return { ok: true, message: "Machine status published." };
+  const projectRows = summary.projects
+    .filter((project) => project.isRepo)
+    .map((project) => {
+      const memory = summary.memory?.projects?.find((item) => item.projectId === project.id);
+      return {
+        id: project.id,
+        name: project.name,
+        local_path: project.path,
+        repo_remote: project.remote,
+        branch: project.branch,
+        git_state: project.state,
+        memory_state: memory?.state ?? "unknown",
+        memory_freshness: memory?.freshness ?? 0,
+        memory_hash: memory?.packHash ?? null,
+        last_memory_at: memory?.lastUpdated ?? null,
+        status: { project, memory }
+      };
+    });
+
+  if (projectRows.length) {
+    const projectsResponse = await fetch(`${base}/rest/v1/kevin_sync_projects?on_conflict=id`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(projectRows)
+    });
+    if (!projectsResponse.ok) {
+      return { ok: false, status: projectsResponse.status, message: await projectsResponse.text() };
+    }
+
+    const snapshots = projectRows.map((project) => ({
+      project_id: project.id,
+      machine_id: summary.machine.id,
+      memory_state: project.memory_state,
+      memory_freshness: project.memory_freshness,
+      memory_hash: project.memory_hash,
+      status: project.status
+    }));
+    const snapshotsResponse = await fetch(`${base}/rest/v1/kevin_sync_memory_snapshots`, {
+      method: "POST",
+      headers: { ...headers, Prefer: "return=minimal" },
+      body: JSON.stringify(snapshots)
+    });
+    if (!snapshotsResponse.ok) {
+      return { ok: false, status: snapshotsResponse.status, message: await snapshotsResponse.text() };
+    }
+  }
+
+  return { ok: true, message: "Machine and memory status published.", projects: projectRows.length };
 }

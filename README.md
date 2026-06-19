@@ -23,3 +23,15 @@ Existing projects keep their own Git repos. This console stores a registry entry
 ## Secrets
 
 Local secrets belong in `.env.local`, OS credential stores, or each tool's own auth store. The dashboard only reports whether required values exist; it does not display secret values.
+
+## Cloud Control Plane
+
+Use a dedicated Supabase project for this console. The current project target is:
+
+```text
+GitHub: kevinhpchan888/AI-Synchronizer
+Supabase project ref: usxahiliflnjypywspxk
+Supabase URL: https://usxahiliflnjypywspxk.supabase.co
+```
+
+The schema in `cloud/supabase-schema.sql` creates namespaced `kevin_sync_*` tables for machine heartbeats, Hermes jobs, project status, and memory snapshots.
