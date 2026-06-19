@@ -3,24 +3,45 @@ import { homedir } from "node:os";
 import path from "node:path";
 import { commandExists, run, runShell } from "./command.mjs";
 
+const isWindows = platform() === "win32";
+const isMac = platform() === "darwin";
+const userBin = path.join(homedir(), ".local", "bin");
+const portableNodeBin = path.join(homedir(), ".local", "ai-sync", "node", "bin");
+
 const TOOL_DEFINITIONS = [
   { id: "git", label: "Git", command: "git", required: true },
-  { id: "node", label: "Node.js", command: "node", required: true },
-  { id: "npm", label: "npm", command: "npm", required: true },
-  { id: "claude", label: "Claude Code", command: "claude", required: false },
-  { id: "codex", label: "Codex", command: "codex", required: false },
-  { id: "vscode", label: "VS Code", command: "code", required: false },
+  { id: "node", label: "Node.js", command: "node", required: true, fallbackPaths: [path.join(portableNodeBin, "node")] },
+  { id: "npm", label: "npm", command: "npm", required: true, fallbackPaths: [path.join(portableNodeBin, "npm")] },
+  { id: "claude", label: "Claude Code", command: "claude", required: false, fallbackPaths: [path.join(userBin, "claude"), path.join(portableNodeBin, "claude")] },
+  {
+    id: "codex",
+    label: "Codex",
+    command: "codex",
+    required: false,
+    fallbackPaths: isMac
+      ? [path.join(userBin, "codex"), "/Applications/Codex.app/Contents/Resources/codex"]
+      : []
+  },
+  {
+    id: "vscode",
+    label: "VS Code",
+    command: "code",
+    required: false,
+    fallbackPaths: isMac ? [path.join(userBin, "code"), "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code"] : []
+  },
   {
     id: "skillshare",
     label: "Skillshare",
     command: "skillshare",
     required: false,
-    fallbackPaths: platform() === "win32" ? [path.join(homedir(), "AppData", "Local", "Programs", "skillshare", "skillshare.exe")] : []
+    fallbackPaths: isWindows
+      ? [path.join(homedir(), "AppData", "Local", "Programs", "skillshare", "skillshare.exe")]
+      : [path.join(userBin, "skillshare"), path.join(portableNodeBin, "skillshare")]
   },
-  { id: "aiConfigSync", label: "Claude/Codex Config Sync", command: "ai-config-sync", required: false },
-  { id: "memorix", label: "Memorix", command: "memorix", required: false },
-  { id: "vercel", label: "Vercel", command: "vercel", required: false },
-  { id: "supabase", label: "Supabase", command: "supabase", required: false }
+  { id: "aiConfigSync", label: "Claude/Codex Config Sync", command: "ai-config-sync", required: false, fallbackPaths: [path.join(portableNodeBin, "ai-config-sync")] },
+  { id: "memorix", label: "Memorix", command: "memorix", required: false, fallbackPaths: [path.join(portableNodeBin, "memorix")] },
+  { id: "vercel", label: "Vercel", command: "vercel", required: false, fallbackPaths: [path.join(portableNodeBin, "vercel")] },
+  { id: "supabase", label: "Supabase", command: "supabase", required: false, fallbackPaths: [path.join(portableNodeBin, "supabase")] }
 ];
 
 async function findFallbackPath(tool) {
@@ -56,7 +77,6 @@ export async function getToolStatus() {
 }
 
 export async function installTool(toolId) {
-  const isWindows = platform() === "win32";
   const installers = {
     skillshare: isWindows
       ? "irm https://raw.githubusercontent.com/runkids/skillshare/main/install.ps1 | iex"

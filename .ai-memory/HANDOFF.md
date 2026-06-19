@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Claude/Codex portable environment sync added. New Sync Agent Environment button and /api/environment/sync-local apply shared Claude instructions, Codex instructions, portable hooks/rules, and skills with backups. Auth, sessions, logs, caches, SQLite state, and machine-specific app paths remain local. PC environment sync already ran successfully with backup under ~/.ai-sync-backups.
+Missing tools installed and sync detection fixed. MacBook now has Claude Code CLI, Codex CLI, VS Code, Skillshare, ai-config-sync, Memorix, Vercel, and Supabase installed. Skill inventory now understands nested skills and Skillshare flattened names, so canonical/Claude/Codex/Agents all align at 65 skills. Stale placeholder machine records removed; Cloud Fleet tracks real PC/MacBook/Mac Mini.
 
-Updated: 2026-06-19T10:55:37.347Z
+Updated: 2026-06-19T11:09:02.366Z

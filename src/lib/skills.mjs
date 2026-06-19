@@ -32,15 +32,22 @@ async function directoryExists(folder) {
 
 async function listSkillFolders(folder) {
   if (!(await directoryExists(folder))) return [];
-  const entries = await fs.readdir(folder, { withFileTypes: true });
-  const skills = [];
-  for (const entry of entries) {
-    if (!entry.isDirectory()) continue;
-    const skillPath = path.join(folder, entry.name);
-    const hasSkillFile = await fileExists(path.join(skillPath, "SKILL.md"));
-    skills.push({ name: entry.name, hasSkillFile });
+  const skillsByName = new Map();
+
+  async function walk(currentFolder, parts = []) {
+    const entries = await fs.readdir(currentFolder, { withFileTypes: true });
+    if (parts.length && await fileExists(path.join(currentFolder, "SKILL.md"))) {
+      const name = parts.join("__");
+      skillsByName.set(name, { name, path: currentFolder, hasSkillFile: true });
+    }
+    for (const entry of entries) {
+      if (!entry.isDirectory() || EXCLUDED_COPY_DIRS.has(entry.name)) continue;
+      await walk(path.join(currentFolder, entry.name), [...parts, entry.name]);
+    }
   }
-  return skills.sort((a, b) => a.name.localeCompare(b.name));
+
+  await walk(folder);
+  return [...skillsByName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 async function fileExists(file) {
@@ -129,7 +136,7 @@ export async function syncLocalSkills() {
     await fs.mkdir(target.path, { recursive: true });
     let copied = 0;
     for (const skill of canonical) {
-      await copyDirectory(path.join(canonicalPath, skill.name), path.join(target.path, skill.name));
+      await copyDirectory(skill.path ?? path.join(canonicalPath, skill.name), path.join(target.path, skill.name));
       copied += 1;
     }
     results.push({ target: target.label, copied });
@@ -157,7 +164,7 @@ export async function importLocalSkillsToCanonical() {
   for (const target of SKILL_TARGETS) {
     const skills = await listSkillFolders(target.path);
     for (const skill of skills) {
-      const source = path.join(target.path, skill.name);
+      const source = skill.path ?? path.join(target.path, skill.name);
       const destination = path.join(canonicalPath, skill.name);
       await copyDirectory(source, destination);
       imported.push({ name: skill.name, from: target.label });
