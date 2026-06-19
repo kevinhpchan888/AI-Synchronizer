@@ -1,0 +1,4 @@
+prefix_rule(pattern=["curl"], decision="allow")
+prefix_rule(pattern=["/Applications/Codex.app/Contents/Resources/codex", "mcp", "add"], decision="allow")
+prefix_rule(pattern=["python3", "-c", "import deploy_starter_kit_access as d; d.update_raw_html_page(28667,\"starter-kit-access\",\"Starter Kit Access\",\"/tmp/starter-kit-code.html\",\"auto_starter_kit_access_1\")"], decision="allow")
+prefix_rule(pattern=["cp", "/tmp/starter-kit-code.html", "/Users/kevinchan/Library/CloudStorage/GoogleDrive-hongszeting@gmail.com/My Drive/DIGITAL PRODUCTS/THE AGING PARENT CARE GIVING SYSTEM/Website and Store/starter_kit_access_code.html"], decision="allow")

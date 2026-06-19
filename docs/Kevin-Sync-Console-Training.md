@@ -29,7 +29,7 @@ Preferred one-click path:
 4. Copy the Mac or Windows setup file to the new machine.
 5. Double-click the setup file.
 6. The setup file clones the repo, installs/checks tools, runs restore, and opens Kevin Sync Console.
-7. In the dashboard, click **Sync Local Skills**.
+7. In the dashboard, click **Sync Agent Environment**.
 8. Click **Publish Cloud Status** once Supabase is connected.
 
 Manual fallback:
@@ -42,7 +42,7 @@ Manual fallback:
    - Mac: `restore-kevin-sync-console.sh`
 5. Open the dashboard.
 6. Confirm the machine appears in **Machines**.
-7. Click **Sync Local Skills**.
+7. Click **Sync Agent Environment**.
 8. Click **Publish Cloud Status** once Supabase is connected.
 
 If GitHub is not connected yet, the dashboard will keep warning that restore is not fully protected. That warning is expected until the sync-console repo has a private GitHub remote.
@@ -115,7 +115,7 @@ To use normal Claude models again, click **Switch Back To Claude** in the same p
 
 ### Before Switching Tools
 
-1. Click **Sync Local Skills**.
+1. Click **Sync Agent Environment**.
 2. Confirm Claude Code and Codex show the same skill count.
 3. Use **Agent / Model Profiles** to choose whether Claude Code is currently on Claude models or GLM 5.2.
 
@@ -149,7 +149,9 @@ What the labels mean:
 - `extra`: that agent has skills not yet in the shared source.
 - `missing`: that agent is missing skills from the shared source.
 
-Use **Sync Local Skills** after you add or update skills in the shared `skills/` folder. It copies the shared skills into local Claude, Codex, and Shared Agents folders on the current machine.
+Use **Sync Agent Environment** when you want this machine to match the shared Claude/Codex working setup. It syncs global Claude instructions, global Codex instructions, portable hooks/rules, and all shared skills. It does not copy auth files, sessions, logs, caches, SQLite databases, or machine-specific app paths.
+
+Use **Sync Local Skills** only when you want to refresh skills without touching the shared Claude/Codex instruction layer.
 
 When the shared source is empty, use **Build Shared Skill Source** first. That imports the skills already present on the current machine from Claude Code, Codex, and Shared Agents into the shared source folder. After that, use **Sync Local Skills**.
 
@@ -164,7 +166,7 @@ Use this when a machine is refreshed, wiped, or replaced.
 5. Open Kevin Sync Console.
 6. Check **Machines** and **Skill Coverage**.
 7. Add local project folders again if they are not already cloned.
-8. Click **Sync Local Skills**.
+8. Click **Sync Agent Environment**.
 9. Click **Publish Cloud Status** after cloud credentials are connected.
 10. Start work only after the top readiness panel is not red.
 
@@ -176,7 +178,7 @@ Use this when a machine is refreshed, wiped, or replaced.
 - Vercel not logged in: the hosted dashboard is not deployed yet.
 - Red project warning: do not switch machines until it is fixed.
 - Pending machine: restore the repo on that machine and publish status.
-- Empty shared skills: click **Build Shared Skill Source**, then **Sync Local Skills**.
+- Empty shared skills: click **Build Shared Skill Source**, then **Sync Agent Environment**.
 
 ## The One Habit
 

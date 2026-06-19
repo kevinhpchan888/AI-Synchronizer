@@ -1,0 +1,17 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 '/Users/kevinchan/.codex/hooks/ai-word-scanner.py'",
+            "timeout": 10,
+            "statusMessage": "Scanning for AI blacklist words..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -12,6 +12,7 @@ import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./l
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
 import { adoptWorkspace, checkpointWorkspace, switchWorkspaceAgent } from "./lib/workspaces.mjs";
+import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -344,6 +345,10 @@ async function handleApi(req, res, url) {
 
     if (req.method === "POST" && url.pathname === "/api/skills/sync-local") {
       return send(res, 200, await syncLocalSkills());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/environment/sync-local") {
+      return send(res, 200, await syncLocalAgentEnvironment());
     }
 
     if (req.method === "POST" && url.pathname === "/api/skills/import-local") {

@@ -56,6 +56,7 @@ const selectors = {
   prepareSetupButton: document.querySelector("#prepareSetupButton"),
   openSetupFolderButton: document.querySelector("#openSetupFolderButton"),
   importSkillsButton: document.querySelector("#importSkillsButton"),
+  syncEnvironmentButton: document.querySelector("#syncEnvironmentButton"),
   syncSkillsButton: document.querySelector("#syncSkillsButton"),
   startWorkButton: document.querySelector("#startWorkButton"),
   switchClaudeButton: document.querySelector("#switchClaudeButton"),
@@ -787,6 +788,8 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
   for (const project of state.summary.projects.filter((item) => item.state === "behind")) {
     await projectAction(project.id, "pull");
   }
+  const environment = await api("/api/environment/sync-local", { method: "POST" });
+  log(environment.ok ? "Agent environment sync finished." : "Agent environment sync failed.", environment);
   const skillshare = toolById("skillshare");
   if (skillshare?.exists) await toolAction("skillshare", "sync");
   const config = toolById("aiConfigSync");
@@ -800,6 +803,15 @@ selectors.syncSkillsButton.addEventListener("click", async () => {
   log("Syncing local skills.");
   const result = await api("/api/skills/sync-local", { method: "POST" });
   log(result.ok ? "Local skill sync finished." : "Local skill sync failed.", result);
+  await refresh();
+});
+
+selectors.syncEnvironmentButton.addEventListener("click", async () => {
+  const ok = window.confirm("Sync Claude/Codex shared instructions, hooks, rules, and skills on this machine? Local auth, sessions, logs, and databases will be left alone.");
+  if (!ok) return;
+  log("Syncing Claude/Codex agent environment.");
+  const result = await api("/api/environment/sync-local", { method: "POST" });
+  log(result.ok ? "Agent environment sync finished." : "Agent environment sync failed.", result);
   await refresh();
 });
 
