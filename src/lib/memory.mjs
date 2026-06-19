@@ -122,7 +122,7 @@ async function newestProjectFile(projectPath) {
       ].includes(entry.name)) continue;
       const fullPath = path.join(folder, entry.name);
       const relativePath = path.relative(projectPath, fullPath).replaceAll("\\", "/");
-      if (["registry/local-machine.json", "registry/session.json"].includes(relativePath)) continue;
+      if ([".env.local", "registry/local-machine.json", "registry/session.json"].includes(relativePath)) continue;
       const stat = await statOrNull(fullPath);
       if (!stat) continue;
       if (entry.isDirectory()) {
