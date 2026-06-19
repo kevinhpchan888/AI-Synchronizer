@@ -85,9 +85,18 @@ async function supabaseFetch(table, options = {}) {
   return text ? JSON.parse(text) : null;
 }
 
+async function readExistingMachineStatus(machineId) {
+  const rows = await supabaseFetch("kevin_sync_machines", {
+    query: `select=status&id=eq.${encodeURIComponent(machineId)}&limit=1`
+  });
+  const status = Array.isArray(rows) ? rows[0]?.status : null;
+  return status && typeof status === "object" && !Array.isArray(status) ? status : {};
+}
+
 async function publishHeartbeat() {
   const machine = await readMachine();
   const env = await readEnv();
+  const existingStatus = await readExistingMachineStatus(machine.id);
   await supabaseFetch("kevin_sync_machines", {
     method: "POST",
     query: "on_conflict=id",
@@ -100,6 +109,7 @@ async function publishHeartbeat() {
       address: env.TAILSCALE_IP || null,
       last_seen: new Date().toISOString(),
       status: {
+        ...existingStatus,
         hermesWorker: "online",
         host: hostname(),
         key: machine.key,
