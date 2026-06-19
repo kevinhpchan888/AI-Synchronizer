@@ -8,6 +8,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENV_FILE = path.join(ROOT, ".env.local");
 const LOCAL_MACHINE_FILE = path.join(ROOT, "registry", "local-machine.json");
 const POLL_MS = Number(process.env.HERMES_POLL_MS || 30000);
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 async function readEnv() {
   const values = { ...process.env };
@@ -27,9 +28,12 @@ async function readEnv() {
 
 async function readMachine() {
   const env = await readEnv();
-  if (env.AI_SYNC_MACHINE_ID) {
+  const configuredKey = env.AI_SYNC_MACHINE_KEY || env.AI_SYNC_MACHINE_ID || null;
+  const configuredUuid = env.AI_SYNC_MACHINE_UUID || (UUID_PATTERN.test(env.AI_SYNC_MACHINE_ID || "") ? env.AI_SYNC_MACHINE_ID : null);
+  if (configuredUuid) {
     return {
-      id: env.AI_SYNC_MACHINE_ID,
+      id: configuredUuid,
+      key: configuredKey || configuredUuid,
       name: env.AI_SYNC_MACHINE_NAME || hostname(),
       platform: env.AI_SYNC_MACHINE_PLATFORM || platform(),
       role: env.AI_SYNC_MACHINE_ROLE || "Hermes coordinator"
@@ -37,10 +41,18 @@ async function readMachine() {
   }
 
   try {
-    return JSON.parse(await fs.readFile(LOCAL_MACHINE_FILE, "utf8"));
+    const machine = JSON.parse(await fs.readFile(LOCAL_MACHINE_FILE, "utf8"));
+    return {
+      ...machine,
+      key: configuredKey || machine.key || machine.id,
+      name: env.AI_SYNC_MACHINE_NAME || machine.name || hostname(),
+      platform: env.AI_SYNC_MACHINE_PLATFORM || machine.platform || platform(),
+      role: env.AI_SYNC_MACHINE_ROLE || machine.role || "Hermes coordinator"
+    };
   } catch {
     const machine = {
       id: randomUUID(),
+      key: configuredKey || "hermes",
       name: hostname(),
       platform: platform(),
       role: "Hermes coordinator",
@@ -74,6 +86,7 @@ async function supabaseFetch(table, options = {}) {
 
 async function publishHeartbeat() {
   const machine = await readMachine();
+  const env = await readEnv();
   await supabaseFetch("kevin_sync_machines", {
     method: "POST",
     query: "on_conflict=id",
@@ -82,12 +95,13 @@ async function publishHeartbeat() {
       id: machine.id,
       name: machine.name || hostname(),
       platform: machine.platform || platform(),
-      role: "Hermes coordinator",
-      address: process.env.TAILSCALE_IP || null,
+      role: machine.role || "Hermes coordinator",
+      address: env.TAILSCALE_IP || null,
       last_seen: new Date().toISOString(),
       status: {
         hermesWorker: "online",
         host: hostname(),
+        key: machine.key,
         pid: process.pid
       }
     }
@@ -96,7 +110,7 @@ async function publishHeartbeat() {
 
 async function getQueuedJobs() {
   const machine = await readMachine();
-  const targets = [machine.id, "hermes", "mac-mini"]
+  const targets = [machine.key, machine.id, "hermes", "mac-mini"]
     .filter(Boolean)
     .map((target) => `target_machine_key.eq.${encodeURIComponent(target)}`)
     .join(",");

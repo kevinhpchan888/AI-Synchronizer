@@ -2,6 +2,6 @@
 
 ## Latest Handoff
 
-Final PC baseline plus Mac Mini worker hardening complete. Hermes worker now keeps a stable machine identity, honors AI_SYNC_MACHINE_ID/NAME/ROLE env values, polls jobs for its own key plus hermes/mac-mini, and has a launchd installer for the Mac Mini. Local checks pass. GitHub/Vercel/Supabase publish should be refreshed after this handoff.
+Mac Mini worker fix complete. Hermes worker now separates database UUID identity from friendly routing keys such as mac-mini, reads Tailscale IP from .env.local, and keeps launchd-compatible behavior. npm checks pass. Mac Mini should pull this commit and restart the worker from ~/AI-Synchronizer.
 
-Updated: 2026-06-19T10:14:13.759Z
+Updated: 2026-06-19T10:17:19.085Z
