@@ -66,10 +66,18 @@ Use this on AMVPC when switching between Claude Code and Codex.
 
 The **Memory Status** button stays inside AI Sync Console. It highlights the project memory status and tells you whether to initialize `.ai-memory`, refresh the handoff, or continue. MemoRix is legacy/optional here; it is not the daily control plane.
 
+The **Cognee + Graphiti Semantic Memory** panel is the richer memory layer:
+
+1. **Build Semantic Memory** creates the project knowledge index, temporal graph, and startup packet.
+2. **Show Startup Packet** shows the exact context Claude, Codex, and Hermes should read first.
+3. **Search Memory** searches files, decisions, tasks, API routes, entities, and relations already indexed from the project.
+
+For APC, the key file is `.ai-memory/semantic/AGENT_STARTUP.md`. That is the first context file to read when moving from Claude to Codex, Codex to Claude, PC to Mac, or Mac to PC.
+
 The rule is simple:
 
 ```text
-Do not switch tools from chat memory. Switch through the workspace folder and handoff.
+Do not switch tools from chat memory. Switch through the workspace folder, semantic startup packet, and handoff.
 ```
 
 You should not need to type a handoff for normal switching. The manual handoff note is only for extra context the console cannot infer.

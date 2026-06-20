@@ -10,7 +10,8 @@ import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
-import { getMemoryInventory, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
+import { getMemoryInventory, getProjectMemoryStatus, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
+import { getAgentStartupPacket, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "./lib/semantic-memory.mjs";
 import { adoptWorkspace, checkpointWorkspace, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
@@ -103,6 +104,7 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   const glmProfile = agents?.profiles?.find((profile) => profile.id === "claude-code-glm52");
   const missingMemory = memory?.projects?.filter((project) => project.state === "missing") ?? [];
   const staleMemory = memory?.projects?.filter((project) => ["stale", "incomplete", "handoff-needed"].includes(project.state)) ?? [];
+  const weakSemanticMemory = memory?.projects?.filter((project) => ["missing", "invalid", "stale"].includes(project.semantic?.state)) ?? [];
 
   if (missingTools.length) {
     items.push({
@@ -181,6 +183,14 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
       title: "Refresh stale project memory",
       body: `${staleMemory.length} project memory pack${staleMemory.length === 1 ? " needs" : "s need"} a handoff or status update.`,
       action: "Use Prepare Handoff before switching machines or agents."
+    });
+  }
+  if (!missingMemory.length && weakSemanticMemory.length) {
+    items.push({
+      level: "warning",
+      title: "Build semantic project memory",
+      body: `${weakSemanticMemory.length} project${weakSemanticMemory.length === 1 ? " needs" : "s need"} the Cognee/Graphiti semantic layer rebuilt.`,
+      action: "Use Build Semantic Memory for the active project."
     });
   }
   if (!cloud.supabase.configured) {
@@ -328,7 +338,12 @@ async function handleApi(req, res, url) {
       const projects = await readProjects();
       const project = projects.find((item) => item.id === id);
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
-      return send(res, 200, await initializeProjectMemory(await getProjectStatus(project)));
+      const status = await getProjectStatus(project);
+      const memory = await initializeProjectMemory(status);
+      const semantic = status.exists && (status.isRepo || status.isContext)
+        ? await rebuildSemanticMemory(status, { reason: "memory_initialized" })
+        : { ok: false, message: "Project folder or context space is unavailable." };
+      return send(res, 200, { ...memory, semantic });
     }
 
     if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/handoff$/)) {
@@ -341,6 +356,43 @@ async function handleApi(req, res, url) {
         return send(res, 200, await writeProjectHandoff(await getProjectStatus(project), body.summary));
       }
       return send(res, 200, await refreshWorkspaceHandoff(project, body.targetAgent || "handoff"));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/semantic\/rebuild$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const status = await getProjectStatus(project);
+      if (!status.exists || (!status.isRepo && !status.isContext)) return send(res, 409, { ok: false, message: "Project folder or context space is unavailable." });
+      await initializeProjectMemory(status);
+      return send(res, 200, await rebuildSemanticMemory(status, { reason: "manual_rebuild" }));
+    }
+
+    if (req.method === "GET" && url.pathname.match(/^\/api\/projects\/[^/]+\/semantic\/search$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const status = await getProjectStatus(project);
+      const memory = await getProjectMemoryStatus(status);
+      if (memory.state === "missing") return send(res, 409, { ok: false, message: `${status.name} needs Initialize Memory before semantic search.` });
+      const semantic = await getSemanticMemoryStatus(status);
+      if (semantic.state !== "fresh") return send(res, 409, { ok: false, message: `${status.name} needs Build Semantic Memory before search.` });
+      return send(res, 200, await searchSemanticMemory(status, url.searchParams.get("q") ?? ""));
+    }
+
+    if (req.method === "GET" && url.pathname.match(/^\/api\/projects\/[^/]+\/semantic\/packet$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const status = await getProjectStatus(project);
+      const memory = await getProjectMemoryStatus(status);
+      if (memory.state === "missing") return send(res, 409, { ok: false, message: `${status.name} needs Initialize Memory before a startup packet is shown.` });
+      const semantic = await getSemanticMemoryStatus(status);
+      if (semantic.state !== "fresh") return send(res, 409, { ok: false, message: `${status.name} needs Build Semantic Memory before a startup packet is shown.` });
+      return send(res, 200, await getAgentStartupPacket(status, url.searchParams.get("agent") ?? "all"));
     }
 
     if (req.method === "POST" && url.pathname === "/api/workspaces/adopt") {

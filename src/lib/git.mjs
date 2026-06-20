@@ -29,7 +29,7 @@ function parsePorcelainFiles(output) {
 }
 
 function isAutoHandoffFile(file) {
-  return file === ".ai-memory/HANDOFF.md" || file.startsWith(".ai-memory/events/");
+  return file === ".ai-memory/HANDOFF.md" || file.startsWith(".ai-memory/events/") || file.startsWith(".ai-memory/semantic/");
 }
 
 export async function getProjectStatus(project) {
@@ -122,7 +122,7 @@ export async function getProjectStatus(project) {
 
 export async function runProjectAction(project, action) {
   if (action === "saveHandoff") {
-    await git(project.path, ["add", ".ai-memory/HANDOFF.md", ".ai-memory/events"], 30000);
+    await git(project.path, ["add", ".ai-memory/HANDOFF.md", ".ai-memory/events", ".ai-memory/semantic"], 30000);
     const commit = await git(project.path, ["commit", "-m", "Update AI handoff"], 120000);
     if (!commit.ok && !/nothing to commit/i.test(commit.stdout + commit.stderr)) {
       return { ok: false, action, stdout: commit.stdout, stderr: commit.stderr, message: commit.stderr || commit.message };

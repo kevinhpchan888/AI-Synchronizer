@@ -128,6 +128,25 @@
         </article>
       </section>
 
+      <section class="panel semantic-memory-panel" id="semanticMemoryPanel">
+        <div class="panel-heading">
+          <div>
+            <h2>Cognee + Graphiti Semantic Memory</h2>
+            <p>Project knowledge index, temporal graph, and agent startup packet for Claude, Codex, and Hermes.</p>
+          </div>
+          <div class="split-actions">
+            <button id="showAgentPacketButton">Show Startup Packet</button>
+            <button id="rebuildSemanticButton" class="primary">Build Semantic Memory</button>
+          </div>
+        </div>
+        <div id="semanticMemorySummary" class="semantic-grid"></div>
+        <div class="semantic-search">
+          <input id="semanticSearchInput" autocomplete="off" placeholder="Search APC memory, tasks, decisions, routes, or context..." />
+          <button id="semanticSearchButton">Search Memory</button>
+        </div>
+        <div id="semanticSearchResults" class="semantic-results"></div>
+      </section>
+
       <section class="content-grid">
         <section class="panel action-panel">
           <div class="panel-heading">

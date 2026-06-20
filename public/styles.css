@@ -458,6 +458,90 @@ main {
   color: var(--muted);
 }
 
+.semantic-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.semantic-card {
+  min-height: 112px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: var(--surface-soft);
+}
+
+.semantic-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 720;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.semantic-card strong {
+  display: block;
+  font-size: 22px;
+}
+
+.semantic-card p {
+  color: var(--muted);
+}
+
+.semantic-search {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.semantic-search input {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 8px 10px;
+}
+
+.semantic-results {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.semantic-result {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #ffffff;
+}
+
+.semantic-result strong,
+.semantic-result small {
+  display: block;
+}
+
+.semantic-result small,
+.semantic-result p {
+  color: var(--muted);
+}
+
+.semantic-packet {
+  max-height: 360px;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 13px;
+  background: var(--surface-strong);
+  color: #d5e2ff;
+  white-space: pre-wrap;
+}
+
 .skill-summary {
   margin-bottom: 12px;
 }
@@ -705,6 +789,10 @@ dialog::backdrop {
   .agent-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .semantic-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 760px) {
@@ -757,6 +845,11 @@ dialog::backdrop {
   }
 
   .agent-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .semantic-grid,
+  .semantic-search {
     grid-template-columns: 1fr;
   }
 

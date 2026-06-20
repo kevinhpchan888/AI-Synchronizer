@@ -1,0 +1,569 @@
+{
+  "schemaVersion": 2,
+  "engine": {
+    "cognee": "local-compatible semantic index",
+    "graphiti": "local-compatible temporal graph"
+  },
+  "project": {
+    "id": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+    "name": "General / Other",
+    "path": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general"
+  },
+  "builtAt": "2026-06-20T03:15:27.924Z",
+  "sourceHash": "a9d704cf2e2abd0f9ec0c6ad7b95e8d61cfcbdcf02d816614760acaee562a604",
+  "summary": {
+    "files": 10,
+    "chunks": 10,
+    "entities": 75,
+    "relations": 14,
+    "bytes": 4998
+  },
+  "chunks": [
+    {
+      "id": "8312422fcb415e82c94cfec0085029b7939d836f",
+      "path": ".ai-memory/CONTEXT_INDEX.json",
+      "title": ".ai-memory/CONTEXT_INDEX.json",
+      "updatedAt": "2026-06-19T12:02:22.179Z",
+      "size": 551,
+      "keywords": [
+        {
+          "word": "role",
+          "count": 3
+        },
+        {
+          "word": "rebuildable",
+          "count": 2
+        },
+        {
+          "word": "true",
+          "count": 2
+        },
+        {
+          "word": "178z",
+          "count": 1
+        },
+        {
+          "word": "2026-06-19t12",
+          "count": 1
+        },
+        {
+          "word": "always-on",
+          "count": 1
+        },
+        {
+          "word": "cognee",
+          "count": 1
+        },
+        {
+          "word": "context_index",
+          "count": 1
+        },
+        {
+          "word": "coordinator",
+          "count": 1
+        },
+        {
+          "word": "createdat",
+          "count": 1
+        },
+        {
+          "word": "decisions",
+          "count": 1
+        },
+        {
+          "word": "event",
+          "count": 1
+        }
+      ],
+      "headings": [],
+      "preview": "{ \"schemaVersion\": 1, \"project\": \"General / Other\", \"createdAt\": \"2026-06-19T12:02:22.178Z\", \"memoryEngines\": { \"cognee\": { \"role\": \"project knowledge index\", \"rebuildable\": true }, \"graphiti\": { \"role\": \"temporal event graph\", \"rebuildable\": true }, \"hermes\": { \"role\": \"always-on coordinator\", \"sourceOfTruth\": false } }, \"requiredFiles\": [ \"PROJECT.md\", \"ST"
+    },
+    {
+      "id": "cf6d112fd0649e3b89efd46f3eb4c8898219d50c",
+      "path": ".ai-memory/DECISIONS.md",
+      "title": "Decisions",
+      "updatedAt": "2026-06-19T12:02:22.176Z",
+      "size": 55,
+      "keywords": [
+        {
+          "word": "decisions",
+          "count": 2
+        },
+        {
+          "word": "important",
+          "count": 1
+        },
+        {
+          "word": "record",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "Decisions"
+      ],
+      "preview": "# Decisions Record important project decisions here."
+    },
+    {
+      "id": "9c4f1e90cea075c475de104dddb853b5cfd80b2c",
+      "path": ".ai-memory/events/2026-06-19.jsonl",
+      "title": ".ai-memory/events/2026-06-19.jsonl",
+      "updatedAt": "2026-06-19T13:56:18.562Z",
+      "size": 1652,
+      "keywords": [
+        {
+          "word": "general",
+          "count": 8
+        },
+        {
+          "word": "2026-06-19t13",
+          "count": 3
+        },
+        {
+          "word": "ai-memory",
+          "count": 3
+        },
+        {
+          "word": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+          "count": 3
+        },
+        {
+          "word": "chan",
+          "count": 3
+        },
+        {
+          "word": "claudecodex",
+          "count": 3
+        },
+        {
+          "word": "context-spaces",
+          "count": 3
+        },
+        {
+          "word": "documents",
+          "count": 3
+        },
+        {
+          "word": "handoff",
+          "count": 3
+        },
+        {
+          "word": "kevin",
+          "count": 3
+        },
+        {
+          "word": "occurredat",
+          "count": 3
+        },
+        {
+          "word": "payload",
+          "count": 3
+        }
+      ],
+      "headings": [],
+      "preview": "{\"id\":\"3d95e4bd-ba93-476b-8324-4852b80720ca\",\"type\":\"memory_initialized\",\"projectId\":\"b78c0ca8-0a7f-491f-baf2-701a3f4e73b6\",\"projectName\":\"General / Other\",\"occurredAt\":\"2026-06-19T12:02:22.179Z\",\"payload\":{\"createdFiles\":[\"PROJECT.md\",\"STATUS.md\",\"DECISIONS.md\",\"TASKS.md\",\"HANDOFF.md\",\"RULES.md\",\"CONTEXT_INDEX.json\"],\"memoryPath\":\"C:\\\\Users\\\\Kevin Chan\\\\Doc"
+    },
+    {
+      "id": "a0d08137a215ce715449ec5a451ee126ca5dd9b7",
+      "path": ".ai-memory/events/2026-06-20.jsonl",
+      "title": ".ai-memory/events/2026-06-20.jsonl",
+      "updatedAt": "2026-06-20T03:15:27.912Z",
+      "size": 660,
+      "keywords": [
+        {
+          "word": "general",
+          "count": 4
+        },
+        {
+          "word": "2026-06-20t03",
+          "count": 2
+        },
+        {
+          "word": "ai-memory",
+          "count": 2
+        },
+        {
+          "word": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+          "count": 2
+        },
+        {
+          "word": "chan",
+          "count": 2
+        },
+        {
+          "word": "claudecodex",
+          "count": 2
+        },
+        {
+          "word": "context-spaces",
+          "count": 2
+        },
+        {
+          "word": "createdfiles",
+          "count": 2
+        },
+        {
+          "word": "documents",
+          "count": 2
+        },
+        {
+          "word": "kevin",
+          "count": 2
+        },
+        {
+          "word": "memory_initialized",
+          "count": 2
+        },
+        {
+          "word": "memorypath",
+          "count": 2
+        }
+      ],
+      "headings": [],
+      "preview": "{\"id\":\"def6f93c-e825-4b0f-829f-a09d0510c12f\",\"type\":\"memory_initialized\",\"projectId\":\"b78c0ca8-0a7f-491f-baf2-701a3f4e73b6\",\"projectName\":\"General / Other\",\"occurredAt\":\"2026-06-20T03:12:31.338Z\",\"payload\":{\"createdFiles\":[],\"memoryPath\":\"C:\\\\Users\\\\Kevin Chan\\\\Documents\\\\ClaudeCodex Sync\\\\context-spaces\\\\general\\\\.ai-memory\"}} {\"id\":\"1c5ba1f5-ebbb-4cbd-bbc6"
+    },
+    {
+      "id": "0a4a2348b5907ae4f5a7052cd0c8523132dbea57",
+      "path": ".ai-memory/HANDOFF.md",
+      "title": "Handoff",
+      "updatedAt": "2026-06-19T13:56:18.561Z",
+      "size": 728,
+      "keywords": [
+        {
+          "word": "handoff",
+          "count": 4
+        },
+        {
+          "word": "general",
+          "count": 3
+        },
+        {
+          "word": "next",
+          "count": 3
+        },
+        {
+          "word": "2026-06-19t13",
+          "count": 2
+        },
+        {
+          "word": "for",
+          "count": 2
+        },
+        {
+          "word": "latest",
+          "count": 2
+        },
+        {
+          "word": "state",
+          "count": 2
+        },
+        {
+          "word": "557z",
+          "count": 1
+        },
+        {
+          "word": "561z",
+          "count": 1
+        },
+        {
+          "word": "active",
+          "count": 1
+        },
+        {
+          "word": "ai-memory",
+          "count": 1
+        },
+        {
+          "word": "applicable",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "Handoff",
+        "Latest Handoff"
+      ],
+      "preview": "# Handoff ## Latest Handoff Auto-generated handoff for the next AI tool. Project: General / Other Path: C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general Branch: not applicable Remote: none / context-only Sync state: Context space Working tree: clean or not repo-based. Latest commit: not available. Memory instruction: read .ai-memory/PROJ"
+    },
+    {
+      "id": "c695e309f0d862690309ee0b52986bb9f1823045",
+      "path": ".ai-memory/PROJECT.md",
+      "title": "General / Other",
+      "updatedAt": "2026-06-19T12:06:00.468Z",
+      "size": 615,
+      "keywords": [
+        {
+          "word": "general",
+          "count": 3
+        },
+        {
+          "word": "ai_sync_root",
+          "count": 2
+        },
+        {
+          "word": "context-spaces",
+          "count": 2
+        },
+        {
+          "word": "171z",
+          "count": 1
+        },
+        {
+          "word": "2026-06-19t12",
+          "count": 1
+        },
+        {
+          "word": "agents",
+          "count": 1
+        },
+        {
+          "word": "ai-memory",
+          "count": 1
+        },
+        {
+          "word": "app",
+          "count": 1
+        },
+        {
+          "word": "becomes",
+          "count": 1
+        },
+        {
+          "word": "book",
+          "count": 1
+        },
+        {
+          "word": "capture",
+          "count": 1
+        },
+        {
+          "word": "claude",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "General / Other",
+        "Purpose",
+        "Important Paths",
+        "Promotion Rule",
+        "Owners / Agents"
+      ],
+      "preview": "# General / Other ## Purpose Capture non-repo work, loose ideas, temporary investigations, cross-project notes, and \"Other\" sessions that do not yet deserve their own project repo. ## Important Paths - Project root: $AI_SYNC_ROOT/context-spaces/general - Memory pack: $AI_SYNC_ROOT/context-spaces/general/.ai-memory ## Promotion Rule If this context becomes a "
+    },
+    {
+      "id": "d9f22bfd3c233c173f11b15485de31789ad47851",
+      "path": ".ai-memory/RULES.md",
+      "title": "Agent Rules",
+      "updatedAt": "2026-06-19T12:02:22.178Z",
+      "size": 267,
+      "keywords": [
+        {
+          "word": "decisions",
+          "count": 2
+        },
+        {
+          "word": "agents",
+          "count": 1
+        },
+        {
+          "word": "architectural",
+          "count": 1
+        },
+        {
+          "word": "committed",
+          "count": 1
+        },
+        {
+          "word": "folder",
+          "count": 1
+        },
+        {
+          "word": "handoff",
+          "count": 1
+        },
+        {
+          "word": "important",
+          "count": 1
+        },
+        {
+          "word": "keep",
+          "count": 1
+        },
+        {
+          "word": "machines",
+          "count": 1
+        },
+        {
+          "word": "pack",
+          "count": 1
+        },
+        {
+          "word": "projects",
+          "count": 1
+        },
+        {
+          "word": "read",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "Agent Rules"
+      ],
+      "preview": "# Agent Rules - Read this memory pack before starting substantial work. - Update STATUS.md and HANDOFF.md before switching machines, agents, or projects. - Record important architectural decisions in DECISIONS.md. - Keep this folder committed with the project repo."
+    },
+    {
+      "id": "5bad76dc0e0df6c9d306ea65bf8630290a755473",
+      "path": ".ai-memory/STATUS.md",
+      "title": "Status",
+      "updatedAt": "2026-06-19T12:02:22.175Z",
+      "size": 183,
+      "keywords": [
+        {
+          "word": "recorded",
+          "count": 3
+        },
+        {
+          "word": "last",
+          "count": 2
+        },
+        {
+          "word": "state",
+          "count": 2
+        },
+        {
+          "word": "yet",
+          "count": 2
+        },
+        {
+          "word": "173z",
+          "count": 1
+        },
+        {
+          "word": "2026-06-19t12",
+          "count": 1
+        },
+        {
+          "word": "active",
+          "count": 1
+        },
+        {
+          "word": "blockers",
+          "count": 1
+        },
+        {
+          "word": "focus",
+          "count": 1
+        },
+        {
+          "word": "good",
+          "count": 1
+        },
+        {
+          "word": "known",
+          "count": 1
+        },
+        {
+          "word": "none",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "Status",
+        "Last Known Good State",
+        "Current Focus",
+        "Blockers"
+      ],
+      "preview": "# Status Current state: active ## Last Known Good State Not recorded yet. ## Current Focus Not recorded yet. ## Blockers None recorded. Last updated: 2026-06-19T12:02:22.173Z"
+    },
+    {
+      "id": "2c449b749c85760f4eb80d8e68069209191d0060",
+      "path": ".ai-memory/TASKS.md",
+      "title": "Tasks",
+      "updatedAt": "2026-06-19T12:02:22.176Z",
+      "size": 63,
+      "keywords": [
+        {
+          "word": "tasks",
+          "count": 2
+        },
+        {
+          "word": "active",
+          "count": 1
+        },
+        {
+          "word": "add",
+          "count": 1
+        },
+        {
+          "word": "done",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "Tasks",
+        "Active",
+        "Done"
+      ],
+      "preview": "# Tasks ## Active - [ ] Add current project tasks. ## Done"
+    },
+    {
+      "id": "76ec465d9483221ef855ebc3c8065e40d5c6f33f",
+      "path": "README.md",
+      "title": "General / Other",
+      "updatedAt": "2026-06-19T12:00:13.925Z",
+      "size": 224,
+      "keywords": [
+        {
+          "word": "becomes",
+          "count": 1
+        },
+        {
+          "word": "belong",
+          "count": 1
+        },
+        {
+          "word": "concrete",
+          "count": 1
+        },
+        {
+          "word": "connect",
+          "count": 1
+        },
+        {
+          "word": "context",
+          "count": 1
+        },
+        {
+          "word": "create",
+          "count": 1
+        },
+        {
+          "word": "dedicated",
+          "count": 1
+        },
+        {
+          "word": "for",
+          "count": 1
+        },
+        {
+          "word": "general",
+          "count": 1
+        },
+        {
+          "word": "move",
+          "count": 1
+        },
+        {
+          "word": "real",
+          "count": 1
+        },
+        {
+          "word": "relevant",
+          "count": 1
+        }
+      ],
+      "headings": [
+        "General / Other"
+      ],
+      "preview": "# General / Other Use this context space for work that does not belong to a dedicated project repo yet. When the work becomes concrete, create or connect a real project repo and move the relevant memory into that project."
+    }
+  ]
+}

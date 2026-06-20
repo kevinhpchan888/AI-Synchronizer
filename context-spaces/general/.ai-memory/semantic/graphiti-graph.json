@@ -1,0 +1,1011 @@
+{
+  "schemaVersion": 2,
+  "builtAt": "2026-06-20T03:15:27.924Z",
+  "project": {
+    "id": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+    "name": "General / Other",
+    "path": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general"
+  },
+  "summary": {
+    "entities": 75,
+    "relations": 14,
+    "episodes": 2
+  },
+  "entities": [
+    {
+      "name": "General",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "58bace24543d8553e7992f4b96dfcb50dd12d3de",
+      "mentions": 6,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        "README.md"
+      ]
+    },
+    {
+      "name": "Other",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "98ba40b91f00422251768eaf198d846a00d218b0",
+      "mentions": 6,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        "README.md"
+      ]
+    },
+    {
+      "name": "PROJECT",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "69a52cfd99f46ab0d525c28277d9b413f3ee9b8d",
+      "mentions": 5,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "HANDOFF",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "d7610dbbf5ea7575472e5a919db3c36a9afe0262",
+      "mentions": 5,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "STATUS",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "eed935ffca07484a23e664675adc3c2d6ab59c3f",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "DECISIONS",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "849962096afc8c8b6d9255d9123ee459f642e665",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/DECISIONS.md",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "TASKS",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "e7d79e2e2a7b8e1bd0400735c945c1e499ac30df",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "RULES",
+      "type": "concept",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.58,
+      "id": "dc36a1621abc2d40ecef89ef82b870b9dca0bb80",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Users",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "e68fa18b3522e0daae3bcb5b19d10fc2922557f6",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Kevin Chan",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "f4268b243cb28414bcc86e4dc9df8f44b1e769a6",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Documents",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "3acc6d48bf7bf86cf23ed2b634a1649d92c10729",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "ClaudeCodex Sync",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "afdc35a658eb1a0cc0887f4e626e74f1d2bf7400",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "General / Other",
+      "type": "section",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.84,
+      "id": "843139689b662ea1a4fee071fa18314b51b54122",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/PROJECT.md",
+        "README.md"
+      ]
+    },
+    {
+      "name": "Record",
+      "type": "concept",
+      "source": ".ai-memory/DECISIONS.md",
+      "confidence": 0.58,
+      "id": "5f69e9f9455ce0ff3cfcad1e1496239be72a060f",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/DECISIONS.md",
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Auto",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "e8ffd1704a6e629d84021bf6b0be3627fa1bee64",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Context",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "cb8705b9fbed08b714ead5511dc8567518794833",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "AI Sync Console",
+      "type": "concept",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.58,
+      "id": "ee68d35079d60d46be0885f06dee068fa030d9b8",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl",
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Memory",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "abe7c1224733f5aec887cbc0e986590d687705f4",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Last",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "bfef14c728612077376e1820c98ea4fb23a23c1f",
+      "mentions": 2,
+      "sources": [
+        ".ai-memory/PROJECT.md",
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/CONTEXT_INDEX.json",
+      "type": "file",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 1,
+      "id": "6891c9e5b750fbe118dc9190d6fb9513cfaa42aa",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/CONTEXT_INDEX.json"
+      ]
+    },
+    {
+      "name": ".ai-memory/DECISIONS.md",
+      "type": "file",
+      "source": ".ai-memory/DECISIONS.md",
+      "confidence": 1,
+      "id": "d8cbff43df5e2e1b54312f7f5c9f04d795d2e812",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/DECISIONS.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/events/2026-06-19.jsonl",
+      "type": "file",
+      "source": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 1,
+      "id": "7b7e401dd038742d9e3dadfcf2cb67f6e27a19b9",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": ".ai-memory/events/2026-06-20.jsonl",
+      "type": "file",
+      "source": ".ai-memory/events/2026-06-20.jsonl",
+      "confidence": 1,
+      "id": "c1d825cdbaf0b19c2b85ca67e69c0b5eb11957f2",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/events/2026-06-20.jsonl"
+      ]
+    },
+    {
+      "name": ".ai-memory/HANDOFF.md",
+      "type": "file",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 1,
+      "id": "3b288ba0bfa6ee34f0b0e48256321fa2059cd16c",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/PROJECT.md",
+      "type": "file",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 1,
+      "id": "e8e9ee17233795c3c92c9f0e7400d2a63f026e45",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/RULES.md",
+      "type": "file",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 1,
+      "id": "49e7db0c8d493abe483cf04ac56c2f8c89791395",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/STATUS.md",
+      "type": "file",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 1,
+      "id": "c6978f0578b3a57546dd79f2f49fe61596d4b023",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": ".ai-memory/TASKS.md",
+      "type": "file",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 1,
+      "id": "50385e2164ad35014a4fc66806f8ac3ef188395a",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "README.md",
+      "type": "file",
+      "source": "README.md",
+      "confidence": 1,
+      "id": "b5e96a53fcc323ba9e08867abd08b921e7bf2b08",
+      "mentions": 1,
+      "sources": [
+        "README.md"
+      ]
+    },
+    {
+      "name": "Decisions",
+      "type": "section",
+      "source": ".ai-memory/DECISIONS.md",
+      "confidence": 0.84,
+      "id": "f7d28c7a31501cb2d8e20ff503ca47a654c2bb7f",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/DECISIONS.md"
+      ]
+    },
+    {
+      "name": "Handoff",
+      "type": "section",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.84,
+      "id": "0cec6bdefa0e3bb2fc5b2318a275dfde1b591175",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Latest Handoff",
+      "type": "section",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.84,
+      "id": "2360fdab96ccad53a58f600b214b65e2744b457e",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Purpose",
+      "type": "section",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.84,
+      "id": "e42a942d06d7398d8b78872fd0c5f1eceb6f7d4f",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Important Paths",
+      "type": "section",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.84,
+      "id": "132f51129a57591f43da701d67c5b98f912fafa9",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Promotion Rule",
+      "type": "section",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.84,
+      "id": "09fc1a9f095ee5c39cb0a9836c5539e4fe773adc",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Owners / Agents",
+      "type": "section",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.84,
+      "id": "3183b40a0015babce0d2be477eb9449fafca6088",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Agent Rules",
+      "type": "section",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 0.84,
+      "id": "1663267517905023cb84fb5ef3e0c5743d4acb5c",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Status",
+      "type": "section",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.84,
+      "id": "9a4c4d74689f6a330849c2b63e8d46ff29a2ecf9",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Last Known Good State",
+      "type": "section",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.84,
+      "id": "ca874d1086d179bc734e71de2c8d33235adaa286",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Current Focus",
+      "type": "section",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.84,
+      "id": "42ebe7f776723371ca617984872f37d282477d9f",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Blockers",
+      "type": "section",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.84,
+      "id": "3c1edc1f36cfd343abd6e6d4d3b5d8d0e1181236",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Tasks",
+      "type": "section",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 0.84,
+      "id": "8b2384fd9993ec90698e8b5deff0443bdfef5827",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "Active",
+      "type": "section",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 0.84,
+      "id": "7b550060a67c3542ea1a9b4e1e98c389d9843199",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "Done",
+      "type": "section",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 0.84,
+      "id": "c900b7bc1092a0c28b9da9a66aab103df87e871e",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "Latest Handoff",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "30246ec7ae458746c18181253aea351145275236",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Path",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "0c803de29fdfd88c6e2618bcca5d9536997ad405",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Branch",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "9867617c2ff846122c05701db949bed4907b7278",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Remote",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "1dc3b83e3d97d0ac242d570ddbfb297c9aa18003",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Sync",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "6c5fc273df2e6a46fadbac09e7f8e2e4b5328fc3",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Working",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "1bd5af39faf683a91e75eff6c762b30cf431efa4",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Latest",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "7fc3027610324a38d83388c6ea86c4d12720778b",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Next",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "c9dd117c0f726e1eaf0fef7d181d4bb69e678ae6",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Generated",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "eb4912ee9894a9f7c3e68b661d3ceb7724815b7b",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Updated",
+      "type": "concept",
+      "source": ".ai-memory/HANDOFF.md",
+      "confidence": 0.58,
+      "id": "ceea02280a33b5479836b18cd720ff960f143418",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/HANDOFF.md"
+      ]
+    },
+    {
+      "name": "Purpose",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "b7080af4bf31f16097f02c45fa68103577ab617b",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Capture",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "94f7bee727218d6d4085b30d3b55050bb8ac0cd4",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Important Paths",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "6799a5ab7105967f19233513f94be52a7372e054",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Promotion Rule",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "5e2ffb878e4d0ef92a9a542afe54a2c6c8bed3dc",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Owners",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "de35289d26116023323424988c5d48ef92c7cf1f",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Agents",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "688414066e615072b4719a4079aeb9aa265d28f0",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Kevin",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "fddc327ad99ea4fbe8b92e8645290e33a6b60642",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Claude Code",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "4e14ea9ace00b43b5659d8e97963c5a5da8cbe79",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Codex",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "778b666ccb1dd7670da3e0fbeade6d4d1713d652",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Hermes",
+      "type": "concept",
+      "source": ".ai-memory/PROJECT.md",
+      "confidence": 0.58,
+      "id": "e23fd343e05595219a098140ad79fa99160ab02e",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/PROJECT.md"
+      ]
+    },
+    {
+      "name": "Agent Rules",
+      "type": "concept",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 0.58,
+      "id": "45a1959e679dd9cff7ca39fee2b18ca39c95d593",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Read",
+      "type": "concept",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 0.58,
+      "id": "5b65921f2c28742f56471c2f13331538bb61cc0a",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Update STATUS",
+      "type": "concept",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 0.58,
+      "id": "edd9bd0904eb0578cecc3eb66a5f63751a220427",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Keep",
+      "type": "concept",
+      "source": ".ai-memory/RULES.md",
+      "confidence": 0.58,
+      "id": "2a0a33540074ae6525377845ce8c928b535c77ef",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/RULES.md"
+      ]
+    },
+    {
+      "name": "Current",
+      "type": "concept",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.58,
+      "id": "b31a99469c0ae845ed434f692efae1bc1c8e509b",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Last Known Good State",
+      "type": "concept",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.58,
+      "id": "16821861cd25dc0116d414dbc875c2f36970cdc4",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Current Focus",
+      "type": "concept",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.58,
+      "id": "5ef1d4c14e022fa169a24aa133b75c6408b0184e",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Blockers",
+      "type": "concept",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.58,
+      "id": "0d1d83e317a4ee9213a6a461de49de22f7771fd7",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "None",
+      "type": "concept",
+      "source": ".ai-memory/STATUS.md",
+      "confidence": 0.58,
+      "id": "f41553ce1651b8fc59cad974fe981acc55134d05",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/STATUS.md"
+      ]
+    },
+    {
+      "name": "Active",
+      "type": "concept",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 0.58,
+      "id": "f23ea8839517a78cb9bb739f07c2e65a035792ef",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    },
+    {
+      "name": "Done",
+      "type": "concept",
+      "source": ".ai-memory/TASKS.md",
+      "confidence": 0.58,
+      "id": "0d10d069aee95af8d02387f19a4b48e68d063121",
+      "mentions": 1,
+      "sources": [
+        ".ai-memory/TASKS.md"
+      ]
+    }
+  ],
+  "relations": [
+    {
+      "id": "199f170a022ebe62c94221b32f2243d0d3363e29",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/CONTEXT_INDEX.json",
+      "file": ".ai-memory/CONTEXT_INDEX.json",
+      "evidence": ".ai-memory/CONTEXT_INDEX.json",
+      "confidence": 0.9
+    },
+    {
+      "id": "78acb88a2195ce82aac6bbe07e08b74e9b816da0",
+      "source": ".ai-memory/CONTEXT_INDEX.json",
+      "relation": "states_decision",
+      "target": "\"role\": \"always-on coordinator\",",
+      "file": ".ai-memory/CONTEXT_INDEX.json",
+      "evidence": "\"role\": \"always-on coordinator\",",
+      "confidence": 0.74
+    },
+    {
+      "id": "5cc9d334f16afd96d3b0b981f75060fb7ecef0b5",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/DECISIONS.md",
+      "file": ".ai-memory/DECISIONS.md",
+      "evidence": ".ai-memory/DECISIONS.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "a1e932c9c0f1f097bbd62fd91f73bc0ff4b4808c",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/events/2026-06-19.jsonl",
+      "file": ".ai-memory/events/2026-06-19.jsonl",
+      "evidence": ".ai-memory/events/2026-06-19.jsonl",
+      "confidence": 0.9
+    },
+    {
+      "id": "208c481840ade8f4dfef5ea264c76f4d9b9c115c",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/events/2026-06-20.jsonl",
+      "file": ".ai-memory/events/2026-06-20.jsonl",
+      "evidence": ".ai-memory/events/2026-06-20.jsonl",
+      "confidence": 0.9
+    },
+    {
+      "id": "681d1c9f401dea77ab800bac0fedb80f6bb7c511",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/HANDOFF.md",
+      "file": ".ai-memory/HANDOFF.md",
+      "evidence": ".ai-memory/HANDOFF.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "343428e3065f430a28b732143e2bc081fcbca569",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/PROJECT.md",
+      "file": ".ai-memory/PROJECT.md",
+      "evidence": ".ai-memory/PROJECT.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "1ad969d8a2f374fa9d7fa3dc7936120fc193a735",
+      "source": ".ai-memory/PROJECT.md",
+      "relation": "states_decision",
+      "target": "Capture non-repo work, loose ideas, temporary investigations, cross-project notes, and \"Other\" sessions that do not yet deserve their own project repo.",
+      "file": ".ai-memory/PROJECT.md",
+      "evidence": "Capture non-repo work, loose ideas, temporary investigations, cross-project notes, and \"Other\" sessions that do not yet deserve their own project repo.",
+      "confidence": 0.74
+    },
+    {
+      "id": "e15a347abccf47b4eee0745acca330894425a72a",
+      "source": ".ai-memory/PROJECT.md",
+      "relation": "states_decision",
+      "target": "Promotion Rule",
+      "file": ".ai-memory/PROJECT.md",
+      "evidence": "## Promotion Rule",
+      "confidence": 0.74
+    },
+    {
+      "id": "1eaf344b1158153cfd100498f112e3ff0d5161c9",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/RULES.md",
+      "file": ".ai-memory/RULES.md",
+      "evidence": ".ai-memory/RULES.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "8059769255a2ce4b008c800b8869f0a18fbfec6d",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/STATUS.md",
+      "file": ".ai-memory/STATUS.md",
+      "evidence": ".ai-memory/STATUS.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "24187d12d7bdcbc0d800a41a132d0dcf120b330a",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": ".ai-memory/TASKS.md",
+      "file": ".ai-memory/TASKS.md",
+      "evidence": ".ai-memory/TASKS.md",
+      "confidence": 0.9
+    },
+    {
+      "id": "a5910cc7f60e3690134c19eac79796c768631223",
+      "source": ".ai-memory/TASKS.md",
+      "relation": "has_open_task",
+      "target": "Add current project tasks.",
+      "file": ".ai-memory/TASKS.md",
+      "evidence": "- [ ] Add current project tasks.",
+      "confidence": 0.82
+    },
+    {
+      "id": "d7cb514fe9d00e4ed7a0a36770bf13914c206c3b",
+      "source": "General / Other",
+      "relation": "contains_file",
+      "target": "README.md",
+      "file": "README.md",
+      "evidence": "README.md",
+      "confidence": 0.9
+    }
+  ]
+}

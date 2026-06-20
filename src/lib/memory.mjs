@@ -1,6 +1,7 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createHash, randomUUID } from "node:crypto";
+import { getSemanticMemoryStatus } from "./semantic-memory.mjs";
 
 const MEMORY_DIR = ".ai-memory";
 const REQUIRED_FILES = [
@@ -60,7 +61,13 @@ function templateFor(file, project) {
         graphiti: { role: "temporal event graph", rebuildable: true },
         hermes: { role: "always-on coordinator", sourceOfTruth: false }
       },
-      requiredFiles: REQUIRED_FILES
+      requiredFiles: REQUIRED_FILES,
+      semanticFiles: [
+        ".ai-memory/semantic/AGENT_STARTUP.md",
+        ".ai-memory/semantic/cognee-index.json",
+        ".ai-memory/semantic/graphiti-graph.json",
+        ".ai-memory/semantic/graphiti-episodes.jsonl"
+      ]
     }, null, 2)}\n`
   };
   return templates[file] ?? "";
@@ -145,7 +152,18 @@ export async function getProjectMemoryStatus(project) {
       message: project.kind === "context" ? "Context space unavailable" : "Project repo unavailable",
       freshness: 0,
       path: null,
-      missing: REQUIRED_FILES
+      missing: REQUIRED_FILES,
+      semantic: {
+        state: "unavailable",
+        tone: "neutral",
+        message: "Semantic memory unavailable",
+        chunks: 0,
+        entities: 0,
+        relations: 0,
+        episodes: 0,
+        lastBuiltAt: null,
+        packetPath: null
+      }
     };
   }
 
@@ -221,7 +239,8 @@ export async function getProjectMemoryStatus(project) {
     handoffUpdatedAt: handoffStat?.mtime?.toISOString() ?? null,
     handoffAgeHours: handoffAge,
     handoffBehindWork,
-    packHash: packExists ? await hashMemoryPack(memoryPath) : null
+    packHash: packExists ? await hashMemoryPack(memoryPath) : null,
+    semantic: await getSemanticMemoryStatus(project)
   };
 }
 

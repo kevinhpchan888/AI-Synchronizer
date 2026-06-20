@@ -35,6 +35,12 @@ const selectors = {
   skillMatrix: document.querySelector("#skillMatrix"),
   agentProfileSummary: document.querySelector("#agentProfileSummary"),
   agentProfilesList: document.querySelector("#agentProfilesList"),
+  semanticMemorySummary: document.querySelector("#semanticMemorySummary"),
+  semanticSearchInput: document.querySelector("#semanticSearchInput"),
+  semanticSearchButton: document.querySelector("#semanticSearchButton"),
+  semanticSearchResults: document.querySelector("#semanticSearchResults"),
+  rebuildSemanticButton: document.querySelector("#rebuildSemanticButton"),
+  showAgentPacketButton: document.querySelector("#showAgentPacketButton"),
   projectsPanel: document.querySelector("#projectsPanel"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
@@ -149,6 +155,10 @@ function memoryForProject(project) {
   return state.summary.memory.projects.find((item) => item.projectId === project.id) ?? null;
 }
 
+function semanticForProject(project) {
+  return memoryForProject(project)?.semantic ?? null;
+}
+
 function projectMemoryPath(project) {
   if (!project?.path) return ".ai-memory";
   const sep = project.path.includes("\\") ? "\\" : "/";
@@ -241,17 +251,26 @@ function toneForMemory(memory) {
   return "warn";
 }
 
+function toneForSemantic(semantic) {
+  if (!semantic || semantic.state === "missing") return "warn";
+  if (semantic.state === "fresh") return "ok";
+  if (semantic.state === "invalid") return "bad";
+  if (semantic.state === "unavailable") return "neutral";
+  return "warn";
+}
+
 function activeReadiness(project, memory) {
   if (!project) return { tone: "warn", label: "SETUP", title: "Choose a project", body: "Add or select a workspace before starting." };
   const projectTone = toneForProject(project);
   const memoryTone = toneForMemory(memory);
+  const semanticTone = toneForSemantic(memory?.semantic);
   if (!memory || memory.state === "missing") {
     return { tone: "warn", label: "SETUP", title: "Memory needed", body: "Create the memory pack before switching tools." };
   }
-  if (projectTone === "bad" || memoryTone === "bad") {
+  if (projectTone === "bad" || memoryTone === "bad" || semanticTone === "bad") {
     return { tone: "bad", label: "STOP", title: "Do not switch yet", body: "Fix the project or memory issue first." };
   }
-  if (projectTone === "warn" || memoryTone === "warn") {
+  if (projectTone === "warn" || memoryTone === "warn" || semanticTone === "warn") {
     return { tone: "warn", label: "SYNC", title: "Needs leveling", body: "Run the highlighted action before switching." };
   }
   return { tone: "ok", label: "READY", title: "Ready to work", body: "Files, memory, and project context are level." };
@@ -302,6 +321,8 @@ function activeActions(project, memory) {
     actions.push({ tone: "warn", title: "Create memory pack", body: "This project has no portable .ai-memory context yet.", action: actionButton("Initialize Memory", { "data-memory-init": project.id }, true) });
   } else if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
     actions.push({ tone: "warn", title: "Refresh handoff", body: "One click updates project memory before switching tools or machines.", action: actionButton("Refresh Handoff", { "data-auto-handoff": project.id }, true) });
+  } else if (["missing", "invalid", "stale"].includes(memory.semantic?.state)) {
+    actions.push({ tone: toneForSemantic(memory.semantic), title: "Build semantic memory", body: "Create the Cognee index, Graphiti timeline, and startup packet before switching agents.", action: actionButton("Build Semantic Memory", { "data-semantic-rebuild": project.id }, true) });
   }
   if (!actions.length) {
     actions.push({ tone: "ok", title: "Project is level", body: "You can continue here or switch to Claude/Codex.", action: actionButton("Use Codex", { "data-switch-agent": "codex", "data-project-id": project.id }, true) });
@@ -335,10 +356,32 @@ function renderCards() {
   const config = toolById("aiConfigSync");
   setCard(selectors.configCard, config?.exists ? "ok" : "warn", config?.exists ? "Ready" : "Missing", "Config sync");
 
-  const memoryState = state.summary.memory.summary.state;
-  const memoryTone = memoryState === "fresh" ? "ok" : memoryState === "missing" ? "bad" : memoryState === "empty" ? "neutral" : "warn";
-  const memoryLabel = memoryState === "fresh" ? "Fresh" : memoryState === "missing" ? "Missing" : memoryState === "stale" ? "Stale" : "Local";
-  setCard(selectors.memoryCard, memoryTone, memoryLabel, "Project memory");
+  const active = activeProject();
+  const activeMemory = memoryForProject(active);
+  const missingCount = state.summary.memory.projects.filter((project) => project.state === "missing").length;
+  const semanticState = activeMemory?.semantic?.state;
+  const memoryTone = !activeMemory || activeMemory.state === "missing"
+    ? "warn"
+    : semanticState && semanticState !== "fresh"
+      ? toneForSemantic(activeMemory.semantic)
+      : missingCount
+        ? "warn"
+        : "ok";
+  const memoryLabel = !activeMemory || activeMemory.state === "missing"
+    ? "Active needs setup"
+    : semanticState && semanticState !== "fresh"
+      ? "Active needs graph"
+      : missingCount
+        ? `${missingCount} projects`
+        : "Active ready";
+  const memoryDetail = !activeMemory || activeMemory.state === "missing"
+    ? `${active?.name || "Active project"} needs Initialize Memory`
+    : semanticState && semanticState !== "fresh"
+      ? `${active?.name || "Active project"} needs Build Semantic Memory`
+      : missingCount
+        ? "Other projects need memory"
+        : `${active?.name || "Active project"} memory ready`;
+  setCard(selectors.memoryCard, memoryTone, memoryLabel, memoryDetail);
 
   const cloud = state.summary.cloud;
   const cloudReady = cloud.vercel.cliAuthenticated && cloud.supabase.configured;
@@ -417,9 +460,16 @@ function renderMissionControl() {
   );
 
   const memoryTone = toneForMemory(memoryItem);
-  const memoryTitle = memoryItem?.state === "fresh" ? `${memoryItem.freshness}% fresh` : memoryItem?.message || "Memory unknown";
-  const memoryDetail = memoryItem?.handoffUpdatedAt ? `Handoff ${new Date(memoryItem.handoffUpdatedAt).toLocaleTimeString()}` : "Portable project context";
-  setFlowStep(selectors.memoryMissionTile, memoryTone, memoryTitle, memoryDetail);
+  const semanticTone = toneForSemantic(memoryItem?.semantic);
+  const memoryTitle = memoryItem?.state === "fresh" && memoryItem?.semantic?.state === "fresh"
+    ? `${memoryItem.freshness}% + graph`
+    : memoryItem?.message || "Memory unknown";
+  const memoryDetail = memoryItem?.state === "missing"
+    ? "Initialize memory first"
+    : memoryItem?.semantic?.state === "fresh"
+    ? `${memoryItem.semantic.entities} entities · ${memoryItem.semantic.relations} relations`
+    : memoryItem?.handoffUpdatedAt ? `Handoff ${new Date(memoryItem.handoffUpdatedAt).toLocaleTimeString()}` : "Build semantic memory";
+  setFlowStep(selectors.memoryMissionTile, semanticTone === "warn" ? "warn" : memoryTone, memoryTitle, memoryDetail);
 
   const cloudMachines = state.summary.cloudControl?.machines ?? [];
   const visibleMachines = cloudMachines.length || state.summary.machines.length;
@@ -746,6 +796,97 @@ function renderAgentProfiles() {
   }).join("");
 }
 
+function semanticCard(label, value, detail, tone = "neutral") {
+  return `
+    <article class="semantic-card">
+      <div class="semantic-card-top">
+        <span>${escapeHtml(label)}</span>
+        <span class="status-dot ${tone}"></span>
+      </div>
+      <strong>${escapeHtml(value)}</strong>
+      <p>${escapeHtml(detail)}</p>
+    </article>
+  `;
+}
+
+function clearSemanticResults(message = "") {
+  selectors.semanticSearchResults.innerHTML = message
+    ? `<article class="semantic-result"><strong>${escapeHtml(message)}</strong><p>Use the highlighted action for the active project.</p></article>`
+    : "";
+}
+
+function renderSemanticMemory() {
+  const project = activeProject();
+  const semantic = semanticForProject(project);
+  const memory = memoryForProject(project);
+  if (isHostedDashboard()) {
+    selectors.semanticMemorySummary.innerHTML = semanticCard("Cloud view", "Read-only", "Open local console to build or search semantic memory.", "neutral");
+    selectors.semanticSearchResults.innerHTML = "";
+    return;
+  }
+
+  if (!project) {
+    selectors.semanticMemorySummary.innerHTML = semanticCard("Semantic memory", "No project", "Choose a project first.", "warn");
+    selectors.semanticSearchResults.innerHTML = "";
+    return;
+  }
+
+  selectors.semanticSearchInput.placeholder = `Search ${project.name} memory, tasks, decisions, routes, or context...`;
+
+  if (!memory || memory.state === "missing") {
+    selectors.semanticMemorySummary.innerHTML = [
+      semanticCard("Base memory", "Initialize", "Create the portable .ai-memory pack first.", "warn"),
+      semanticCard("Cognee index", "Blocked", "Initialize Memory will build this next.", "warn"),
+      semanticCard("Graphiti timeline", "Blocked", "Initialize Memory will build this next.", "warn"),
+      semanticCard("Startup packet", "Missing", "No packet is valid until base memory exists.", "warn")
+    ].join("");
+    return;
+  }
+
+  const tone = toneForSemantic(semantic);
+  const lastBuilt = semantic?.lastBuiltAt ? new Date(semantic.lastBuiltAt).toLocaleString() : "Not built yet";
+  const packetReady = semantic?.state === "fresh" && semantic?.packetPath;
+  selectors.semanticMemorySummary.innerHTML = [
+    semanticCard("Cognee index", semantic?.state === "fresh" ? "Ready" : "Build", `${semantic?.chunks ?? 0} chunks · ${semantic?.entities ?? 0} entities`, tone),
+    semanticCard("Graphiti timeline", `${semantic?.relations ?? 0}`, `${semantic?.episodes ?? 0} episodes`, tone),
+    semanticCard("Startup packet", packetReady ? "Ready" : "Missing", packetReady ? semantic.packetPath : "Build semantic memory first.", packetReady ? tone : "warn"),
+    semanticCard("Last built", lastBuilt, project.name, tone)
+  ].join("");
+}
+
+function renderSemanticResults(payload) {
+  if (!payload?.ok) {
+    selectors.semanticSearchResults.innerHTML = `<article class="semantic-result"><strong>No semantic result</strong><p>${escapeHtml(payload?.message || "Build semantic memory first.")}</p></article>`;
+    return;
+  }
+  if (payload.packet) {
+    selectors.semanticSearchResults.innerHTML = `<pre class="semantic-packet">${escapeHtml(payload.packet)}</pre>`;
+    return;
+  }
+  if (!payload.results?.length) {
+    selectors.semanticSearchResults.innerHTML = `<article class="semantic-result"><strong>No matches</strong><p>Try a project name, task, route, file, or decision keyword.</p></article>`;
+    return;
+  }
+  selectors.semanticSearchResults.innerHTML = payload.results.map((result) => {
+    const item = result.item;
+    const title = result.type === "relation"
+      ? `${item.source} ${item.relation} ${item.target}`
+      : item.name || item.title || item.path;
+    const detail = result.type === "chunk"
+      ? `${item.path} · ${item.preview}`
+      : result.type === "entity"
+        ? `${item.type} · ${(item.sources || []).slice(0, 3).join(", ")}`
+        : `${item.file} · ${item.evidence}`;
+    return `
+      <article class="semantic-result">
+        <small>${escapeHtml(result.type)} · score ${escapeHtml(result.score)}</small>
+        <strong>${escapeHtml(title)}</strong>
+        <p>${escapeHtml(detail)}</p>
+      </article>
+    `;
+  }).join("");
+}
+
 function renderProjects() {
   if (isHostedDashboard()) {
     const projects = state.summary.cloudControl?.projects ?? [];
@@ -796,13 +937,15 @@ function renderProjects() {
     const memory = state.summary.memory.projects.find((item) => item.projectId === project.id);
     const memoryTone = memory?.tone ?? "neutral";
     const memoryLabel = memory ? memory.message : "Memory unknown";
+    const semantic = memory?.semantic;
+    const semanticLabel = semantic ? `Semantic: ${semantic.state}` : "Semantic: unknown";
     return `
       <article class="row project-row ${isActive ? "active" : ""}">
         <div class="row-title">
           <span class="status-dot ${tone}"></span>
           <div>
             <strong>${escapeHtml(project.name)}${isActive ? " · Active" : ""}</strong>
-            <div>${pill(escapeHtml(project.message || project.state), tone)} ${pill(escapeHtml(memoryLabel), memoryTone)}</div>
+            <div>${pill(escapeHtml(project.message || project.state), tone)} ${pill(escapeHtml(memoryLabel), memoryTone)} ${pill(escapeHtml(semanticLabel), toneForSemantic(semantic))}</div>
           </div>
         </div>
         <div class="row-detail">${escapeHtml(details)}</div>
@@ -814,6 +957,7 @@ function renderProjects() {
           <button data-project-action="commitWip" data-project-id="${project.id}" ${disabled}>Save WIP</button>
           <button data-memory-init="${project.id}" ${memoryDisabled}>Initialize Memory</button>
           <button data-auto-handoff="${project.id}" ${memoryDisabled}>Refresh Handoff</button>
+          <button data-semantic-rebuild="${project.id}" ${memoryDisabled}>Build Semantic</button>
           <button data-switch-agent="claude" data-project-id="${project.id}" ${memoryDisabled}>Use Claude</button>
           <button data-switch-agent="codex" data-project-id="${project.id}" ${memoryDisabled}>Use Codex</button>
           <button class="danger" data-remove-project="${project.id}">Remove</button>
@@ -906,6 +1050,7 @@ async function refresh() {
   renderCloudFleet();
     renderSkillCoverage();
     renderAgentProfiles();
+    renderSemanticMemory();
     renderProjects();
     renderTools();
     log("Status refreshed.");
@@ -983,6 +1128,8 @@ async function removeProject(projectId) {
 async function selectProject(projectId) {
   const project = state.summary.projects.find((item) => item.id === projectId);
   if (!project) return;
+  selectors.semanticSearchInput.value = "";
+  clearSemanticResults(`Switched to ${project.name}`);
   const result = await api("/api/session/project", {
     method: "POST",
     body: JSON.stringify({ projectId })
@@ -1068,6 +1215,77 @@ async function toolAction(toolId, action) {
   await refresh();
 }
 
+async function rebuildSemanticForProject(projectId) {
+  const project = state.summary.projects.find((item) => item.id === projectId);
+  if (!project) return;
+  const result = await api(`/api/projects/${encodeURIComponent(projectId)}/semantic/rebuild`, { method: "POST" });
+  log(result.ok ? `Semantic memory rebuilt for ${project.name}.` : "Semantic memory rebuild failed.", result.message);
+  setWorkflowFeedback(result.ok ? `${project.name} semantic memory is ready for Claude, Codex, and Hermes.` : `Could not rebuild semantic memory for ${project.name}.`, result.ok ? "ok" : "bad");
+  await refresh();
+  if (result.ok && activeProject()?.id === projectId) renderSemanticResults({ ok: true, packet: result.packet });
+}
+
+async function rebuildActiveSemantic() {
+  const project = activeProject();
+  if (!project) {
+    setWorkflowFeedback("Choose a project first.", "warn");
+    return;
+  }
+  await rebuildSemanticForProject(project.id);
+}
+
+async function searchActiveSemantic() {
+  const project = activeProject();
+  const memory = memoryForProject(project);
+  const semantic = semanticForProject(project);
+  const query = selectors.semanticSearchInput.value.trim();
+  if (!project) {
+    setWorkflowFeedback("Choose a project first.", "warn");
+    return;
+  }
+  if (!memory || memory.state === "missing") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Initialize Memory before semantic search.` });
+    setWorkflowFeedback(`${project.name} needs Initialize Memory first.`, "warn");
+    return;
+  }
+  if (semantic?.state !== "fresh") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Build Semantic Memory before search.` });
+    setWorkflowFeedback(`${project.name} needs Build Semantic Memory first.`, "warn");
+    return;
+  }
+  if (!query) {
+    setWorkflowFeedback("Type something to search in project memory.", "warn");
+    return;
+  }
+  const result = await api(`/api/projects/${encodeURIComponent(project.id)}/semantic/search?q=${encodeURIComponent(query)}`);
+  renderSemanticResults(result);
+  setWorkflowFeedback(`${project.name} semantic memory search complete.`, "ok");
+}
+
+async function showActiveStartupPacket() {
+  const project = activeProject();
+  const memory = memoryForProject(project);
+  const semantic = semanticForProject(project);
+  if (!project) {
+    setWorkflowFeedback("Choose a project first.", "warn");
+    return;
+  }
+  if (!memory || memory.state === "missing") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Initialize Memory before a startup packet is shown.` });
+    setWorkflowFeedback(`${project.name} needs Initialize Memory first.`, "warn");
+    return;
+  }
+  if (semantic?.state !== "fresh") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Build Semantic Memory before a startup packet is shown.` });
+    setWorkflowFeedback(`${project.name} needs Build Semantic Memory first.`, "warn");
+    return;
+  }
+  const agent = state.summary.session?.activeAgent || "all";
+  const result = await api(`/api/projects/${encodeURIComponent(project.id)}/semantic/packet?agent=${encodeURIComponent(agent)}`);
+  renderSemanticResults(result);
+  setWorkflowFeedback(`${project.name} startup packet is visible below.`, "ok");
+}
+
 selectors.refreshButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Refreshing", () => refresh()));
 selectors.projectSwitcher.addEventListener("change", async () => {
   try {
@@ -1078,6 +1296,15 @@ selectors.projectSwitcher.addEventListener("change", async () => {
 });
 selectors.scanProjectsButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Scanning repos", () => scanProjectsHome()));
 selectors.scanProjectsPanelButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Scanning repos", () => scanProjectsHome()));
+selectors.rebuildSemanticButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Building semantic memory", () => rebuildActiveSemantic()));
+selectors.semanticSearchButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Searching memory", () => searchActiveSemantic()));
+selectors.showAgentPacketButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Loading packet", () => showActiveStartupPacket()));
+selectors.semanticSearchInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") {
+    event.preventDefault();
+    selectors.semanticSearchButton.click();
+  }
+});
 selectors.clearLogButton.addEventListener("click", () => {
   selectors.activityLog.textContent = "Ready.";
 });
@@ -1237,6 +1464,7 @@ document.addEventListener("click", async (event) => {
   const memoryInitButton = event.target.closest("[data-memory-init]");
   const memoryHandoffButton = event.target.closest("[data-memory-handoff]");
   const autoHandoffButton = event.target.closest("[data-auto-handoff]");
+  const semanticRebuildButton = event.target.closest("[data-semantic-rebuild]");
   const switchAgentButton = event.target.closest("[data-switch-agent]");
   const selectProjectButton = event.target.closest("[data-select-project]");
   const openAddProjectButton = event.target.closest("[data-open-add-project]");
@@ -1266,12 +1494,19 @@ document.addEventListener("click", async (event) => {
       await withButtonFeedback(toolActionButton, busyLabelForButton(toolActionButton), () => toolAction(toolActionButton.dataset.toolId, toolActionButton.dataset.toolAction));
     } else if (memoryInitButton) {
       await withButtonFeedback(memoryInitButton, "Creating memory", async () => {
-        const result = await api(`/api/projects/${encodeURIComponent(memoryInitButton.dataset.memoryInit)}/memory/init`, { method: "POST" });
-        log(result.ok ? "Project memory initialized." : "Memory initialization failed.", result.message);
+        const projectId = memoryInitButton.dataset.memoryInit;
+        const project = state.summary.projects.find((item) => item.id === projectId);
+        const result = await api(`/api/projects/${encodeURIComponent(projectId)}/memory/init`, { method: "POST" });
+        log(result.ok ? "Project memory and semantic graph initialized." : "Memory initialization failed.", result.message);
         await refresh();
+        if (result.ok && project && activeProject()?.id === projectId && result.semantic?.packet) {
+          renderSemanticResults({ ok: true, packet: result.semantic.packet });
+        }
       });
     } else if (autoHandoffButton) {
       await withButtonFeedback(autoHandoffButton, "Refreshing handoff", () => autoRefreshHandoff(autoHandoffButton.dataset.autoHandoff));
+    } else if (semanticRebuildButton) {
+      await withButtonFeedback(semanticRebuildButton, "Building semantic memory", () => rebuildSemanticForProject(semanticRebuildButton.dataset.semanticRebuild));
     } else if (memoryHandoffButton) {
       activeHandoffProjectId = memoryHandoffButton.dataset.memoryHandoff;
       activeSwitchTarget = null;
@@ -1323,6 +1558,10 @@ selectors.startWorkButton.addEventListener("click", async () => {
     }
     if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
       setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Refresh Handoff; the console will write it automatically.`, "warn");
+      return;
+    }
+    if (["missing", "invalid", "stale"].includes(memory.semantic?.state)) {
+      setWorkflowFeedback(`${project.name} needs semantic memory. Click Build Semantic Memory.`, "warn");
       return;
     }
     setWorkflowFeedback(`${project.name} is ready. Continue in Claude or Codex.`, "ok");
@@ -1470,7 +1709,13 @@ async function showProjectMemoryStatus() {
     message = `${project.name} needs a memory pack. In Projects, click Initialize Memory.`;
   } else if (project && memory.state === "fresh") {
     tone = "ok";
-    message = `${project.name} memory is ready. It lives in ${projectMemoryPath(project)}.`;
+    const semantic = memory.semantic;
+    if (semantic?.state === "fresh") {
+      message = `${project.name} memory and semantic graph are ready. Startup packet: ${semantic.packetPath}.`;
+    } else {
+      tone = "warn";
+      message = `${project.name} has .ai-memory, but semantic memory needs Build Semantic Memory.`;
+    }
   } else if (project) {
     message = `${project.name} memory needs a refresh. In Projects, click Refresh Handoff.`;
   }

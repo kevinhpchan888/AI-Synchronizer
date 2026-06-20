@@ -51,6 +51,13 @@ Before doing ANYTHING manually, check this list. If an MCP tool or skill covers 
 
 ## Behavioral Rules (ALWAYS ACTIVE)
 
+### Project Memory
+1. Before substantial project work, check for `.ai-memory/semantic/AGENT_STARTUP.md` in the active repo and read it first.
+2. Treat `.ai-memory/semantic/cognee-index.json` as the local Cognee-style semantic index.
+3. Treat `.ai-memory/semantic/graphiti-graph.json` and `.ai-memory/semantic/graphiti-episodes.jsonl` as the local Graphiti-style temporal project graph.
+4. If the startup packet or semantic graph is missing or stale, ask AI Sync Console to build semantic memory before switching agents or machines.
+5. Do not treat chat history as source of truth. Project memory lives in the repo and travels with it.
+
 ### Writing
 1. **No AI words.** Never use: journey, navigate, tapestry, delve, crucible, meaningful, resonate, empower, holistic, transformative, seamless, curated, invaluable, heartfelt, impactful, profound, game-changer, deep dive, uncharted, embark, symphony of, dance of, luminous, gossamer, broken hymn.
 2. **No AI patterns.** Never use: "not X, Y" pseudo-profundity, "and yet", "there was something about", "it was as if", "something shifted", compulsive triplets, adjective stacking, emotional flatlining.
