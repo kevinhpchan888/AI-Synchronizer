@@ -74,6 +74,18 @@ The **Cognee + Graphiti Semantic Memory** panel is the richer memory layer:
 
 For APC, the key file is `.ai-memory/semantic/AGENT_STARTUP.md`. That is the first context file to read when moving from Claude to Codex, Codex to Claude, PC to Mac, or Mac to PC.
 
+The startup packet now includes the practical parts that matter when an agent resumes:
+
+- **Operating Brief**: project state, branch, uncommitted files, status, handoff, tasks, and decisions.
+- **Changed Since Last Handoff**: files touched after the last handoff, so the next agent knows what to inspect first.
+- **Current Local Changes**: files Git sees as changed on this machine.
+- **Search Memory Recipes**: ready-made searches to recover context quickly.
+- **Next Agent Checklist**: what Claude, Codex, GLM, or Hermes should do before editing.
+
+If a project file changes after the semantic graph was built, the memory panel turns yellow and says the graph should be rebuilt. Click **Build Semantic Memory** or **Start Work** to refresh it.
+
+Search results now show **why** they matched and which source file they came from. Use this when you are unsure where a decision, task, rule, route, or skill lives.
+
 The rule is simple:
 
 ```text

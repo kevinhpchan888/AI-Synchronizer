@@ -9,6 +9,7 @@ const GRAPH_FILE = "graphiti-graph.json";
 const EPISODES_FILE = "graphiti-episodes.jsonl";
 const PACKET_FILE = "AGENT_STARTUP.md";
 const MAX_FILES = 260;
+const MAX_CANDIDATE_FILES = 4000;
 const MAX_FILE_BYTES = 160_000;
 const MAX_TOTAL_BYTES = 2_200_000;
 const PREVIEW_CHARS = 360;
@@ -200,12 +201,39 @@ function shouldIndexFile(name) {
   return TEXT_EXTENSIONS.has(path.extname(name).toLowerCase());
 }
 
+function filePriority(file) {
+  const relativePath = normalizeSlash(file.relativePath);
+  const name = path.basename(relativePath);
+  let score = 0;
+
+  if (relativePath.startsWith(`${MEMORY_DIR}/`)) score += 700;
+  if ([
+    `${MEMORY_DIR}/PROJECT.md`,
+    `${MEMORY_DIR}/STATUS.md`,
+    `${MEMORY_DIR}/DECISIONS.md`,
+    `${MEMORY_DIR}/TASKS.md`,
+    `${MEMORY_DIR}/HANDOFF.md`,
+    `${MEMORY_DIR}/RULES.md`,
+    `${MEMORY_DIR}/CONTEXT_INDEX.json`
+  ].includes(relativePath)) score += 800;
+  if (/^(README|AGENTS|CLAUDE|RULES|STATUS|TASKS|DECISIONS|HANDOFF)\.md$/i.test(name)) score += 500;
+  if (/package\.json$|requirements\.txt$|pyproject\.toml$|vite\.config|next\.config|server\.mjs$|server\.js$/i.test(relativePath)) score += 420;
+  if (/^(src|app|pages|components|lib|scripts|templates|env)\//.test(relativePath)) score += 220;
+  if (/skills\/[^/]+\/SKILL\.md$/i.test(relativePath)) score += 260;
+  if (/test|spec/i.test(relativePath)) score += 90;
+  if (file.size <= 12_000) score += 60;
+  if (file.size > 80_000) score -= 80;
+
+  const ageHours = Math.max(0, (Date.now() - new Date(file.updatedAt).getTime()) / 3_600_000);
+  if (Number.isFinite(ageHours)) score += Math.max(0, 180 - Math.min(180, ageHours));
+  return score;
+}
+
 async function walkProjectFiles(root) {
-  const files = [];
-  let totalBytes = 0;
+  const candidates = [];
 
   async function walk(folder) {
-    if (files.length >= MAX_FILES || totalBytes >= MAX_TOTAL_BYTES) return;
+    if (candidates.length >= MAX_CANDIDATE_FILES) return;
     let entries = [];
     try {
       entries = await fs.readdir(folder, { withFileTypes: true });
@@ -215,7 +243,7 @@ async function walkProjectFiles(root) {
 
     entries.sort((a, b) => a.name.localeCompare(b.name));
     for (const entry of entries) {
-      if (files.length >= MAX_FILES || totalBytes >= MAX_TOTAL_BYTES) break;
+      if (candidates.length >= MAX_CANDIDATE_FILES) break;
       const fullPath = path.join(folder, entry.name);
       const relativePath = normalizeSlash(path.relative(root, fullPath));
       if (entry.isDirectory()) {
@@ -229,12 +257,20 @@ async function walkProjectFiles(root) {
       if (!shouldIndexFile(entry.name)) continue;
       const stat = await statOrNull(fullPath);
       if (!stat || stat.size > MAX_FILE_BYTES) continue;
-      totalBytes += stat.size;
-      files.push({ fullPath, relativePath, size: stat.size, updatedAt: stat.mtime.toISOString() });
+      candidates.push({ fullPath, relativePath, size: stat.size, updatedAt: stat.mtime.toISOString() });
     }
   }
 
   await walk(root);
+  candidates.sort((a, b) => filePriority(b) - filePriority(a) || a.relativePath.localeCompare(b.relativePath));
+
+  const files = [];
+  let totalBytes = 0;
+  for (const file of candidates) {
+    if (files.length >= MAX_FILES || totalBytes >= MAX_TOTAL_BYTES) break;
+    totalBytes += file.size;
+    files.push(file);
+  }
   return files;
 }
 
@@ -245,12 +281,20 @@ async function readTextFile(file) {
 
 function sourceHash(items) {
   const hash = createHash("sha256");
-  for (const item of items) {
+  for (const item of [...items].sort((a, b) => a.relativePath.localeCompare(b.relativePath))) {
     hash.update(item.relativePath);
     hash.update(String(item.size));
     hash.update(item.updatedAt);
   }
   return hash.digest("hex");
+}
+
+function newestUpdatedAt(items) {
+  const newest = items
+    .map((item) => new Date(item.updatedAt))
+    .filter((date) => Number.isFinite(date.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+  return newest?.toISOString() ?? null;
 }
 
 function headingEntities(text, file) {
@@ -467,6 +511,48 @@ function topEvidence(relations, verb, limit = 8) {
     .map((item) => item.target);
 }
 
+async function memoryFileText(projectPath, file, maxChars = 900) {
+  try {
+    const raw = await fs.readFile(path.join(projectPath, MEMORY_DIR, file), "utf8");
+    return cleanText(raw).slice(0, maxChars);
+  } catch {
+    return "";
+  }
+}
+
+async function handoffUpdatedAt(projectPath) {
+  const stat = await statOrNull(path.join(projectPath, MEMORY_DIR, "HANDOFF.md"));
+  return stat?.mtime?.toISOString() ?? null;
+}
+
+function filesChangedSince(chunks, isoDate, limit = 12) {
+  if (!isoDate) return [];
+  const since = new Date(isoDate).getTime();
+  if (!Number.isFinite(since)) return [];
+  return chunks
+    .filter((item) => {
+      const updated = new Date(item.updatedAt).getTime();
+      return Number.isFinite(updated)
+        && updated > since + 1000
+        && item.path !== `${MEMORY_DIR}/HANDOFF.md`
+        && !item.path.startsWith(`${MEMORY_DIR}/events/`);
+    })
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .slice(0, limit);
+}
+
+function searchRecipes({ project, routes, tasks, decisions }) {
+  const recipes = [
+    `${project.name} current focus`,
+    "open tasks decisions rules",
+    "handoff changed files"
+  ];
+  if (routes.length) recipes.push("api routes");
+  if (tasks.length) recipes.push(tasks[0]);
+  if (decisions.length) recipes.push("source of truth rules");
+  return [...new Set(recipes)].slice(0, 6);
+}
+
 function recentMemoryEvents(projectPath, limit = 8) {
   return fs.readdir(path.join(projectPath, MEMORY_DIR, "events"), { withFileTypes: true })
     .then(async (entries) => {
@@ -531,6 +617,16 @@ async function buildStartupPacket({ project, index, graph, packetAgent = "all" }
   const topEntities = graph.entities.slice(0, 18);
   const routes = graph.entities.filter((item) => item.type === "api_route").slice(0, 10);
   const packages = graph.entities.filter((item) => item.type === "package").slice(0, 12);
+  const [handoffAt, statusText, handoffText, taskText, decisionText] = await Promise.all([
+    handoffUpdatedAt(project.path),
+    memoryFileText(project.path, "STATUS.md", 700),
+    memoryFileText(project.path, "HANDOFF.md", 700),
+    memoryFileText(project.path, "TASKS.md", 700),
+    memoryFileText(project.path, "DECISIONS.md", 900)
+  ]);
+  const changedSinceHandoff = filesChangedSince(index.chunks, handoffAt);
+  const dirtyFiles = Array.isArray(project.changedFiles) ? project.changedFiles.slice(0, 12) : [];
+  const recipes = searchRecipes({ project, routes, tasks, decisions });
 
   return [
     `# Agent Startup Packet`,
@@ -549,6 +645,34 @@ async function buildStartupPacket({ project, index, graph, packetAgent = "all" }
     `- Cognee-style semantic index: ${index.summary.chunks} chunks, ${index.summary.entities} entities`,
     `- Graphiti-style temporal graph: ${graph.summary.relations} relations, ${graph.summary.episodes} episodes`,
     `- Source hash: ${index.sourceHash}`,
+    `- Last indexed project file update: ${index.sourceNewestAt || "unknown"}`,
+    `- Last handoff update: ${handoffAt || "unknown"}`,
+    ``,
+    `## Operating Brief`,
+    ``,
+    `Project state: ${project.state || "unknown"}`,
+    `Branch: ${project.branch || "unknown"}`,
+    `Uncommitted files: ${project.dirtyCount ?? dirtyFiles.length ?? 0}`,
+    ``,
+    `Status excerpt: ${statusText || "No status memory captured yet."}`,
+    ``,
+    `Handoff excerpt: ${handoffText || "No handoff memory captured yet."}`,
+    ``,
+    `Task excerpt: ${taskText || "No task memory captured yet."}`,
+    ``,
+    `Decision excerpt: ${decisionText || "No decision memory captured yet."}`,
+    ``,
+    `## Changed Since Last Handoff`,
+    ``,
+    ...(changedSinceHandoff.length
+      ? changedSinceHandoff.map((item) => `- ${item.path}: updated ${item.updatedAt}`)
+      : ["- No indexed project files changed after the latest handoff."]),
+    ``,
+    `## Current Local Changes`,
+    ``,
+    ...(dirtyFiles.length
+      ? dirtyFiles.map((item) => `- ${item}`)
+      : ["- No uncommitted files were reported by the project status scan."]),
     ``,
     `## Important Files`,
     ``,
@@ -577,6 +701,18 @@ async function buildStartupPacket({ project, index, graph, packetAgent = "all" }
     `## Recent Memory Events`,
     ``,
     ...(recentEvents.length ? recentEvents.map((event) => `- ${event.occurredAt || "unknown"}: ${event.type}`) : ["- No recent events found."]),
+    ``,
+    `## Search Memory Recipes`,
+    ``,
+    ...recipes.map((item) => `- Search Memory: ${item}`),
+    ``,
+    `## Next Agent Checklist`,
+    ``,
+    `- Confirm this is the intended local folder before editing: ${project.path}`,
+    `- Read Changed Since Last Handoff and Current Local Changes before touching files.`,
+    `- Use Search Memory before asking Kevin to repeat project context.`,
+    `- Update HANDOFF.md through AI Sync before switching tools, machines, or agents.`,
+    `- Rebuild Semantic Memory after substantial file, decision, task, or skill changes.`,
     ``,
     `## Agent Instructions`,
     ``,
@@ -648,18 +784,28 @@ export async function getSemanticMemoryStatus(project) {
 
   const builtAt = new Date(index.builtAt);
   const ageHours = Number.isFinite(builtAt.getTime()) ? Math.round((Date.now() - builtAt.getTime()) / 36_000) / 100 : null;
-  const state = ageHours !== null && ageHours > 24 ? "stale" : "fresh";
+  const currentSources = await walkProjectFiles(project.path);
+  const currentSourceHash = sourceHash(currentSources);
+  const changedSinceBuild = Boolean(index.sourceHash && currentSourceHash !== index.sourceHash);
+  const state = changedSinceBuild || (ageHours !== null && ageHours > 24) ? "stale" : "fresh";
+  const message = changedSinceBuild
+    ? "Project files changed since semantic graph was built"
+    : state === "fresh" ? "Semantic graph ready" : "Semantic graph should be rebuilt";
   return {
     state,
     tone: state === "fresh" ? "ok" : "warn",
-    message: state === "fresh" ? "Semantic graph ready" : "Semantic graph should be rebuilt",
+    message,
     chunks: index.summary?.chunks ?? index.chunks?.length ?? 0,
     entities: graph.summary?.entities ?? graph.entities?.length ?? 0,
     relations: graph.summary?.relations ?? graph.relations?.length ?? 0,
     episodes: graph.summary?.episodes ?? (await readEpisodes(root, 1000)).length,
     lastBuiltAt: index.builtAt,
     packetPath,
-    sourceHash: index.sourceHash ?? null
+    sourceHash: index.sourceHash ?? null,
+    currentSourceHash,
+    sourceNewestAt: newestUpdatedAt(currentSources),
+    indexedSourceNewestAt: index.sourceNewestAt ?? null,
+    changedSinceBuild
   };
 }
 
@@ -707,6 +853,7 @@ export async function rebuildSemanticMemory(project, options = {}) {
     },
     builtAt,
     sourceHash: sourceHash(sourceItems),
+    sourceNewestAt: newestUpdatedAt(sourceItems),
     summary: {
       files: sourceItems.length,
       chunks: chunks.length,
@@ -781,6 +928,18 @@ function scoreText(queryWords, text, boost = 1) {
   return score;
 }
 
+function matchedTerms(queryWords, text) {
+  const haystack = String(text ?? "").toLowerCase();
+  return [...new Set(queryWords.filter((word) => word && haystack.includes(word)))];
+}
+
+function explainMatch(type, item, terms) {
+  const wordList = terms.length ? terms.join(", ") : "query terms";
+  if (type === "entity") return `Matched ${wordList} in ${item.type} entity ${item.name}.`;
+  if (type === "relation") return `Matched ${wordList} in relation ${item.source} ${item.relation} ${item.target}.`;
+  return `Matched ${wordList} in ${item.path}.`;
+}
+
 export async function searchSemanticMemory(project, query) {
   const q = String(query ?? "").trim();
   if (!q) return { ok: false, message: "Search text is required.", results: [] };
@@ -792,15 +951,37 @@ export async function searchSemanticMemory(project, query) {
   const chunks = index.chunks
     .map((item) => {
       const keywordText = item.keywords.map((keyword) => keyword.word).join(" ");
-      const score = scoreText(words, `${item.path} ${item.title} ${item.preview} ${keywordText}`, 2);
-      return { type: "chunk", score, item };
+      const searchable = `${item.path} ${item.title} ${item.preview} ${keywordText}`;
+      const terms = matchedTerms(words, searchable);
+      const score = scoreText(words, searchable, 2);
+      return { type: "chunk", score, source: item.path, why: explainMatch("chunk", item, terms), item };
     })
     .filter((result) => result.score > 0);
   const entities = graph.entities
-    .map((item) => ({ type: "entity", score: scoreText(words, `${item.name} ${item.type} ${item.sources?.join(" ")}`, 3), item }))
+    .map((item) => {
+      const searchable = `${item.name} ${item.type} ${item.sources?.join(" ")}`;
+      const terms = matchedTerms(words, searchable);
+      return {
+        type: "entity",
+        score: scoreText(words, searchable, 3),
+        source: item.sources?.[0] ?? item.source ?? null,
+        why: explainMatch("entity", item, terms),
+        item
+      };
+    })
     .filter((result) => result.score > 0);
   const relations = graph.relations
-    .map((item) => ({ type: "relation", score: scoreText(words, `${item.source} ${item.relation} ${item.target} ${item.evidence}`, 3), item }))
+    .map((item) => {
+      const searchable = `${item.source} ${item.relation} ${item.target} ${item.evidence}`;
+      const terms = matchedTerms(words, searchable);
+      return {
+        type: "relation",
+        score: scoreText(words, searchable, 3),
+        source: item.file,
+        why: explainMatch("relation", item, terms),
+        item
+      };
+    })
     .filter((result) => result.score > 0);
 
   return {

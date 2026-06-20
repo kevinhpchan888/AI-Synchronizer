@@ -855,9 +855,15 @@ function renderSemanticMemory() {
   const tone = toneForSemantic(semantic);
   const lastBuilt = semantic?.lastBuiltAt ? new Date(semantic.lastBuiltAt).toLocaleString() : "Not built yet";
   const packetReady = semantic?.state === "fresh" && semantic?.packetPath;
+  const indexDetail = semantic?.changedSinceBuild
+    ? "Project files changed. Rebuild before switching agents."
+    : `${semantic?.chunks ?? 0} chunks · ${semantic?.entities ?? 0} entities`;
+  const graphDetail = semantic?.sourceNewestAt
+    ? `Newest indexed source: ${new Date(semantic.sourceNewestAt).toLocaleString()}`
+    : `${semantic?.episodes ?? 0} episodes`;
   selectors.semanticMemorySummary.innerHTML = [
-    semanticCard("Cognee index", semantic?.state === "fresh" ? "Ready" : "Build", `${semantic?.chunks ?? 0} chunks · ${semantic?.entities ?? 0} entities`, tone),
-    semanticCard("Graphiti timeline", `${semantic?.relations ?? 0}`, `${semantic?.episodes ?? 0} episodes`, tone),
+    semanticCard("Cognee index", semantic?.state === "fresh" ? "Ready" : "Rebuild", indexDetail, tone),
+    semanticCard("Graphiti timeline", `${semantic?.relations ?? 0}`, graphDetail, tone),
     semanticCard("Startup packet", packetReady ? "Ready" : "Missing", packetReady ? semantic.packetPath : "Build semantic memory first.", packetReady ? tone : "warn"),
     semanticCard("Last built", lastBuilt, project.name, tone)
   ].join("");
@@ -886,11 +892,15 @@ function renderSemanticResults(payload) {
       : result.type === "entity"
         ? `${item.type} · ${(item.sources || []).slice(0, 3).join(", ")}`
         : `${item.file} · ${item.evidence}`;
+    const why = result.why ? `<p><strong>Why:</strong> ${escapeHtml(result.why)}</p>` : "";
+    const source = result.source ? `<small>Source: ${escapeHtml(result.source)}</small>` : "";
     return `
       <article class="semantic-result">
         <small>${escapeHtml(result.type)} · score ${escapeHtml(result.score)}</small>
         <strong>${escapeHtml(title)}</strong>
         <p>${escapeHtml(detail)}</p>
+        ${why}
+        ${source}
       </article>
     `;
   }).join("");
