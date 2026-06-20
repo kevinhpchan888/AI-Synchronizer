@@ -59,7 +59,7 @@ function expandProjectPath(projectPath) {
   return projectPath;
 }
 
-function getProjectsHome() {
+export function getProjectsHome() {
   return process.env.AI_SYNC_PROJECTS_HOME || path.join(homedir(), platform() === "win32" ? "Documents/GitHub" : "GitHub");
 }
 

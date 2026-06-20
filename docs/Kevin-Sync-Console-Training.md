@@ -56,13 +56,14 @@ For the Mac-specific checklist, use `docs/Mac-Setup-Checklist.md`.
 Use this on AMVPC when switching between Claude Code and Codex.
 
 1. Open Kevin Sync Console.
-2. If the work is in a loose folder, click **Adopt Workspace** instead of **Add Project**.
-3. Adopt Workspace creates local Git and `.ai-memory/` so Claude and Codex share the same project files and memory.
-4. Click **Start Work** before opening Claude Code or Codex.
-5. When switching from Claude Code to Codex, click **Use Codex**. The console generates and saves the handoff.
-6. When switching from Codex to Claude Code, click **Use Claude**. The console generates and saves the handoff.
-7. Keep both tools pointed at the same workspace folder.
-8. Before stopping or changing machines, use **End Work**. If memory is yellow, click **Refresh Handoff**.
+2. If the GitHub repo is not on this machine yet, click **Clone Project**.
+3. If the work is in a loose folder that already exists on this machine, click **Adopt Workspace** instead of **Add Project**.
+4. Adopt Workspace creates local Git and `.ai-memory/` so Claude and Codex share the same project files and memory.
+5. Click **Start Work** before opening Claude Code or Codex.
+6. When switching from Claude Code to Codex, click **Use Codex**. The console generates and saves the handoff.
+7. When switching from Codex to Claude Code, click **Use Claude**. The console generates and saves the handoff.
+8. Keep both tools pointed at the same workspace folder.
+9. Before stopping or changing machines, use **End Work**. If memory is yellow, click **Refresh Handoff**.
 
 The **Memory Status** button stays inside AI Sync Console. It highlights the project memory status and tells you whether to initialize `.ai-memory`, refresh the handoff, or continue. MemoRix is legacy/optional here; it is not the daily control plane.
 
@@ -150,10 +151,26 @@ To use normal Claude models again, click **Switch Back To Claude** in the same p
 
 ### Adding A Project
 
+Use **Clone Project** when the GitHub repo is not on this machine yet.
+
+1. Click **Clone Project**.
+2. Paste `owner/repo`, `gh:owner/repo`, or a GitHub URL.
+3. Optional: enter a friendly project name or folder name.
+4. Click **Clone And Prepare**.
+5. AI Sync clones into your GitHub folder, adds the project, creates `.ai-memory`, builds the memory capsule, and makes it active.
+
+Use **Add Project** when the repo already exists locally but is not listed yet.
+
 1. Click **Add Project**.
 2. Name it clearly, such as `Website` or `Book Store`.
 3. Paste/select the local folder for that project repo.
-4. The project stays in its own GitHub repo. The console only monitors and syncs it.
+4. The project stays in its own GitHub repo. The console monitors and prepares it.
+
+Use **Adopt Workspace** when the folder already exists but is not a GitHub repo yet.
+
+1. Click **Adopt Workspace**.
+2. Enter the folder path.
+3. AI Sync initializes local Git, adds `.ai-memory`, builds semantic memory, and tracks it as a local workspace.
 
 ### Adding A Machine
 

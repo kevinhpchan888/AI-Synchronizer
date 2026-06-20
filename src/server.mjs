@@ -12,7 +12,7 @@ import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./l
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, getProjectMemoryStatus, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
 import { getAgentStartupPacket, getContextCapsule, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "./lib/semantic-memory.mjs";
-import { adoptWorkspace, checkpointWorkspace, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
+import { adoptWorkspace, checkpointWorkspace, cloneGitProject, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -495,6 +495,21 @@ async function handleApi(req, res, url) {
       const body = await readBody(req);
       if (!body.path) return send(res, 400, { ok: false, message: "Workspace folder path is required." });
       return send(res, 200, await adoptWorkspace(body));
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/projects/clone") {
+      const body = await readBody(req);
+      if (!body.repoUrl) return send(res, 400, { ok: false, message: "GitHub repo is required." });
+      const result = await cloneGitProject(body);
+      if (result.ok) {
+        const session = await readSession();
+        await saveSession({
+          ...session,
+          activeProjectId: result.project.id,
+          lastProjectSwitchAt: new Date().toISOString()
+        });
+      }
+      return send(res, result.ok ? 200 : 409, result);
     }
 
     if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/workspace\/checkpoint$/)) {

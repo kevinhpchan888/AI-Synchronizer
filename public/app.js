@@ -48,14 +48,19 @@ const selectors = {
   activityLog: document.querySelector("#activityLog"),
   clearLogButton: document.querySelector("#clearLogButton"),
   addProjectButton: document.querySelector("#addProjectButton"),
+  cloneProjectButton: document.querySelector("#cloneProjectButton"),
   adoptWorkspaceButton: document.querySelector("#adoptWorkspaceButton"),
   addMachineButton: document.querySelector("#addMachineButton"),
   projectDialog: document.querySelector("#projectDialog"),
+  cloneDialog: document.querySelector("#cloneDialog"),
   workspaceDialog: document.querySelector("#workspaceDialog"),
   machineDialog: document.querySelector("#machineDialog"),
   handoffDialog: document.querySelector("#handoffDialog"),
   projectNameInput: document.querySelector("#projectNameInput"),
   projectPathInput: document.querySelector("#projectPathInput"),
+  cloneRepoInput: document.querySelector("#cloneRepoInput"),
+  cloneNameInput: document.querySelector("#cloneNameInput"),
+  cloneFolderInput: document.querySelector("#cloneFolderInput"),
   workspaceNameInput: document.querySelector("#workspaceNameInput"),
   workspacePathInput: document.querySelector("#workspacePathInput"),
   machineNameInput: document.querySelector("#machineNameInput"),
@@ -64,6 +69,7 @@ const selectors = {
   glmApiKeyInput: document.querySelector("#glmApiKeyInput"),
   handoffSummaryInput: document.querySelector("#handoffSummaryInput"),
   saveProjectButton: document.querySelector("#saveProjectButton"),
+  saveCloneButton: document.querySelector("#saveCloneButton"),
   saveWorkspaceButton: document.querySelector("#saveWorkspaceButton"),
   saveMachineButton: document.querySelector("#saveMachineButton"),
   saveGlmButton: document.querySelector("#saveGlmButton"),
@@ -1427,6 +1433,17 @@ selectors.addProjectButton.addEventListener("click", () => {
   selectors.projectDialog.showModal();
 });
 
+selectors.cloneProjectButton.addEventListener("click", () => {
+  if (isHostedDashboard()) {
+    window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
+    return;
+  }
+  selectors.cloneRepoInput.value = "";
+  selectors.cloneNameInput.value = "";
+  selectors.cloneFolderInput.value = "";
+  selectors.cloneDialog.showModal();
+});
+
 selectors.adoptWorkspaceButton.addEventListener("click", () => {
   if (isHostedDashboard()) {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
@@ -1473,6 +1490,33 @@ selectors.saveProjectButton.addEventListener("click", async (event) => {
     selectors.projectDialog.close();
     log("Project added.");
     await refresh();
+  });
+});
+
+selectors.saveCloneButton.addEventListener("click", async (event) => {
+  event.preventDefault();
+  const repoUrl = selectors.cloneRepoInput.value.trim();
+  const name = selectors.cloneNameInput.value.trim();
+  const folderName = selectors.cloneFolderInput.value.trim();
+  if (!repoUrl) {
+    log("GitHub repo is required.");
+    return;
+  }
+  await withButtonFeedback(event.currentTarget, "Cloning project", async () => {
+    const result = await api("/api/projects/clone", {
+      method: "POST",
+      body: JSON.stringify({ repoUrl, name, folderName })
+    });
+    if (!result.ok) {
+      log("Project clone failed.", result.message);
+      setWorkflowFeedback(result.message || "Project clone failed.", "bad");
+      return;
+    }
+    selectors.cloneDialog.close();
+    log("Project cloned and prepared.", result.message);
+    await refresh();
+    if (result.project?.id) selectors.projectSwitcher.value = result.project.id;
+    setWorkflowFeedback(`${result.project?.name || "Project"} is cloned, active, and memory-ready.`, "ok");
   });
 });
 

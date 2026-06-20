@@ -264,8 +264,9 @@
           </div>
           <div class="split-actions">
             <button id="publishCloudButton">Publish Cloud Status</button>
+            <button id="cloneProjectButton" class="primary">Clone Project</button>
             <button id="scanProjectsPanelButton">Scan GitHub Folder</button>
-            <button id="adoptWorkspaceButton" class="primary">Adopt Workspace</button>
+            <button id="adoptWorkspaceButton">Adopt Workspace</button>
             <button id="addProjectButton">Add Project</button>
           </div>
         </div>
@@ -308,6 +309,29 @@
         <div class="dialog-actions">
           <button value="cancel">Cancel</button>
           <button id="saveProjectButton" value="default" class="primary">Add</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="cloneDialog">
+      <form method="dialog" class="dialog-card">
+        <h2>Clone Project</h2>
+        <p class="dialog-help">Use this when the GitHub repo is not on this machine yet. AI Sync will clone it, add memory, build the capsule, and make it active.</p>
+        <label>
+          GitHub repo
+          <input id="cloneRepoInput" autocomplete="off" placeholder="kevinhpchan888/APC or https://github.com/owner/repo" />
+        </label>
+        <label>
+          Project name
+          <input id="cloneNameInput" autocomplete="off" placeholder="Optional friendly name" />
+        </label>
+        <label>
+          Folder name
+          <input id="cloneFolderInput" autocomplete="off" placeholder="Optional folder name inside your GitHub folder" />
+        </label>
+        <div class="dialog-actions">
+          <button value="cancel">Cancel</button>
+          <button id="saveCloneButton" value="default" class="primary">Clone And Prepare</button>
         </div>
       </form>
     </dialog>

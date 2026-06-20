@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import { addProject } from "./registry.mjs";
+import { addProject, getProjectsHome } from "./registry.mjs";
 import { getProjectStatus, runProjectAction } from "./git.mjs";
 import { run } from "./command.mjs";
 import { appendMemoryEvent, initializeProjectMemory, writeProjectHandoff } from "./memory.mjs";
@@ -25,6 +25,60 @@ async function ensureReadme(projectPath, name) {
 async function isGitRepo(projectPath) {
   const result = await run("git", ["rev-parse", "--is-inside-work-tree"], { cwd: projectPath, timeout: 10000 });
   return result.ok && result.stdout.trim() === "true";
+}
+
+async function isEmptyDirectory(folder) {
+  try {
+    const entries = await fs.readdir(folder);
+    return entries.length === 0;
+  } catch {
+    return false;
+  }
+}
+
+function sanitizeFolderName(value) {
+  return String(value ?? "")
+    .trim()
+    .replace(/\.git$/i, "")
+    .replace(/[<>:"/\\|?*\u0000-\u001F]/g, "-")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+export function repoNameFromUrl(repoUrl) {
+  const text = String(repoUrl ?? "").trim();
+  if (!text) return "";
+  const cleaned = text.replace(/[?#].*$/, "").replace(/\/+$/, "");
+  const match = cleaned.match(/[:/]([^/:]+?)(?:\.git)?$/);
+  return sanitizeFolderName(match?.[1] ?? "");
+}
+
+export function normalizeRepoUrl(repoUrl) {
+  const text = String(repoUrl ?? "").trim();
+  if (!text) return "";
+  if (/^https:\/\/github\.com\/[^/\s]+\/[^/\s]+(?:\.git)?$/i.test(text)) {
+    return text.endsWith(".git") ? text : `${text}.git`;
+  }
+  if (/^git@github\.com:[^/\s]+\/[^/\s]+(?:\.git)?$/i.test(text)) {
+    return text.endsWith(".git") ? text : `${text}.git`;
+  }
+  if (/^gh:[^/\s]+\/[^/\s]+$/i.test(text)) {
+    return `https://github.com/${text.slice(3)}.git`;
+  }
+  if (/^[^/\s]+\/[^/\s]+$/i.test(text)) {
+    return `https://github.com/${text}.git`;
+  }
+  return text;
+}
+
+function isLikelyCloneSource(repoUrl) {
+  const text = String(repoUrl ?? "").trim();
+  return /^https:\/\/github\.com\/[^/\s]+\/[^/\s]+(?:\.git)?$/i.test(text)
+    || /^git@github\.com:[^/\s]+\/[^/\s]+(?:\.git)?$/i.test(text)
+    || /^gh:[^/\s]+\/[^/\s]+$/i.test(text)
+    || /^[^/\s]+\/[^/\s]+$/i.test(text)
+    || path.isAbsolute(text);
 }
 
 async function gitLine(projectPath, args) {
@@ -135,6 +189,63 @@ export async function adoptWorkspace(input) {
   return {
     ok: true,
     message: initializedGit ? "Workspace adopted with local Git and memory." : "Workspace adopted with memory.",
+    project,
+    status: await getProjectStatus(project),
+    memory,
+    semantic
+  };
+}
+
+export async function cloneGitProject(input, options = {}) {
+  const repoUrl = normalizeRepoUrl(input.repoUrl);
+  if (!repoUrl || !isLikelyCloneSource(input.repoUrl)) {
+    return { ok: false, message: "Enter a GitHub repo URL, SSH URL, or owner/repo name." };
+  }
+
+  const projectsHome = path.resolve(input.projectsHome || getProjectsHome());
+  const folderName = sanitizeFolderName(input.folderName || input.name || repoNameFromUrl(repoUrl));
+  if (!folderName) return { ok: false, message: "Could not determine the project folder name." };
+
+  const targetPath = path.resolve(projectsHome, folderName);
+  if (!targetPath.startsWith(`${projectsHome}${path.sep}`) && targetPath !== projectsHome) {
+    return { ok: false, message: "Project folder must stay inside the GitHub projects folder." };
+  }
+
+  await fs.mkdir(projectsHome, { recursive: true });
+  const targetExists = await exists(targetPath);
+  if (targetExists && !(await isEmptyDirectory(targetPath))) {
+    return {
+      ok: false,
+      message: `Folder already exists: ${targetPath}. Use Scan GitHub Folder if it is already cloned.`
+    };
+  }
+
+  const runner = options.run ?? run;
+  const clone = await runner("git", ["clone", repoUrl, targetPath], { cwd: projectsHome, timeout: options.timeout ?? 300000 });
+  if (!clone.ok) {
+    return {
+      ok: false,
+      message: clone.stderr || clone.message || "Git clone failed.",
+      clone
+    };
+  }
+
+  const registerProject = options.addProject ?? addProject;
+  const project = await registerProject({ name: input.name?.trim() || folderName, path: targetPath });
+  const status = await getProjectStatus(project);
+  const memory = await initializeProjectMemory(status);
+  const semantic = await rebuildSemanticMemory(status, { reason: "project_cloned", agent: "all" });
+  await appendMemoryEvent(status, "project_cloned", {
+    repoUrl,
+    targetPath,
+    projectsHome
+  });
+
+  return {
+    ok: true,
+    message: `${status.name} cloned and prepared for Claude, Codex, and Hermes.`,
+    repoUrl,
+    targetPath,
     project,
     status: await getProjectStatus(project),
     memory,
