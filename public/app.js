@@ -773,6 +773,8 @@ function renderAgentProfiles() {
     ? "Claude Code currently routes to GLM 5.2"
     : "Claude Code currently routes to Claude models";
   const glmTone = agents.glm.configuredFor52 ? "ok" : agents.glm.configured ? "warn" : "neutral";
+  const mcpTone = agents.mcp?.ok ? "ok" : "warn";
+  const missingMcp = agents.mcp?.missingInCodex?.map((item) => item.name).join(", ");
 
   selectors.agentProfileSummary.innerHTML = `
     <div class="setup-card">
@@ -781,6 +783,14 @@ function renderAgentProfiles() {
         <strong>${escapeHtml(active)}</strong>
         <p>Claude settings: ${escapeHtml(agents.settingsPath)}</p>
         <p>GLM endpoint: ${escapeHtml(agents.glmBaseUrl)}</p>
+      </div>
+    </div>
+    <div class="setup-card">
+      <span class="status-dot ${mcpTone}"></span>
+      <div>
+        <strong>${agents.mcp?.ok ? "MCP servers synced" : "MCP servers need sync"}</strong>
+        <p>Claude MCP: ${escapeHtml(agents.mcp?.claudeCount ?? 0)} · Codex MCP: ${escapeHtml(agents.mcp?.codexCount ?? 0)}</p>
+        <p>${agents.mcp?.ok ? "Codex has the Claude MCP server entries." : `Missing in Codex: ${escapeHtml(missingMcp || "unknown")}`}</p>
       </div>
     </div>
   `;
@@ -1726,12 +1736,13 @@ selectors.syncEnvironmentButton.addEventListener("click", async () => {
     window.open(localConsoleUrl(), "_blank", "noopener,noreferrer");
     return;
   }
-  const ok = window.confirm("Sync Claude/Codex shared instructions, hooks, rules, and skills on this machine? Local auth, sessions, logs, and databases will be left alone.");
+  const ok = window.confirm("Sync Claude/Codex shared instructions, hooks, rules, skills, and MCP server entries on this machine? Local sessions, logs, and databases will be left alone.");
   if (!ok) return;
   await withButtonFeedback(selectors.syncEnvironmentButton, "Syncing environment", async () => {
     log("Syncing Claude/Codex agent environment.");
     const result = await api("/api/environment/sync-local", { method: "POST" });
-    log(result.ok ? "Agent environment sync finished." : "Agent environment sync failed.", result);
+    const mcpMessage = result.mcp?.addedCount ? ` Added MCP: ${result.mcp.added.map((item) => item.name).join(", ")}.` : "";
+    log(result.ok ? `Agent environment sync finished.${mcpMessage}` : "Agent environment sync failed.", result);
     await refresh();
   });
 });

@@ -173,7 +173,9 @@ What the labels mean:
 - `extra`: that agent has skills not yet in the shared source.
 - `missing`: that agent is missing skills from the shared source.
 
-Use **Sync Agent Environment** when you want this machine to match the shared Claude/Codex working setup. It syncs global Claude instructions, global Codex instructions, portable hooks/rules, and all shared skills. It does not copy auth files, sessions, logs, caches, SQLite databases, or machine-specific app paths.
+Use **Sync Agent Environment** when you want this machine to match the shared Claude/Codex working setup. It syncs global Claude instructions, global Codex instructions, portable hooks/rules, shared skills, and Claude MCP server entries into Codex. It does not copy sessions, logs, caches, SQLite databases, or machine-specific app paths.
+
+MCP sync copies the server definitions and environment keys already present in Claude settings into Codex config. After new MCP entries are added, open a new Codex session so Codex loads the new tools. For example, if Selldone works in Claude but not Codex, use **Sync Agent Environment**, then start a new Codex session.
 
 Use **Sync Local Skills** only when you want to refresh skills without touching the shared Claude/Codex instruction layer.
 

@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { homedir } from "node:os";
 import { commandExists } from "./command.mjs";
+import { getMcpSyncStatus } from "./mcp-sync.mjs";
 
 const CLAUDE_DIR = path.join(homedir(), ".claude");
 const CLAUDE_SETTINGS = path.join(CLAUDE_DIR, "settings.json");
@@ -108,6 +109,7 @@ export async function getAgentProfiles(tools = []) {
   const env = getClaudeEnv(settings);
   const claudeTool = tools.find((tool) => tool.id === "claude") ?? { exists: (await commandExists("claude")).exists };
   const codexTool = tools.find((tool) => tool.id === "codex") ?? { exists: (await commandExists("codex")).exists };
+  const mcp = await getMcpSyncStatus();
 
   return {
     settingsPath: CLAUDE_SETTINGS,
@@ -148,7 +150,8 @@ export async function getAgentProfiles(tools = []) {
       sonnetModel: env.ANTHROPIC_DEFAULT_SONNET_MODEL ?? null,
       opusModel: env.ANTHROPIC_DEFAULT_OPUS_MODEL ?? null,
       compactWindow: env.CLAUDE_CODE_AUTO_COMPACT_WINDOW ?? null
-    }
+    },
+    mcp
   };
 }
 

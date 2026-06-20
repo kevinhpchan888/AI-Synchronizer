@@ -2,6 +2,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { homedir } from "node:os";
 import { syncLocalSkills } from "./skills.mjs";
+import { syncClaudeMcpToCodex } from "./mcp-sync.mjs";
 
 const ROOT = process.cwd();
 const PROFILE_DIR = path.join(ROOT, "env", "portable-agent-profile");
@@ -70,13 +71,17 @@ export async function syncLocalAgentEnvironment() {
     });
   }
 
-  const skills = await syncLocalSkills();
+  const [skills, mcp] = await Promise.all([
+    syncLocalSkills(),
+    syncClaudeMcpToCodex()
+  ]);
   return {
     ok: true,
-    message: "Claude, Codex, shared instructions, hooks, rules, and skills were synced locally.",
+    message: "Claude, Codex, shared instructions, hooks, rules, skills, and MCP servers were synced locally.",
     backupRoot,
     applied,
     skipped,
-    skills
+    skills,
+    mcp
   };
 }
