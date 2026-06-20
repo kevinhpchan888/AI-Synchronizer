@@ -86,6 +86,8 @@ const selectors = {
 
 let activeHandoffProjectId = null;
 let activeSwitchTarget = null;
+let autoMemoryBootstrapStarted = false;
+let autoMemorySetupRunning = false;
 
 function log(message, data = null) {
   const timestamp = new Date().toLocaleTimeString();
@@ -887,6 +889,48 @@ function renderSemanticResults(payload) {
   }).join("");
 }
 
+function memoryNeedsSetup(item) {
+  return item?.state === "missing" || ["missing", "invalid", "stale"].includes(item?.semantic?.state);
+}
+
+function autoMemorySummary(result) {
+  const created = result?.createdMemory === true ? 1 : Number(result?.createdMemory ?? 0);
+  const rebuilt = result?.rebuiltSemantic === true ? 1 : Number(result?.rebuiltSemantic ?? 0);
+  if (created || rebuilt) return `${created} memory pack${created === 1 ? "" : "s"} created, ${rebuilt} semantic graph${rebuilt === 1 ? "" : "s"} built.`;
+  return "No memory repair needed.";
+}
+
+async function autoSetupMemory(projectId = null, reason = "Auto memory setup") {
+  if (autoMemorySetupRunning) return { ok: true, skipped: true, message: "Memory setup already running." };
+  autoMemorySetupRunning = true;
+  const endpoint = projectId
+    ? `/api/projects/${encodeURIComponent(projectId)}/memory/auto-setup`
+    : "/api/memory/auto-setup";
+  try {
+    setWorkflowFeedback(`${reason}: creating missing memory automatically...`, "warn");
+    const result = await api(endpoint, { method: "POST" });
+    log(`${reason} complete.`, autoMemorySummary(result));
+    await refresh();
+    setWorkflowFeedback(autoMemorySummary(result), "ok");
+    return result;
+  } finally {
+    autoMemorySetupRunning = false;
+  }
+}
+
+function maybeAutoSetupMissingMemory() {
+  if (isHostedDashboard() || autoMemoryBootstrapStarted || autoMemorySetupRunning) return;
+  const needsSetup = state.summary.memory.projects.some(memoryNeedsSetup);
+  if (!needsSetup) return;
+  autoMemoryBootstrapStarted = true;
+  window.setTimeout(() => {
+    autoSetupMemory(null, "Automatic project memory setup").catch((error) => {
+      log("Automatic memory setup failed.", error.message);
+      setWorkflowFeedback(`Automatic memory setup failed: ${error.message}`, "bad");
+    });
+  }, 500);
+}
+
 function renderProjects() {
   if (isHostedDashboard()) {
     const projects = state.summary.cloudControl?.projects ?? [];
@@ -1054,6 +1098,7 @@ async function refresh() {
     renderProjects();
     renderTools();
     log("Status refreshed.");
+    maybeAutoSetupMissingMemory();
   } catch (error) {
     log("Refresh failed.", error.message);
   } finally {
@@ -1180,6 +1225,10 @@ async function scanProjectsHome() {
       `Scan complete: ${result.discoveredCount} found, ${result.addedCount} added.`,
       result.added?.map((project) => project.name).join(", ") || "No new repos added."
     );
+    if (result.memorySetup) {
+      log("Automatic memory setup after scan.", autoMemorySummary(result.memorySetup));
+      setWorkflowFeedback(autoMemorySummary(result.memorySetup), "ok");
+    }
     await refresh();
     if (result.addedCount === 1 && result.added?.[0]?.id) {
       await selectProject(result.added[0].id);
@@ -1528,8 +1577,8 @@ selectors.startWorkButton.addEventListener("click", async () => {
   }
   await withButtonFeedback(selectors.startWorkButton, "Checking project", async () => {
     await refresh();
-    const project = activeProject();
-    const memory = memoryForProject(project);
+    let project = activeProject();
+    let memory = memoryForProject(project);
     if (!project) {
       setWorkflowFeedback("No active project selected. Choose a project first.", "warn");
       return;
@@ -1553,16 +1602,26 @@ selectors.startWorkButton.addEventListener("click", async () => {
       return;
     }
     if (!memory || memory.state === "missing") {
-      setWorkflowFeedback(`${project.name} needs a memory pack. Click Initialize Memory.`, "warn");
-      return;
+      await autoSetupMemory(project.id, `Start Work for ${project.name}`);
+      project = activeProject();
+      memory = memoryForProject(project);
+      if (!memory || memory.state === "missing") {
+        setWorkflowFeedback(`${project.name} still needs memory setup. Check the activity log for the error.`, "bad");
+        return;
+      }
     }
     if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
       setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Refresh Handoff; the console will write it automatically.`, "warn");
       return;
     }
     if (["missing", "invalid", "stale"].includes(memory.semantic?.state)) {
-      setWorkflowFeedback(`${project.name} needs semantic memory. Click Build Semantic Memory.`, "warn");
-      return;
+      await autoSetupMemory(project.id, `Start Work for ${project.name}`);
+      project = activeProject();
+      memory = memoryForProject(project);
+      if (["missing", "invalid", "stale"].includes(memory?.semantic?.state)) {
+        setWorkflowFeedback(`${project.name} still needs semantic memory. Check the activity log for the error.`, "bad");
+        return;
+      }
     }
     setWorkflowFeedback(`${project.name} is ready. Continue in Claude or Codex.`, "ok");
     log(`Start Work complete: ${project.name} is ready.`);
@@ -1612,6 +1671,8 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
     for (const project of state.summary.projects.filter((item) => item.state === "behind")) {
       await projectAction(project.id, "pull");
     }
+    const memorySetup = await api("/api/memory/auto-setup", { method: "POST" });
+    log("Automatic project memory setup finished.", autoMemorySummary(memorySetup));
     const environment = await api("/api/environment/sync-local", { method: "POST" });
     log(environment.ok ? "Agent environment sync finished." : "Agent environment sync failed.", environment);
     const skillshare = toolById("skillshare");
@@ -1619,7 +1680,7 @@ selectors.syncEverythingButton.addEventListener("click", async () => {
     const config = toolById("aiConfigSync");
     if (config?.exists) await toolAction("aiConfigSync", "preview");
     log("Sync Everything complete.");
-    setWorkflowFeedback("Sync complete.", "ok");
+    setWorkflowFeedback(`Sync complete. ${autoMemorySummary(memorySetup)}`, "ok");
   });
 });
 

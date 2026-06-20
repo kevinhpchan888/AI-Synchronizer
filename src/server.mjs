@@ -251,6 +251,75 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   return items;
 }
 
+async function autoSetupProjectMemory(status, options = {}) {
+  if (!status?.exists || (!status.isRepo && !status.isContext)) {
+    return {
+      ok: false,
+      projectId: status?.id ?? null,
+      projectName: status?.name ?? "Unknown project",
+      skipped: true,
+      message: "Project folder or context space is unavailable."
+    };
+  }
+
+  let memory = await getProjectMemoryStatus(status);
+  let createdMemory = false;
+  let rebuiltSemantic = false;
+
+  if (memory.state === "missing") {
+    await initializeProjectMemory(status);
+    createdMemory = true;
+    memory = await getProjectMemoryStatus(status);
+  }
+
+  const semantic = memory.semantic ?? await getSemanticMemoryStatus(status);
+  if (memory.state !== "missing" && ["missing", "invalid", "stale"].includes(semantic?.state)) {
+    const semanticResult = await rebuildSemanticMemory(status, { reason: options.reason ?? "auto_memory_setup" });
+    rebuiltSemantic = Boolean(semanticResult.ok);
+  }
+
+  const updatedMemory = await getProjectMemoryStatus(status);
+  return {
+    ok: true,
+    projectId: status.id,
+    projectName: status.name,
+    createdMemory,
+    rebuiltSemantic,
+    memory: updatedMemory
+  };
+}
+
+async function autoSetupProjectMemories(projectStatuses, options = {}) {
+  const results = [];
+  for (const status of projectStatuses) {
+    const memory = await getProjectMemoryStatus(status);
+    const semanticState = memory.semantic?.state;
+    const needsSetup = memory.state === "missing" || ["missing", "invalid", "stale"].includes(semanticState);
+    if (!needsSetup && !options.force) {
+      results.push({
+        ok: true,
+        projectId: status.id,
+        projectName: status.name,
+        createdMemory: false,
+        rebuiltSemantic: false,
+        skipped: true,
+        message: "Memory already ready."
+      });
+      continue;
+    }
+    results.push(await autoSetupProjectMemory(status, options));
+  }
+
+  return {
+    ok: true,
+    checked: results.length,
+    createdMemory: results.filter((item) => item.createdMemory).length,
+    rebuiltSemantic: results.filter((item) => item.rebuiltSemantic).length,
+    skipped: results.filter((item) => item.skipped).length,
+    results
+  };
+}
+
 async function handleApi(req, res, url) {
   try {
     if (HOSTED_RUNTIME && req.method !== "GET") {
@@ -284,6 +353,7 @@ async function handleApi(req, res, url) {
       const projectStatuses = await Promise.all(projects.map(getProjectStatus));
       const project = projectStatuses.find((item) => item.id === body.projectId);
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const memorySetup = await autoSetupProjectMemory(project, { reason: "project_selected" });
       const session = await readSession();
       const nextSession = {
         ...session,
@@ -291,7 +361,8 @@ async function handleApi(req, res, url) {
         lastProjectSwitchAt: new Date().toISOString()
       };
       await saveSession(nextSession);
-      return send(res, 200, { ok: true, session: normalizeSession(nextSession, projectStatuses) });
+      const updatedStatuses = await Promise.all((await readProjects()).map(getProjectStatus));
+      return send(res, 200, { ok: true, session: normalizeSession(nextSession, updatedStatuses), memorySetup });
     }
 
     if (req.method === "GET" && url.pathname === "/api/tools") {
@@ -333,17 +404,27 @@ async function handleApi(req, res, url) {
       return send(res, 200, await getMemoryInventory(projectStatuses));
     }
 
+    if (req.method === "POST" && url.pathname === "/api/memory/auto-setup") {
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, await autoSetupProjectMemories(projectStatuses, { reason: "manual_or_ui_auto_setup" }));
+    }
+
     if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/init$/)) {
       const id = decodeURIComponent(url.pathname.split("/")[3]);
       const projects = await readProjects();
       const project = projects.find((item) => item.id === id);
       if (!project) return send(res, 404, { ok: false, message: "Project not found." });
       const status = await getProjectStatus(project);
-      const memory = await initializeProjectMemory(status);
-      const semantic = status.exists && (status.isRepo || status.isContext)
-        ? await rebuildSemanticMemory(status, { reason: "memory_initialized" })
-        : { ok: false, message: "Project folder or context space is unavailable." };
-      return send(res, 200, { ...memory, semantic });
+      return send(res, 200, await autoSetupProjectMemory(status, { reason: "memory_initialized" }));
+    }
+
+    if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/auto-setup$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      return send(res, 200, await autoSetupProjectMemory(await getProjectStatus(project), { reason: "project_auto_setup" }));
     }
 
     if (req.method === "POST" && url.pathname.match(/^\/api\/projects\/[^/]+\/memory\/handoff$/)) {
@@ -476,11 +557,16 @@ async function handleApi(req, res, url) {
     if (req.method === "POST" && url.pathname === "/api/projects") {
       const body = await readBody(req);
       if (!body.path) return send(res, 400, { ok: false, message: "Project path is required." });
-      return send(res, 200, await addProject(body));
+      const project = await addProject(body);
+      const memorySetup = await autoSetupProjectMemory(await getProjectStatus(project), { reason: "project_added" });
+      return send(res, 200, { ok: true, project, memorySetup });
     }
 
     if (req.method === "POST" && url.pathname === "/api/projects/discover") {
-      return send(res, 200, await discoverProjectsHomeRepos());
+      const discovery = await discoverProjectsHomeRepos();
+      const projectStatuses = await Promise.all((await readProjects()).map(getProjectStatus));
+      const memorySetup = await autoSetupProjectMemories(projectStatuses, { reason: "projects_discovered" });
+      return send(res, 200, { ...discovery, memorySetup });
     }
 
     if (req.method === "DELETE" && url.pathname.match(/^\/api\/projects\/[^/]+$/)) {
