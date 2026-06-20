@@ -1611,8 +1611,13 @@ selectors.startWorkButton.addEventListener("click", async () => {
       }
     }
     if (["stale", "incomplete", "handoff-needed"].includes(memory.state)) {
-      setWorkflowFeedback(`${project.name} needs a fresh handoff. Click Refresh Handoff; the console will write it automatically.`, "warn");
-      return;
+      await autoRefreshHandoff(project.id);
+      project = activeProject();
+      memory = memoryForProject(project);
+      if (["stale", "incomplete", "handoff-needed"].includes(memory?.state)) {
+        setWorkflowFeedback(`${project.name} still needs a fresh handoff. Check the activity log for the error.`, "bad");
+        return;
+      }
     }
     if (["missing", "invalid", "stale"].includes(memory.semantic?.state)) {
       await autoSetupMemory(project.id, `Start Work for ${project.name}`);
