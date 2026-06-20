@@ -1,3 +1,7 @@
+param(
+  [switch]$NoOpen
+)
+
 $ErrorActionPreference = "Stop"
 
 $Root = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -25,4 +29,6 @@ if (-not (Test-ConsoleServer)) {
   Start-Sleep -Seconds 2
 }
 
-Start-Process $Url
+if (-not $NoOpen) {
+  Start-Process $Url
+}
