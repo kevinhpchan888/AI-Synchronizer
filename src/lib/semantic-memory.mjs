@@ -42,6 +42,9 @@ const TEXT_EXTENSIONS = new Set([
 const SKIP_DIRS = new Set([
   ".git",
   "node_modules",
+  ".claude",
+  ".codex",
+  ".agents",
   ".venv",
   "venv",
   "__pycache__",
@@ -49,9 +52,12 @@ const SKIP_DIRS = new Set([
   ".vercel",
   "dist",
   "build",
+  "output",
   "coverage",
   "logs",
   "backups",
+  "tmp",
+  "temp",
   "setup-package"
 ]);
 
