@@ -3,7 +3,7 @@ import { mkdtemp, mkdir, readFile, rm, utimes, writeFile } from "node:fs/promise
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { getAgentStartupPacket, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "../src/lib/semantic-memory.mjs";
+import { getAgentStartupPacket, getContextCapsule, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "../src/lib/semantic-memory.mjs";
 
 async function makeProject() {
   const root = await mkdtemp(path.join(os.tmpdir(), "ai-sync-memory-"));
@@ -78,6 +78,24 @@ test("semantic search returns why a result matched", async () => {
     assert.ok(result.results.length > 0);
     assert.ok(result.results[0].why);
     assert.ok(result.results[0].source);
+  } finally {
+    await rm(project.path, { recursive: true, force: true });
+  }
+});
+
+test("context capsule gives a compact post-compression recovery brief", async () => {
+  const project = await makeProject();
+  try {
+    await rebuildSemanticMemory(project, { reason: "test", agent: "codex" });
+    const capsule = await getContextCapsule(project, { agent: "codex" });
+    const capsuleFile = await readFile(path.join(project.path, ".ai-memory", "semantic", "CONTEXT_CAPSULE.md"), "utf8");
+
+    assert.equal(capsule.ok, true);
+    assert.equal(capsule.data.project.name, "Demo Project");
+    assert.match(capsule.markdown, /Post-Compression Recovery/);
+    assert.match(capsule.markdown, /AGENT_STARTUP\.md/);
+    assert.match(capsule.markdown, /Improve project memory/);
+    assert.equal(capsuleFile, capsule.markdown);
   } finally {
     await rm(project.path, { recursive: true, force: true });
   }

@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node src/server.mjs",
     "test": "node --test test/*.test.mjs",
-    "check": "node --check src/server.mjs && node --check src/lib/command.mjs && node --check src/lib/registry.mjs && node --check src/lib/tools.mjs && node --check src/lib/git.mjs && node --check src/lib/cloud.mjs && node --check src/lib/machines.mjs && node --check src/lib/skills.mjs && node --check src/lib/setup.mjs && node --check src/lib/agents.mjs && node --check src/lib/memory.mjs && node --check src/lib/semantic-memory.mjs && node --check src/lib/mcp-sync.mjs && node --check src/lib/workspaces.mjs && node --check src/lib/environment.mjs && node --check scripts/hermes-worker.mjs"
+    "check": "node --check src/server.mjs && node --check src/lib/command.mjs && node --check src/lib/registry.mjs && node --check src/lib/tools.mjs && node --check src/lib/git.mjs && node --check src/lib/cloud.mjs && node --check src/lib/machines.mjs && node --check src/lib/skills.mjs && node --check src/lib/setup.mjs && node --check src/lib/agents.mjs && node --check src/lib/memory.mjs && node --check src/lib/semantic-memory.mjs && node --check src/lib/hermes-memory.mjs && node --check src/lib/mcp-sync.mjs && node --check src/lib/workspaces.mjs && node --check src/lib/environment.mjs && node --check scripts/hermes-worker.mjs"
   },
   "engines": {
     "node": ">=20"

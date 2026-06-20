@@ -40,6 +40,7 @@ const selectors = {
   semanticSearchButton: document.querySelector("#semanticSearchButton"),
   semanticSearchResults: document.querySelector("#semanticSearchResults"),
   rebuildSemanticButton: document.querySelector("#rebuildSemanticButton"),
+  showContextCapsuleButton: document.querySelector("#showContextCapsuleButton"),
   showAgentPacketButton: document.querySelector("#showAgentPacketButton"),
   projectsPanel: document.querySelector("#projectsPanel"),
   projectsList: document.querySelector("#projectsList"),
@@ -865,6 +866,7 @@ function renderSemanticMemory() {
   const tone = toneForSemantic(semantic);
   const lastBuilt = semantic?.lastBuiltAt ? new Date(semantic.lastBuiltAt).toLocaleString() : "Not built yet";
   const packetReady = semantic?.state === "fresh" && semantic?.packetPath;
+  const capsuleReady = semantic?.state === "fresh" && semantic?.capsulePath;
   const indexDetail = semantic?.changedSinceBuild
     ? "Project files changed. Rebuild before switching agents."
     : `${semantic?.chunks ?? 0} chunks · ${semantic?.entities ?? 0} entities`;
@@ -874,6 +876,7 @@ function renderSemanticMemory() {
   selectors.semanticMemorySummary.innerHTML = [
     semanticCard("Cognee index", semantic?.state === "fresh" ? "Ready" : "Rebuild", indexDetail, tone),
     semanticCard("Graphiti timeline", `${semantic?.relations ?? 0}`, graphDetail, tone),
+    semanticCard("Memory capsule", capsuleReady ? "Ready" : "Missing", capsuleReady ? semantic.capsulePath : "Build semantic memory first.", capsuleReady ? tone : "warn"),
     semanticCard("Startup packet", packetReady ? "Ready" : "Missing", packetReady ? semantic.packetPath : "Build semantic memory first.", packetReady ? tone : "warn"),
     semanticCard("Last built", lastBuilt, project.name, tone)
   ].join("");
@@ -886,6 +889,10 @@ function renderSemanticResults(payload) {
   }
   if (payload.packet) {
     selectors.semanticSearchResults.innerHTML = `<pre class="semantic-packet">${escapeHtml(payload.packet)}</pre>`;
+    return;
+  }
+  if (payload.markdown) {
+    selectors.semanticSearchResults.innerHTML = `<pre class="semantic-packet">${escapeHtml(payload.markdown)}</pre>`;
     return;
   }
   if (!payload.results?.length) {
@@ -1362,6 +1369,30 @@ async function showActiveStartupPacket() {
   setWorkflowFeedback(`${project.name} startup packet is visible below.`, "ok");
 }
 
+async function showActiveContextCapsule() {
+  const project = activeProject();
+  const memory = memoryForProject(project);
+  const semantic = semanticForProject(project);
+  if (!project) {
+    setWorkflowFeedback("Choose a project first.", "warn");
+    return;
+  }
+  if (!memory || memory.state === "missing") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Initialize Memory before a memory capsule is shown.` });
+    setWorkflowFeedback(`${project.name} needs Initialize Memory first.`, "warn");
+    return;
+  }
+  if (semantic?.state !== "fresh") {
+    renderSemanticResults({ ok: false, message: `${project.name} needs Build Semantic Memory before a memory capsule is shown.` });
+    setWorkflowFeedback(`${project.name} needs Build Semantic Memory first.`, "warn");
+    return;
+  }
+  const agent = state.summary.session?.activeAgent || "all";
+  const result = await api(`/api/projects/${encodeURIComponent(project.id)}/semantic/capsule?agent=${encodeURIComponent(agent)}`);
+  renderSemanticResults(result);
+  setWorkflowFeedback(`${project.name} memory capsule is visible below.`, "ok");
+}
+
 selectors.refreshButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Refreshing", () => refresh()));
 selectors.projectSwitcher.addEventListener("change", async () => {
   try {
@@ -1374,6 +1405,7 @@ selectors.scanProjectsButton.addEventListener("click", (event) => withButtonFeed
 selectors.scanProjectsPanelButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Scanning repos", () => scanProjectsHome()));
 selectors.rebuildSemanticButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Building semantic memory", () => rebuildActiveSemantic()));
 selectors.semanticSearchButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Searching memory", () => searchActiveSemantic()));
+selectors.showContextCapsuleButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Loading capsule", () => showActiveContextCapsule()));
 selectors.showAgentPacketButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Loading packet", () => showActiveStartupPacket()));
 selectors.semanticSearchInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {

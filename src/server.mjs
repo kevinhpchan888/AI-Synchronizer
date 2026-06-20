@@ -11,7 +11,7 @@ import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, getProjectMemoryStatus, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
-import { getAgentStartupPacket, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "./lib/semantic-memory.mjs";
+import { getAgentStartupPacket, getContextCapsule, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "./lib/semantic-memory.mjs";
 import { adoptWorkspace, checkpointWorkspace, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
@@ -476,6 +476,19 @@ async function handleApi(req, res, url) {
       const semantic = await getSemanticMemoryStatus(status);
       if (semantic.state !== "fresh") return send(res, 409, { ok: false, message: `${status.name} needs Build Semantic Memory before a startup packet is shown.` });
       return send(res, 200, await getAgentStartupPacket(status, url.searchParams.get("agent") ?? "all"));
+    }
+
+    if (req.method === "GET" && url.pathname.match(/^\/api\/projects\/[^/]+\/semantic\/capsule$/)) {
+      const id = decodeURIComponent(url.pathname.split("/")[3]);
+      const projects = await readProjects();
+      const project = projects.find((item) => item.id === id);
+      if (!project) return send(res, 404, { ok: false, message: "Project not found." });
+      const status = await getProjectStatus(project);
+      const memory = await getProjectMemoryStatus(status);
+      if (memory.state === "missing") return send(res, 409, { ok: false, message: `${status.name} needs Initialize Memory before a context capsule is shown.` });
+      const semantic = await getSemanticMemoryStatus(status);
+      if (semantic.state !== "fresh") return send(res, 409, { ok: false, message: `${status.name} needs Build Semantic Memory before a context capsule is shown.` });
+      return send(res, 200, await getContextCapsule(status, { agent: url.searchParams.get("agent") ?? "all" }));
     }
 
     if (req.method === "POST" && url.pathname === "/api/workspaces/adopt") {

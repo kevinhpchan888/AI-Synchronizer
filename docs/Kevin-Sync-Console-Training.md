@@ -69,10 +69,13 @@ The **Memory Status** button stays inside AI Sync Console. It highlights the pro
 The **Cognee + Graphiti Semantic Memory** panel is the richer memory layer:
 
 1. **Build Semantic Memory** creates the project knowledge index, temporal graph, and startup packet.
-2. **Show Startup Packet** shows the exact context Claude, Codex, and Hermes should read first.
-3. **Search Memory** searches files, decisions, tasks, API routes, entities, and relations already indexed from the project.
+2. **Show Memory Capsule** shows the compact recovery brief for a compressed or brand-new AI session.
+3. **Show Startup Packet** shows the fuller context Claude, Codex, and Hermes should read before substantial work.
+4. **Search Memory** searches files, decisions, tasks, API routes, entities, and relations already indexed from the project.
 
-For APC, the key file is `.ai-memory/semantic/AGENT_STARTUP.md`. That is the first context file to read when moving from Claude to Codex, Codex to Claude, PC to Mac, or Mac to PC.
+Every project gets its own `.ai-memory/` folder inside that project. This is intentional. The memory travels with the repo or folder, so APC has APC memory, AutoResearch has AutoResearch memory, and a non-repo workspace gets its own context space. AI Sync Console is the control plane that scans and compares them.
+
+For APC, the key files are `.ai-memory/semantic/CONTEXT_CAPSULE.md` and `.ai-memory/semantic/AGENT_STARTUP.md`. The capsule is the short recovery brief after compression. The startup packet is the fuller first-read file when moving from Claude to Codex, Codex to Claude, PC to Mac, or Mac to PC.
 
 The startup packet now includes the practical parts that matter when an agent resumes:
 
@@ -83,6 +86,8 @@ The startup packet now includes the practical parts that matter when an agent re
 - **Next Agent Checklist**: what Claude, Codex, GLM, or Hermes should do before editing.
 
 If a project file changes after the semantic graph was built, the memory panel turns yellow and says the graph should be rebuilt. Click **Build Semantic Memory** or **Start Work** to refresh it.
+
+Hermes publishes compact memory readiness for each project into the cloud control plane. It can also process queued memory refresh jobs named `refresh_memory`, `refresh_project_memory`, `build_semantic_memory`, or `memory_briefing`. Hermes is still not a replacement for the project repo. It is a coordinator that carries the project capsule, handoff, and stale/fresh state across machines.
 
 Search results now show **why** they matched and which source file they came from. Use this when you are unsure where a decision, task, rule, route, or skill lives.
 

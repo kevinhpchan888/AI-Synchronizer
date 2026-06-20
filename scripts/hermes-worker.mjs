@@ -8,7 +8,19 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENV_FILE = path.join(ROOT, ".env.local");
 const LOCAL_MACHINE_FILE = path.join(ROOT, "registry", "local-machine.json");
 const POLL_MS = Number(process.env.HERMES_POLL_MS || 30000);
+const MEMORY_SCAN_MS = Number(process.env.HERMES_MEMORY_SCAN_MS || 300000);
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+let appLibsPromise = null;
+let memoryStatusCache = { expiresAt: 0, value: null };
+
+process.chdir(ROOT);
+
+async function appLibs() {
+  if (!appLibsPromise) {
+    appLibsPromise = import("../src/lib/hermes-memory.mjs");
+  }
+  return appLibsPromise;
+}
 
 async function readEnv() {
   const values = { ...process.env };
@@ -93,10 +105,33 @@ async function readExistingMachineStatus(machineId) {
   return status && typeof status === "object" && !Array.isArray(status) ? status : {};
 }
 
-async function publishHeartbeat() {
+async function getHermesMemoryStatus(force = false) {
+  if (!force && memoryStatusCache.value && Date.now() < memoryStatusCache.expiresAt) {
+    return memoryStatusCache.value;
+  }
+  try {
+    const { buildHermesMemoryStatus } = await appLibs();
+    const value = await buildHermesMemoryStatus({ agent: "hermes", limit: 25 });
+    memoryStatusCache = {
+      expiresAt: Date.now() + MEMORY_SCAN_MS,
+      value
+    };
+    return value;
+  } catch (error) {
+    return {
+      ok: false,
+      generatedAt: new Date().toISOString(),
+      error: error.message,
+      projects: []
+    };
+  }
+}
+
+async function publishHeartbeat(options = {}) {
   const machine = await readMachine();
   const env = await readEnv();
   const existingStatus = await readExistingMachineStatus(machine.id);
+  const memory = await getHermesMemoryStatus(Boolean(options.forceMemory));
   await supabaseFetch("kevin_sync_machines", {
     method: "POST",
     query: "on_conflict=id",
@@ -113,7 +148,8 @@ async function publishHeartbeat() {
         hermesWorker: "online",
         host: hostname(),
         key: machine.key,
-        pid: process.pid
+        pid: process.pid,
+        memory
       }
     }
   });
@@ -150,8 +186,16 @@ async function markJob(job, status, result) {
 
 async function handleJob(job) {
   if (job.action === "heartbeat") {
-    await publishHeartbeat();
+    await publishHeartbeat({ forceMemory: true });
     await markJob(job, "done", { message: "Heartbeat published." });
+    return;
+  }
+  const { runHermesMemoryJob } = await appLibs();
+  const memoryResult = await runHermesMemoryJob(job, { agent: "hermes" });
+  if (memoryResult.handled) {
+    memoryStatusCache = { expiresAt: 0, value: null };
+    await publishHeartbeat({ forceMemory: true });
+    await markJob(job, memoryResult.ok ? "done" : "failed", memoryResult);
     return;
   }
   await markJob(job, "skipped", {

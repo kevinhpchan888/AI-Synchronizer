@@ -8,6 +8,8 @@ const INDEX_FILE = "cognee-index.json";
 const GRAPH_FILE = "graphiti-graph.json";
 const EPISODES_FILE = "graphiti-episodes.jsonl";
 const PACKET_FILE = "AGENT_STARTUP.md";
+const CAPSULE_FILE = "CONTEXT_CAPSULE.md";
+const CAPSULE_JSON_FILE = "context-capsule.json";
 const MAX_FILES = 260;
 const MAX_CANDIDATE_FILES = 4000;
 const MAX_FILE_BYTES = 160_000;
@@ -730,6 +732,169 @@ async function buildStartupPacket({ project, index, graph, packetAgent = "all" }
   ].join("\n");
 }
 
+function shortList(items, limit = 8) {
+  return (items ?? []).filter(Boolean).slice(0, limit);
+}
+
+function sentence(value, fallback = "Not recorded yet.") {
+  const text = cleanText(value).replace(/^# .+?\s*/m, "").trim();
+  return text ? text.slice(0, 420) : fallback;
+}
+
+async function buildContextCapsule({ project, index, graph, agent = "all" }) {
+  const semanticRoot = semanticPath(project);
+  const recentEvents = await recentMemoryEvents(project.path, 6);
+  const tasks = topEvidence(graph.relations, "has_open_task", 8);
+  const decisions = topEvidence(graph.relations, "states_decision", 10);
+  const [handoffAt, statusText, handoffText, taskText, decisionText] = await Promise.all([
+    handoffUpdatedAt(project.path),
+    memoryFileText(project.path, "STATUS.md", 650),
+    memoryFileText(project.path, "HANDOFF.md", 650),
+    memoryFileText(project.path, "TASKS.md", 650),
+    memoryFileText(project.path, "DECISIONS.md", 650)
+  ]);
+  const changedSinceHandoff = filesChangedSince(index.chunks, handoffAt, 8);
+  const importantFiles = index.chunks.slice(0, 10).map((item) => ({
+    path: item.path,
+    title: item.title,
+    preview: item.preview
+  }));
+  const importantEntities = graph.entities.slice(0, 12).map((item) => ({
+    name: item.name,
+    type: item.type,
+    mentions: item.mentions,
+    sources: shortList(item.sources, 4)
+  }));
+  const recallPrompt = [
+    `Before acting on ${project.name}, read .ai-memory/semantic/CONTEXT_CAPSULE.md first.`,
+    `Then read .ai-memory/semantic/AGENT_STARTUP.md if the task is substantial.`,
+    `Use the local folder ${project.path}.`,
+    `If the capsule is stale, rebuild semantic memory in AI Sync Console before editing.`
+  ].join(" ");
+
+  return {
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    agent,
+    project: {
+      id: project.id,
+      name: project.name,
+      path: project.path,
+      state: project.state || "unknown",
+      branch: project.branch || null,
+      dirtyCount: project.dirtyCount ?? 0,
+      changedFiles: shortList(project.changedFiles, 10)
+    },
+    files: {
+      capsule: path.join(semanticRoot, CAPSULE_FILE),
+      startupPacket: path.join(semanticRoot, PACKET_FILE),
+      cogneeIndex: path.join(semanticRoot, INDEX_FILE),
+      graphitiGraph: path.join(semanticRoot, GRAPH_FILE)
+    },
+    memoryHealth: {
+      chunks: index.summary?.chunks ?? index.chunks?.length ?? 0,
+      entities: graph.summary?.entities ?? graph.entities?.length ?? 0,
+      relations: graph.summary?.relations ?? graph.relations?.length ?? 0,
+      episodes: graph.summary?.episodes ?? 0,
+      sourceHash: index.sourceHash ?? null,
+      sourceNewestAt: index.sourceNewestAt ?? null,
+      handoffUpdatedAt: handoffAt
+    },
+    summary: sentence(statusText),
+    latestHandoff: sentence(handoffText),
+    taskMemory: sentence(taskText),
+    decisionMemory: sentence(decisionText),
+    changedSinceHandoff,
+    importantFiles,
+    importantEntities,
+    rulesAndDecisions: shortList(decisions, 10),
+    openTasks: shortList(tasks, 8),
+    recentEvents: recentEvents.map((event) => ({
+      type: event.type,
+      occurredAt: event.occurredAt,
+      payload: event.payload ?? {}
+    })),
+    recallPrompt
+  };
+}
+
+function contextCapsuleMarkdown(capsule) {
+  const project = capsule.project;
+  const health = capsule.memoryHealth;
+  const lines = [
+    "# Context Capsule",
+    "",
+    "## Post-Compression Recovery",
+    "",
+    capsule.recallPrompt,
+    "",
+    "## Project",
+    "",
+    `- Name: ${project.name}`,
+    `- Folder: ${project.path}`,
+    `- State: ${project.state}`,
+    `- Branch: ${project.branch || "unknown"}`,
+    `- Local changes: ${project.dirtyCount}`,
+    "",
+    "## Memory Health",
+    "",
+    `- Semantic chunks: ${health.chunks}`,
+    `- Entities: ${health.entities}`,
+    `- Relations: ${health.relations}`,
+    `- Episodes: ${health.episodes}`,
+    `- Latest source update indexed: ${health.sourceNewestAt || "unknown"}`,
+    `- Latest handoff: ${health.handoffUpdatedAt || "unknown"}`,
+    "",
+    "## Current Summary",
+    "",
+    capsule.summary,
+    "",
+    "## Latest Handoff",
+    "",
+    capsule.latestHandoff,
+    "",
+    "## Open Tasks",
+    "",
+    ...(capsule.openTasks.length ? capsule.openTasks.map((item) => `- ${item}`) : ["- No open tasks indexed yet."]),
+    "",
+    "## Rules And Decisions",
+    "",
+    ...(capsule.rulesAndDecisions.length ? capsule.rulesAndDecisions.map((item) => `- ${item}`) : ["- No explicit rules or decisions indexed yet."]),
+    "",
+    "## Changed Since Last Handoff",
+    "",
+    ...(capsule.changedSinceHandoff.length
+      ? capsule.changedSinceHandoff.map((item) => `- ${item.path}: updated ${item.updatedAt}`)
+      : ["- No indexed files changed after the latest handoff."]),
+    "",
+    "## Important Files",
+    "",
+    ...capsule.importantFiles.map((item) => `- ${item.path}: ${item.title}`),
+    "",
+    "## Read Next",
+    "",
+    `- ${capsule.files.startupPacket}`,
+    `- ${path.join(project.path, MEMORY_DIR, "STATUS.md")}`,
+    `- ${path.join(project.path, MEMORY_DIR, "HANDOFF.md")}`,
+    `- ${path.join(project.path, MEMORY_DIR, "TASKS.md")}`,
+    "",
+    "## Generated",
+    "",
+    capsule.generatedAt,
+    ""
+  ];
+  return lines.join("\n");
+}
+
+async function writeContextCapsule(project, index, graph, agent = "all") {
+  const root = semanticPath(project);
+  const data = await buildContextCapsule({ project, index, graph, agent });
+  const markdown = contextCapsuleMarkdown(data);
+  await writeJson(path.join(root, CAPSULE_JSON_FILE), data);
+  await fs.writeFile(path.join(root, CAPSULE_FILE), markdown, "utf8");
+  return { data, markdown };
+}
+
 export async function getSemanticMemoryStatus(project) {
   if (!project?.exists || (!project.isRepo && !project.isContext)) {
     return {
@@ -749,10 +914,12 @@ export async function getSemanticMemoryStatus(project) {
   const indexFile = path.join(root, INDEX_FILE);
   const graphFile = path.join(root, GRAPH_FILE);
   const packetPath = path.join(root, PACKET_FILE);
-  const [indexStat, graphStat, packetStat] = await Promise.all([
+  const capsulePath = path.join(root, CAPSULE_FILE);
+  const [indexStat, graphStat, packetStat, capsuleStat] = await Promise.all([
     statOrNull(indexFile),
     statOrNull(graphFile),
-    statOrNull(packetPath)
+    statOrNull(packetPath),
+    statOrNull(capsulePath)
   ]);
 
   if (!indexStat || !graphStat || !packetStat) {
@@ -765,7 +932,8 @@ export async function getSemanticMemoryStatus(project) {
       relations: 0,
       episodes: (await readEpisodes(root, 1000)).length,
       lastBuiltAt: null,
-      packetPath: null
+      packetPath: null,
+      capsulePath: null
     };
   }
 
@@ -784,7 +952,8 @@ export async function getSemanticMemoryStatus(project) {
       relations: 0,
       episodes: 0,
       lastBuiltAt: null,
-      packetPath
+      packetPath,
+      capsulePath: capsuleStat ? capsulePath : null
     };
   }
 
@@ -807,6 +976,7 @@ export async function getSemanticMemoryStatus(project) {
     episodes: graph.summary?.episodes ?? (await readEpisodes(root, 1000)).length,
     lastBuiltAt: index.builtAt,
     packetPath,
+    capsulePath: capsuleStat ? capsulePath : null,
     sourceHash: index.sourceHash ?? null,
     currentSourceHash,
     sourceNewestAt: newestUpdatedAt(currentSources),
@@ -902,6 +1072,7 @@ export async function rebuildSemanticMemory(project, options = {}) {
   await writeJson(path.join(root, GRAPH_FILE), graph);
   const packet = await buildStartupPacket({ project, index, graph, packetAgent: options.agent ?? "all" });
   await fs.writeFile(path.join(root, PACKET_FILE), packet, "utf8");
+  const capsule = await writeContextCapsule(project, index, graph, options.agent ?? "all");
 
   return {
     ok: true,
@@ -913,7 +1084,8 @@ export async function rebuildSemanticMemory(project, options = {}) {
       entities: graph.entities.slice(0, 30),
       relations: graph.relations.slice(0, 30)
     },
-    packet
+    packet,
+    capsule: capsule.data
   };
 }
 
@@ -1016,5 +1188,33 @@ export async function getAgentStartupPacket(project, agent = "all") {
     agent,
     path: packetPath,
     packet
+  };
+}
+
+export async function getContextCapsule(project, options = {}) {
+  const agent = options.agent ?? "all";
+  const root = semanticPath(project);
+  const indexFile = path.join(root, INDEX_FILE);
+  const graphFile = path.join(root, GRAPH_FILE);
+  if (!(await exists(indexFile)) || !(await exists(graphFile))) {
+    if (options.rebuildIfMissing === false) {
+      return { ok: false, message: "Semantic memory has not been built yet.", data: null, markdown: "" };
+    }
+    await rebuildSemanticMemory(project, { reason: "capsule_missing_index", agent });
+  }
+  const { index, graph } = await readIndexAndGraph(project);
+  const capsule = await buildContextCapsule({ project, index, graph, agent });
+  const markdown = contextCapsuleMarkdown(capsule);
+  if (options.write !== false) {
+    await writeJson(path.join(root, CAPSULE_JSON_FILE), capsule);
+    await fs.writeFile(path.join(root, CAPSULE_FILE), markdown, "utf8");
+  }
+  return {
+    ok: true,
+    agent,
+    path: path.join(root, CAPSULE_FILE),
+    jsonPath: path.join(root, CAPSULE_JSON_FILE),
+    data: capsule,
+    markdown
   };
 }
