@@ -712,12 +712,19 @@ function renderSkillCoverage() {
   }
 
   const inventory = state.summary.skills;
+  const sourceLabel = inventory.canonical.projectSourceCount
+    ? `${inventory.canonical.count} shared skills · ${inventory.canonical.projectSourceCount} project source${inventory.canonical.projectSourceCount === 1 ? "" : "s"}`
+    : `${inventory.canonical.count} shared skills`;
+  const sourceDetail = inventory.canonical.pendingProjectImportCount
+    ? `${inventory.canonical.pendingProjectImportCount} project skill update${inventory.canonical.pendingProjectImportCount === 1 ? "" : "s"} will be promoted on Sync Local Skills.`
+    : `${inventory.canonical.physicalCount ?? inventory.canonical.count} in central library. Project skill folders are monitored.`;
   selectors.skillSummary.innerHTML = `
     <div class="skill-source">
-      <span class="status-dot ${inventory.canonical.count > 0 ? "ok" : "warn"}"></span>
+      <span class="status-dot ${inventory.canonical.pendingProjectImportCount ? "warn" : inventory.canonical.count > 0 ? "ok" : "warn"}"></span>
       <div>
         <strong>Shared skill source</strong>
-        <p>${inventory.canonical.count} skill${inventory.canonical.count === 1 ? "" : "s"} in ${escapeHtml(inventory.canonical.path)}</p>
+        <p>${escapeHtml(sourceLabel)}</p>
+        <p>${escapeHtml(sourceDetail)}</p>
       </div>
     </div>
   `;

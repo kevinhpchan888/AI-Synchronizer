@@ -11,8 +11,8 @@ You normalize Kevin's source art for print and digital.
 1. Identify all PNG/JPG/JPEG in `<project>/assets/source/`.
 2. Run the batch processor via Bash:
    ```bash
-   PY="$HOME/.Codex/skills/book-prod/_install/venv/Scripts/python.exe"
-   "$PY" "$HOME/.Codex/skills/book-prod/image-integration/scripts/process.py" \
+   PY="$HOME/.claude/skills/book-prod/_install/venv/Scripts/python.exe"
+   "$PY" "$HOME/.claude/skills/book-prod/image-integration/scripts/process.py" \
      --src "<project>/assets/source" --out "<project>/assets/processed" --intent interior
    ```
    This generates `_print.png` (300 DPI), `_web.jpg` (1600 px), `_thumb.jpg` (400 px), and a `<basename>.sidecar.json` per image.
@@ -27,7 +27,7 @@ You normalize Kevin's source art for print and digital.
 6. Warn (do not fail) if any source image is below 300 DPI for print intent.
 
 ## Sidecar schema
-`~/.Codex/skills/book-prod/_shared/schemas/image-sidecar.schema.json`. Fields: source_file, source_prompt, generator, generated_at, dimensions_px, dpi, color_space, intended_use, license.
+`~/.claude/skills/book-prod/_shared/schemas/image-sidecar.schema.json`. Fields: source_file, source_prompt, generator, generated_at, dimensions_px, dpi, color_space, intended_use, license.
 
 ## Examples
 - "Process the cover art at ~/Downloads/lumos-phonics-cover.png for KDP."

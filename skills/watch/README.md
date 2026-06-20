@@ -204,6 +204,7 @@ Other knobs (passed to `scripts/watch.py`):
 │   ├── frames.py            # ffmpeg frame extraction + auto-fps logic
 │   ├── transcribe.py        # VTT parsing + dedupe + Whisper orchestration
 │   ├── whisper.py           # Groq / OpenAI clients (pure stdlib)
+│   ├── channel.py           # channel/playlist batch — transcript-first, one report per video
 │   ├── setup.py             # preflight + installer
 │   └── build-skill.sh       # build dist/watch.skill for claude.ai upload
 ├── hooks/                   # SessionStart status hook (Claude Code only)

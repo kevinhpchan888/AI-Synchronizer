@@ -138,6 +138,12 @@ Every article body follows this structure:
 
 ## Illustration Pipeline
 
+### SIGNATURE GATE — NON-NEGOTIABLE (before any CDN upload)
+Every illustration is signed with the APC signature (bottom-right) by the ONE canonical tool before it touches the CDN. Do not hand-roll this.
+- Tool: `scripts/sign_illustrations.py` · Spec: 10% width, 1.5% padding, SouthEast, JPEG q82 · Asset: `…/brand/APC Signature Transparent.png`.
+- Sign the drop folder: `python scripts/sign_illustrations.py --in "<NEW ARTICLE IMAGES>" --sig "<APC Signature Transparent.png>" --out <signed>`
+- **Gate:** `python scripts/sign_illustrations.py --check <signed>` MUST exit 0 (signed files carry the `APC-SIG-v1` marker). Upload ONLY from the signed folder; never upload a raw/unsigned image.
+
 ### CDN Upload (Selldone Dashboard API)
 
 Upload via Chrome browser context on a `selldone.com` dashboard page (session cookies + XSRF token required):

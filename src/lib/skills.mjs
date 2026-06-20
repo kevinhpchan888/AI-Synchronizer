@@ -17,6 +17,7 @@ const EXCLUDED_COPY_DIRS = new Set([
   "venv",
   "node_modules",
   "__pycache__",
+  "output",
   ".mypy_cache",
   ".pytest_cache"
 ]);
@@ -50,6 +51,44 @@ async function listSkillFolders(folder) {
   return [...skillsByName.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+async function latestTreeMtime(folder) {
+  let latest = 0;
+
+  async function walk(currentFolder) {
+    let entries = [];
+    try {
+      entries = await fs.readdir(currentFolder, { withFileTypes: true });
+    } catch {
+      return;
+    }
+
+    for (const entry of entries) {
+      if (entry.isDirectory() && EXCLUDED_COPY_DIRS.has(entry.name)) continue;
+      const file = path.join(currentFolder, entry.name);
+      let stat = null;
+      try {
+        stat = await fs.stat(file);
+      } catch {
+        continue;
+      }
+      latest = Math.max(latest, stat.mtimeMs);
+      if (entry.isDirectory()) await walk(file);
+    }
+  }
+
+  await walk(folder);
+  return latest;
+}
+
+async function listSkillFoldersWithMeta(folder, source = {}) {
+  const skills = await listSkillFolders(folder);
+  return Promise.all(skills.map(async (skill) => ({
+    ...skill,
+    ...source,
+    updatedAtMs: await latestTreeMtime(skill.path)
+  })));
+}
+
 async function fileExists(file) {
   try {
     const stat = await fs.stat(file);
@@ -67,9 +106,77 @@ function compareSkills(canonical, targetSkills) {
   return { missing, extra };
 }
 
-export async function getSkillInventory(machines = []) {
+async function projectSkillSources(projects = []) {
+  const sources = [];
+  const canonicalSkillsPath = path.resolve(ROOT, "skills").toLowerCase();
+  for (const project of projects) {
+    if (!project?.path || !project.exists) continue;
+    const skillsPath = path.join(project.path, "skills");
+    if (path.resolve(skillsPath).toLowerCase() === canonicalSkillsPath) continue;
+    if (!(await directoryExists(skillsPath))) continue;
+    sources.push({
+      id: `project:${project.id}`,
+      projectId: project.id,
+      projectName: project.name,
+      label: `${project.name} skills`,
+      path: skillsPath
+    });
+  }
+  return sources.sort((a, b) => a.projectName.localeCompare(b.projectName));
+}
+
+async function getSkillSource(projects = []) {
   const canonicalPath = path.join(ROOT, "skills");
-  const canonical = await listSkillFolders(canonicalPath);
+  const canonical = await listSkillFoldersWithMeta(canonicalPath, {
+    origin: "canonical",
+    sourceLabel: "Shared skill source",
+    sourcePath: canonicalPath
+  });
+  const sources = await projectSkillSources(projects);
+  const projectSkills = [];
+  for (const source of sources) {
+    const skills = await listSkillFoldersWithMeta(source.path, {
+      origin: "project",
+      sourceLabel: source.label,
+      sourcePath: source.path,
+      projectId: source.projectId,
+      projectName: source.projectName
+    });
+    projectSkills.push(...skills);
+  }
+
+  const mergedByName = new Map();
+  for (const skill of canonical) mergedByName.set(skill.name, skill);
+  for (const skill of projectSkills) {
+    const existing = mergedByName.get(skill.name);
+    if (!existing || skill.updatedAtMs > existing.updatedAtMs) mergedByName.set(skill.name, skill);
+  }
+  const merged = [...mergedByName.values()].sort((a, b) => a.name.localeCompare(b.name));
+  const canonicalByName = new Map(canonical.map((skill) => [skill.name, skill]));
+  const pendingProjectImports = projectSkills
+    .filter((skill) => {
+      const existing = canonicalByName.get(skill.name);
+      return !existing || skill.updatedAtMs > existing.updatedAtMs;
+    })
+    .map((skill) => ({
+      name: skill.name,
+      projectName: skill.projectName,
+      sourcePath: skill.path
+    }));
+
+  return {
+    canonicalPath,
+    canonical,
+    merged,
+    projectSources: sources,
+    projectSkills,
+    pendingProjectImports
+  };
+}
+
+export async function getSkillInventory(machines = [], projects = []) {
+  const source = await getSkillSource(projects);
+  const canonical = source.merged;
   const localTargets = [];
 
   for (const target of SKILL_TARGETS) {
@@ -89,10 +196,21 @@ export async function getSkillInventory(machines = []) {
 
   return {
     canonical: {
-      path: canonicalPath,
+      path: source.canonicalPath,
       count: canonical.length,
-      validCount: canonical.filter((skill) => skill.hasSkillFile).length
+      validCount: canonical.filter((skill) => skill.hasSkillFile).length,
+      physicalCount: source.canonical.length,
+      projectSourceCount: source.projectSources.length,
+      projectSkillCount: source.projectSkills.length,
+      pendingProjectImportCount: source.pendingProjectImports.length,
+      pendingProjectImports: source.pendingProjectImports.slice(0, 30)
     },
+    sources: source.projectSources.map((item) => ({
+      id: item.id,
+      label: item.label,
+      projectName: item.projectName,
+      path: item.path
+    })),
     machines: machines.map((machine) => ({
       id: machine.id,
       name: machine.name,
@@ -113,6 +231,7 @@ export async function getSkillInventory(machines = []) {
 }
 
 async function copyDirectory(source, destination) {
+  await fs.rm(destination, { recursive: true, force: true });
   await fs.mkdir(destination, { recursive: true });
   const entries = await fs.readdir(source, { withFileTypes: true });
   for (const entry of entries) {
@@ -127,7 +246,36 @@ async function copyDirectory(source, destination) {
   }
 }
 
-export async function syncLocalSkills() {
+async function importProjectSkillsToCanonical(projects = []) {
+  const source = await getSkillSource(projects);
+  await fs.mkdir(source.canonicalPath, { recursive: true });
+  const canonicalByName = new Map(source.canonical.map((skill) => [skill.name, skill]));
+  const imported = [];
+
+  for (const skill of source.projectSkills) {
+    const existing = canonicalByName.get(skill.name);
+    if (existing && existing.updatedAtMs >= skill.updatedAtMs) continue;
+    const destination = path.join(source.canonicalPath, skill.name);
+    await copyDirectory(skill.path, destination);
+    imported.push({
+      name: skill.name,
+      from: skill.projectName,
+      sourcePath: skill.path,
+      destination
+    });
+  }
+
+  return {
+    ok: true,
+    importedCount: imported.length,
+    imported,
+    sourceCount: source.projectSources.length,
+    projectSkillCount: source.projectSkills.length
+  };
+}
+
+export async function syncLocalSkills(projects = []) {
+  const projectImport = await importProjectSkillsToCanonical(projects);
   const canonicalPath = path.join(ROOT, "skills");
   const canonical = await listSkillFolders(canonicalPath);
   const results = [];
@@ -146,6 +294,7 @@ export async function syncLocalSkills() {
   return {
     ok: true,
     copiedFromCanonical: canonical.length,
+    projectImport,
     targets: results,
     skillshare: {
       ok: skillshareResult.ok,
@@ -156,9 +305,10 @@ export async function syncLocalSkills() {
   };
 }
 
-export async function importLocalSkillsToCanonical() {
+export async function importLocalSkillsToCanonical(projects = []) {
   const canonicalPath = path.join(ROOT, "skills");
   await fs.mkdir(canonicalPath, { recursive: true });
+  const projectImport = await importProjectSkillsToCanonical(projects);
   const imported = [];
 
   for (const target of SKILL_TARGETS) {
@@ -175,6 +325,8 @@ export async function importLocalSkillsToCanonical() {
   return {
     ok: true,
     importedCount: uniqueNames.length,
+    importedProjectSkillCount: projectImport.importedCount,
+    projectImport,
     sourceEvents: imported.length,
     skills: uniqueNames.slice(0, 100)
   };

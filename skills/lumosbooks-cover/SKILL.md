@@ -15,10 +15,10 @@ You compute KDP cover geometry and render 3 concepts.
 - Total cover height = trim_h + 0.25
 - Spine text only when `page_count >= 79`; min spine text margin 0.0625 in.
 
-Use the calculator at `~/.Codex/skills/book-prod/cover-design/scripts/spine.py`:
+Use the calculator at `~/.claude/skills/book-prod/cover-design/scripts/spine.py`:
 ```bash
-PY="$HOME/.Codex/skills/book-prod/_install/venv/Scripts/python.exe"
-"$PY" "$HOME/.Codex/skills/book-prod/cover-design/scripts/spine.py" --pages 60 --paper white --trim-w 8.5 --trim-h 11
+PY="$HOME/.claude/skills/book-prod/_install/venv/Scripts/python.exe"
+"$PY" "$HOME/.claude/skills/book-prod/cover-design/scripts/spine.py" --pages 60 --paper white --trim-w 8.5 --trim-h 11
 ```
 
 ## Three concepts per request

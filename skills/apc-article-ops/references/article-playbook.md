@@ -1,6 +1,77 @@
 # APC Article Playbook
 
+> **Single source of truth: [`../ARTICLE-RULES.md`](../ARTICLE-RULES.md).** The hard, executable rules
+> (voice, layout, writing, SPARK, selection, illustrations, publish) and the validator live there.
+> This playbook is method/detail; if anything here conflicts with ARTICLE-RULES.md, that file wins.
+
 Single source of truth for creating, updating, and publishing blog articles on agingparent.care. Every article, every time. No exceptions.
+
+**Companion file**: `daily-content-routine-v2.md` (the live-truth daily routine: rebuild-from-live inventory, demand-driven research, SEO + dedup gate, and the pillar/cluster gap map in Section H). Read it before any new article work.
+
+---
+
+## 0a. Reddit VOC mining (mandatory, every article)
+
+Before writing or revising ANY article, run the **`research-mastery`** orchestrator, which fuses four layers (cost-disciplined: free filters first, paid enrichment only on survivors):
+1. **L1 `google-keyword-research`** skill (`scripts/keyword_backend.py` — functions `expand_autocomplete`, `extract_paa_related`, `cluster_and_score`, `keyword_research_full`; free Google-suggest backend, no key) → demand + the exact PAA/autocomplete questions. The primary keyword and the FAQ questions come from here. Record in a `google_signal:` frontmatter line. Fuse L1+L2+L3 into a brief with `scripts/brief.py`. On established articles, run `scripts/gsc_striking_distance.py` first to refresh page-2 winners before writing anything new.
+2. **L2 `reddit-mcp` / `reddit-research-mastery`** → voice-of-customer. The hook comes from the verbatim trigger; body and FAQ from the points and misconceptions; steps from what worked (n=3 triangulation). Record in a `reddit_signal:` frontmatter line.
+3. **L3 `googletrends-mastery`** → confirm the topic is rising, not dying. A dying topic is a skip.
+4. **L4 `community-research-mastery`** (optional) → audience ownership.
+
+Never ship L1 without L2 (volume with no language) or L2 without L1 (language with no demand). Framing is always actionable, problem-solving, direct, never academic. Every time you mine for a new article, re-check whether the findings improve existing live articles (log them in `LIVE-ARTICLE-IMPROVEMENTS.md`). Not optional; applies to new articles and revisions alike.
+
+## 0. The Four-Test Title Scorecard (mandatory)
+
+Added 2026-06-15. Every title — new, renamed, or consolidated — must score 4/4 before publish. Score ≤3 means rewrite. Score ≤2 cannot be scheduled.
+
+### SPARK content structure (MANDATORY — every article embodies this)
+Added 2026-06-18. Every article is built on the SPARK arc so it hooks and converts, not just informs:
+- **S — Solution (lead promise):** the title + first paragraph promise the specific fix the reader gets. Hook hard: name the problem in the first line, promise the payoff by sentence three.
+- **P — Problem:** make the specific situation and the cost of doing nothing concrete and recognizable (the hook's engine). No abstract framing.
+- **A — Action:** the core of the body is concrete, numbered, do-this-now steps — what to do, in what order. Actionability over explanation.
+- **R — Results:** show what the actions produce — proof, data, a real example, the outcome a family can expect. This is where cited evidence lives.
+- **K — Key Takeaway:** close with one crisp, memorable takeaway + the single next step (link to the matching product or the free Starter Kit).
+On-page SEO, citations/accuracy, the FAQ H2, internal links, the 3-skill prose pipeline, illustrations, and the page template are unchanged — SPARK governs how the content is *shaped and ordered*. Run the hook check on title + first paragraph every time; if either doesn't grip, restructure before publishing.
+
+| Test | Pass condition |
+|---|---|
+| **Hook** | Title states a specific, urgent problem OR a specific actionable outcome in ≤70 chars. Stat-as-hook is allowed only when the stat IS the problem (e.g., $202.90 Part B premium). |
+| **Specificity** | Title names a concrete situation: dollar, decision, document, diagnosis, deadline, demographic. No abstractions ("the math of," "the conversation," "the journey," "emotional whiplash"). |
+| **Action** | Title implies the reader will leave knowing what to DO. Not what to feel, what to know, what to consider. |
+| **SEO** | Title contains the target keyword phrase verbatim (or a verbatim long-tail). The target keyword is named in the Notion page properties before the article is written. |
+
+### The Hook Title Formula (apply to EVERY title, every time)
+
+A title is not a label, it's a promise. It must make the reader think "if I read this, I'll learn something that changes a decision I'm facing." Build every title with these steps:
+
+1. **Open with the payoff or a question, never a statistic or abstraction.** The benefit lands in the first three words.
+2. **Use one of the proven structures** (pick the one that fits the search intent):
+   - `How to [achieve specific outcome]` — *How to Protect Your Parent From Scams Before Someone Drains Their Account*
+   - `Will / Why / What [question that hits the exact worry]` — *Will the 2026 Medicaid Cuts Hit Your Parent's Care?*
+   - `What [thing] actually costs / buys / does` — *What Does $75,000-a-Year Assisted Living Actually Buy?*
+   - `[N] signs / ways / documents + concrete object (+ curiosity)` — *11 Signs It's Time to Move Your Parent. Number 6 Is the One Families Miss.*
+   - `What happens when [reader-side event]` — *What Happens When Medicaid Stops Paying for the Nursing Home*
+3. **Front-load the primary keyword** (from L1 google-keyword-research).
+4. **Promise a material, decision-changing takeaway** — pair the hook with the benefit in a parenthetical or second clause when it sharpens it: *(Scripts That Actually Work)*, *(and How to Recover)*, *(and What It Can't Do)*.
+5. **Keep it ≤ ~65 characters** where possible so it doesn't truncate in search/social.
+6. **The first paragraph is the second hook**: name the reader's exact situation → the cost of doing nothing → the specific payoff this article delivers. No opening statistic unless the stat IS the problem.
+
+**Banned title openers (retired permanently):** "[Stat]% of caregivers report [emotion]"; "$N in/of [thing]" as the headline noun ("$1 Trillion in Invisible Labor"); "The [abstract noun] of [situation]" ("The Math of Staying Home," "The Algorithm Deciding…"); "Nobody told you / nobody warned you"; any title that rewards the research instead of the reader; recycling the same dollar amounts as the headline noun.
+
+**The ship test for every title:** would a tired caregiver scrolling at 11 p.m. click this because it promises to solve the exact thing keeping them up? If not, rewrite.
+
+### Title-Body Integrity (mandatory — the title is a contract)
+
+A hook the body can't deliver is bait-and-switch: the reader bounces, trust is gone, and Google reads the fast bounce as a ranking penalty. So the promise in the title MUST be paid off in the body. Two enforcement rules:
+
+1. **Every title is checked against its body before publish.** For each promise the title makes, the body must contain the goods. If the title says *"How to Fight a Denial and Win,"* the body must contain the actual appeal steps. If it says *"Scripts That Actually Work,"* there must be real scripts. If it says *"7 Ways,"* there must be seven concrete ways. No promise without payoff.
+2. **A retitle is never cosmetic.** When you sharpen a title into a stronger promise, you must read the body and, if it doesn't yet deliver, upgrade the body to match before publishing. Strengthening the hook and strengthening the substance happen together, never separately. (The Selldone upsert requires the full body anyway, so this is enforced by the mechanism too.)
+
+The integrity test: *if a reader does exactly what the title promised they'd learn, did the article actually give them that?* If not, fix the body or soften the title until the two match.
+
+**Hook paragraph**. The first paragraph is the second hook. Name the specific situation, name the cost of doing nothing, promise the specific outcome the next 5 minutes of reading delivers. No statistics in the lede unless the statistic IS the problem.
+
+**Meta description**. 140-160 chars, contains the target keyword, names the action the reader will be able to take.
 
 ---
 
@@ -376,7 +447,7 @@ Every article on agingparent.care is gated behind an email registration wall. Ar
 
 ### Relationship to the Daily Content Routine
 
-The 6 PM scheduled routine (Daily Content Engine) handles Steps 1-2 below: research, drafting, revision, and storing articles as Drafts in Notion. That routine does NOT publish to Selldone, does NOT handle image generation or upload, and does NOT push to the custom articles/reader pages. Steps 3-9 below are the **continuation** that takes Draft articles from Notion through illustration, publication, and sync.
+**One daily routine, one time (`apc-content`, 6 AM ET).** It runs the whole loop in a single pass: FIRST it publishes any Draft whose two images are already in the drop folder (the continuation, Steps 3-11), THEN it researches + drafts the next 5 (Steps 1-2) and pings Kevin. The image handoff is carried across days by Notion `Status` (`Draft` → `Needs Images` → `Published`) plus the drop folder — not by a second scheduled task. Kevin's only manual step is generating the images. (Topic selection in Step 1 must pass the Novelty & Range Gate in `references/coverage-and-novelty-system.md`.)
 
 **Notion is the canonical source of truth for all article content.** Every article lives in the Blog Articles database first. Selldone receives a copy at publish time. If content needs updating, update Notion first, then sync to Selldone.
 
@@ -456,19 +527,20 @@ H:\My Drive\DIGITAL PRODUCTS\THE AGING PARENT CARE GIVING SYSTEM\Website and Sto
 
 ### Handoff files (written by the 6 PM routine, read by the 10 AM check)
 
-The 6 PM daily content routine writes two files to the NEW ARTICLE IMAGES folder after drafting articles:
+The single daily content routine writes two files to the NEW ARTICLE IMAGES folder after drafting articles:
 
 1. **PENDING_ILLUSTRATIONS.md**: Human-readable list of all needed illustrations with filenames, prompts, and Notion page IDs. Kevin uses this to generate images in NanoBanana Pro.
 2. **STATUS.json**: Machine-readable state file tracking the handoff status (`WAITING_FOR_KEVIN` → `PROCESSING` → `COMPLETED`), expected image count, found image count, article titles, and Notion page IDs.
 
-The 10 AM image check task reads STATUS.json. If status is `WAITING_FOR_KEVIN` and all expected images are present, it processes and publishes automatically.
+The NEXT day's run (Phase A, the start of the same single task) reads STATUS.json first: if images are present it watermarks/uploads/publishes them, then proceeds to draft the new batch. No separate task.
 
 ### Scheduled tasks
 
 | Task | Schedule | What it does |
 |------|----------|--------------|
-| `apc-daily-content` | 6 PM daily | Research, draft 5 articles in Notion, write PENDING_ILLUSTRATIONS.md + STATUS.json |
-| `apc-image-check` | 10 AM daily | Check if Kevin's images are ready, process/watermark/upload/publish if so |
+| `apc-content` | **once daily, 6 AM ET (single run)** | The whole loop in one pass: (1) publish any drafts whose images are now in the drop folder, (2) rebuild inventory + coverage ledger from live, (3) demand research, (4) Novelty & Range Gate → pick 5, (5) write + revise + validate, (6) hand off prompts + Telegram ping. Kevin generates images whenever; the next day's run publishes them. |
+
+(Reconciled 2026-06-18: the old split `apc-daily-content` 6 PM + `apc-image-check` 10 AM is retired — one task, one time. Publish-then-write in a single sequence; the image handoff is carried across days by Notion `Status` + the drop folder, not by a second scheduled task.)
 
 ### Step 10: Notion sync after publishing
 
@@ -516,6 +588,10 @@ Before writing any new article, check what already exists. This prevents duplica
 ### The test
 
 "Would a reader who already read the existing article learn something meaningfully new from this one?" If no, skip it.
+
+### Pillar/cluster architecture (added 2026-06-15)
+
+Every article must have a documented pillar parent before it is scheduled. The pillar/cluster taxonomy lives in `daily-content-routine-v2.md` Section H. Pillars are definitive guides targeting head terms; spokes are scenario articles targeting long-tail. Every spoke links up to its pillar; every pillar links down to its spokes. New articles outside the pillar map are not authored without a documented expansion in that day's GAP_ANALYSIS.md.
 
 ### Documentation
 

@@ -221,6 +221,35 @@ The "different angle" path is what makes /watch truly plug-and-play — the user
 
 **Step 5 — clean up.** The script prints a working directory at the end. The vault entry (`$VAULT_DIR/Watched Videos/<slug>/`) is permanent and is NEVER deleted here — Step 5 only cleans up the temporary *workdir*. The report.md + hero frames were already copied into the vault at Step 4.4, so the original workdir is redundant: if the user isn't going to ask follow-ups about this video, `rm -rf <workdir>`. If they might ask follow-ups (so you keep the frames in context), leave the workdir in place. Either way, do not touch anything under `$VAULT_DIR`.
 
+## Channel mode (batch, transcript-first)
+
+When the user hands you a **channel** (`youtube.com/@handle`, `/channel/...`, a `/videos` page) or a **playlist** URL, or asks to "watch/scan/keep up with a channel" or do a **"channel extraction,"** do NOT run the single-video pipeline per video — that downloads every video and reads every frame, which is enormously expensive. Use channel mode instead:
+
+```bash
+python3 "${CLAUDE_SKILL_DIR}/scripts/channel.py" "<channel-url | @handle | playlist | registry-name>" --limit 10 --intent "<why>"
+```
+
+**The registry — where to look when no URL is given.** The skill ships a `channels.json` next to the scripts (`${CLAUDE_SKILL_DIR}/channels.json`). It lists the channels the user tracks (`name` + `url`), a default `limit`/`intent`, and a `vault_folder` (the Obsidian folder channel entries are filed under — e.g. `20-Guru-Watch`). So when the user asks for a "channel extraction" or names a channel **without pasting a URL** (e.g. "extract Hormozi", "scan my channels", "run the guru watch"), you don't ask them for the link — you let `channel.py` resolve it:
+- **By name:** `channel.py "Hormozi"` → matched against registry `name` (exact, then substring, case-insensitive).
+- **Every tracked channel:** `channel.py --all` → scans all non-placeholder registry entries.
+- **Ad-hoc URL:** still works for one-offs not in the registry.
+
+If a name isn't a URL and isn't in the registry, `channel.py` prints the known names and exits — relay that list and offer to add the new channel to `channels.json` (just append a `{name, url}` object).
+
+What it does: enumerates the N most recent videos (default 10), pulls **captions only** (no video download, no frames), and writes one slim `report.md` per video into `<workdir>/<channel>/<slug>/`, plus a `manifest.json`. stdout lists each report grouped by channel and names the `vault destination`.
+
+Flags:
+- `--limit N` / `--intent "..."` — override the registry defaults (and per-channel values).
+- `--whisper-fallback` — when a video has no captions, download its audio and Whisper it (slower, costs API). Off by default; without it, caption-less videos get a `transcript_source: none` report you can skip or re-watch individually.
+- `--whisper groq|openai` — backend for the fallback.
+
+Then, for **each** report in the manifest:
+1. Read `report.md`, fill its `<!-- pending Claude fill: ... -->` markers from the transcript (TL;DR, key points, quotables, concepts/entities) through the lens of the intent.
+2. If a vault is detected (resolve `$VAULT_DIR` per the Configuration section), stage each entry under the registry's `vault_folder`, grouped by channel: `mkdir -p "$VAULT_DIR/<vault_folder>/<channel-slug>/<video-slug>"` and copy the filled `report.md` there (the manifest gives you `vault_folder` and each channel's `vault_subfolder`). One permanent entry per video.
+3. After all are staged, give the user a single chat summary: each channel, how many videos, a one-line TL;DR per video with its vault path. Offer to deep-dive any single video with full frame analysis via `watch.py <video-url>`.
+
+Channel mode is transcript-only by design — no frames, no hook microscope. When the user wants the *visual* breakdown of one specific video from the channel, run the normal single-video flow on that URL.
+
 ## Transcription
 
 The script gets a timestamped transcript in one of two ways:
@@ -273,6 +302,6 @@ If you already watched a video this session and the user asks a follow-up, do **
 - Does not write to the Second Brain without explicit user consent at the Step 4.5 prompt
 - Does not silently overwrite wiki claims — contradictions surface as WARN flags per the Ingest op contract
 
-**Bundled scripts:** `scripts/watch.py` (entry point), `scripts/download.py` (yt-dlp wrapper), `scripts/frames.py` (ffmpeg uniform + scene-change extraction + hero selection), `scripts/pacing.py` (editorial metrics), `scripts/hook.py` (0-10s microscope), `scripts/report.py` (structured report emitter), `scripts/transcribe.py` (caption selection + Whisper orchestration), `scripts/whisper.py` (Groq / OpenAI clients, supports word-level timestamps), `scripts/setup.py` (preflight + installer)
+**Bundled scripts:** `scripts/watch.py` (entry point), `scripts/download.py` (yt-dlp wrapper), `scripts/frames.py` (ffmpeg uniform + scene-change extraction + hero selection), `scripts/pacing.py` (editorial metrics), `scripts/hook.py` (0-10s microscope), `scripts/report.py` (structured report emitter), `scripts/transcribe.py` (caption selection + Whisper orchestration), `scripts/whisper.py` (Groq / OpenAI clients, supports word-level timestamps), `scripts/channel.py` (channel/playlist batch, transcript-first), `scripts/setup.py` (preflight + installer)
 
 Review scripts before first use to verify behavior.

@@ -16,7 +16,7 @@ This skill covers: the Shopify AI Toolkit and MCP integration (new April 2026), 
 
 ### What it is (April 2026)
 
-Shopify launched an **AI Toolkit with Model Context Protocol (MCP) integration** in April 2026. This lets Codex (and other MCP-capable tools) interact with a Shopify store via natural language.
+Shopify launched an **AI Toolkit with Model Context Protocol (MCP) integration** in April 2026. This lets Claude Code (and other MCP-capable tools) interact with a Shopify store via natural language.
 
 **Capabilities:**
 - Product CRUD (create, read, update, delete) via conversation
@@ -587,7 +587,7 @@ Every 90 days:
 
 Since this skill includes Shopify AI Toolkit / MCP (April 2026), some patterns for solo operator use:
 
-### Pattern 1: Daily ops review via Codex + Shopify MCP
+### Pattern 1: Daily ops review via Claude Code + Shopify MCP
 
 ```
 Morning: "Summarize yesterday's orders, revenue, and any CS tickets flagged urgent."

@@ -19,7 +19,7 @@ Kevin explicitly says "use NanoBanana" or "I'll drop the art myself" — in that
    curl -s http://127.0.0.1:8188/queue | head -1 || echo "ComfyUI not running"
    ```
    If down, tell Kevin and stop. Don't try to start it.
-2. Read the imprint tokens at `~/.Codex/skills/book-prod/brand-system/assets/imprints/<imprint>.tokens.json` and pull `illustration.prompt_prefix`, `illustration.style_notes`, `illustration.do_not`, plus the primary/secondary hex colors.
+2. Read the imprint tokens at `~/.claude/skills/book-prod/brand-system/assets/imprints/<imprint>.tokens.json` and pull `illustration.prompt_prefix`, `illustration.style_notes`, `illustration.do_not`, plus the primary/secondary hex colors.
 3. Compose the final prompt: `<prompt_prefix> <user-supplied subject>, <style_notes>` + negative `<do_not>`.
 4. Pick a workflow template under `~/.openclaw/workspace/ComfyClaw/workflows/` (or `~/Documents/ComfyUI/`). Defaults: `text2img-flux.json` for full art, `lineart.json` for coloring pages.
 5. Submit via the ComfyClaw CLI (delegate to the `comfyclaw` skill if more guidance needed):

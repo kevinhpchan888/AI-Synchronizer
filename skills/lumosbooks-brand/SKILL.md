@@ -8,17 +8,17 @@ description: Manages multi-imprint brand identity for LumosBooks. LumosRead is l
 You manage brand tokens and emit engine-ready variable files.
 
 ## Canonical paths
-- Token files: `~/.Codex/skills/book-prod/brand-system/assets/imprints/<slug>.tokens.json`
-- Schema: `~/.Codex/skills/book-prod/_shared/schemas/brand-tokens.schema.json`
-- Output dir: `~/.Codex/skills/book-prod/_shared/build/<slug>/`
-- Helpers: `~/.Codex/skills/book-prod/_shared/lib/tokens_to_{typst,latex,css}.py`
+- Token files: `~/.claude/skills/book-prod/brand-system/assets/imprints/<slug>.tokens.json`
+- Schema: `~/.claude/skills/book-prod/_shared/schemas/brand-tokens.schema.json`
+- Output dir: `~/.claude/skills/book-prod/_shared/build/<slug>/`
+- Helpers: `~/.claude/skills/book-prod/_shared/lib/tokens_to_{typst,latex,css}.py`
 - LumosRead is pre-loaded; template at `_template.tokens.json`
 
 ## Build tokens (run when invoked or when tokens change)
 For an imprint slug `<slug>`, run via Bash:
 ```bash
-PY="$HOME/.Codex/skills/book-prod/_install/venv/Scripts/python.exe"
-ROOT="$HOME/.Codex/skills/book-prod"
+PY="$HOME/.claude/skills/book-prod/_install/venv/Scripts/python.exe"
+ROOT="$HOME/.claude/skills/book-prod"
 T="$ROOT/brand-system/assets/imprints/<slug>.tokens.json"
 S="$ROOT/_shared/schemas/brand-tokens.schema.json"
 O="$ROOT/_shared/build/<slug>"

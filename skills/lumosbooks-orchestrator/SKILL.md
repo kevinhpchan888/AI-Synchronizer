@@ -8,7 +8,7 @@ description: Top-level entry point that turns a single Kevin prompt like "produc
 You drive the end-to-end pipeline. Kevin gives a one-line prompt; you produce a finished book.
 
 ## Pipeline (sequential, with state.json checkpoints)
-1. **Brief** — write `brief.yaml` from Kevin's prompt; validate against `~/.Codex/skills/book-prod/_shared/schemas/project-brief.schema.json`.
+1. **Brief** — write `brief.yaml` from Kevin's prompt; validate against `~/.claude/skills/book-prod/_shared/schemas/project-brief.schema.json`.
 2. **Brand** — invoke `lumosbooks-brand` to resolve the imprint into Typst/LaTeX/CSS variable files.
 3. **Images** — invoke `lumosbooks-images` on `assets/source/` (Kevin's NanoBanana drops).
 4. **Activities** — invoke `lumosbooks-activities` for puzzles/worksheets/tracing per the brief.
@@ -39,8 +39,8 @@ If `state.json` exists and Kevin says "resume", skip steps marked `done` whose i
 - "Build a 7×10 study guide on Singapore O-Level physics, 200 pages."
 
 ## Reference brief examples
-- `~/.Codex/skills/book-prod/_reference/examples/lumosread-phonics-workbook/brief.yaml`
-- `~/.Codex/skills/book-prod/_reference/examples/lumosread-productivity-journal/brief.yaml`
-- `~/.Codex/skills/book-prod/_reference/examples/lumosread-study-guide/brief.yaml`
+- `~/.claude/skills/book-prod/_reference/examples/lumosread-phonics-workbook/brief.yaml`
+- `~/.claude/skills/book-prod/_reference/examples/lumosread-productivity-journal/brief.yaml`
+- `~/.claude/skills/book-prod/_reference/examples/lumosread-study-guide/brief.yaml`
 
 If any sub-skill reports a missing tool, invoke `lumosbooks-installer` to fix it, then resume.

@@ -1,0 +1,14 @@
+{
+  "_comment": "Channel registry for /watch channel mode. When Kevin asks for a 'channel extraction' / 'guru watch' / 'scan the channels' WITHOUT pasting a URL, the session reads this file to know which channels to pull and where to file them. Add a channel by copying an entry below. 'name' is how you'll refer to it in chat ('extract Hormozi'); 'url' should be the channel's /videos page or a playlist. 'limit' and 'intent' are optional per-channel overrides.",
+  "vault_folder": "20-Guru-Watch",
+  "default_limit": 10,
+  "default_intent": "hooks, structure, offer, and notable claims",
+  "channels": [
+    {
+      "name": "Sabri Suby",
+      "url": "https://www.youtube.com/@SabriSubyOfficial/videos",
+      "limit": 10,
+      "intent": "Godfather Offer construction, Halo Strategy funnel architecture, direct response copy frameworks, ad creative principles; applies to Kevin's dropshipping store AND APC ebook business. Cross-vertical strategy mentor in AD CRAFT + STRATEGY cohort alongside Hormozi."
+    }
+  ]
+}

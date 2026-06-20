@@ -2,6 +2,15 @@
 
 Generate APC editorial illustrations in the Tomi Um style. Trigger: any request for APC illustration prompts, article illustrations, or Starter Kit/Guide/Workbook art.
 
+## SIGNATURE — NON-NEGOTIABLE (every illustration, no exceptions)
+
+**Every APC illustration must carry the calligraphic APC signature at the bottom-right before it is used anywhere (CDN upload, article body, page, social).** This is NOT part of the generation prompt — the prompt says "no watermark/logo" on purpose so the model doesn't fake one. The real signature is composited in post by the ONE canonical tool:
+
+- Tool: `skills/apc-article-ops/scripts/sign_illustrations.py` (the only sanctioned signer).
+- Spec: signature = **10% of image width**, padding **1.5%** of width, gravity **SouthEast** (bottom-right), output JPEG q82. Asset: `…/brand/APC Signature Transparent.png`.
+- Sign: `python sign_illustrations.py --in <raw_folder> --sig <signature.png> --out <signed_folder>`
+- **Gate (mandatory before any CDN upload):** `python sign_illustrations.py --check <signed_folder>` must exit 0. Signed files carry an embedded `APC-SIG-v1` marker; the upload step MUST refuse anything the gate flags. No image reaches the CDN unsigned.
+
 ## Style System
 
 **Reference artist**: Tomi Um (warm editorial illustration)
@@ -67,6 +76,15 @@ Two per article, always a complementary pair:
 2. **Midpoint illustration**: Shift toward agency, resolve, forward motion
 
 Never duplicate the same composition or angle across the pair.
+
+## Batch Variety (MANDATORY on any multi-article batch — stops the "desk + pills" sameness)
+Across a batch, illustrations must show the full range of caregiving life, not the same scene retitled. Hold the visual language constant (warm Tomi Um, sienna/sepia ink, honey/amber/sage on cream, text-free, faces never centered) but deliberately SPREAD:
+- **Setting** — rotate widely: kitchen, living room, garden/backyard, park, walking path, café, car, front porch, clinic/consult room, community center, market, pool, workshop/hobby, place of worship, bedroom, doorway/threshold, hallway. No single setting more than ~twice per 10 images.
+- **Activity** — not just paperwork/pills/hunched-at-a-desk: walking, exercising (tai chi, stretching, balance), gardening, cooking, sharing a meal, music, cards, a video call, a hug, a hand on a shoulder, a hobby, a tour.
+- **Subject & energy** — vary who's centered (the parent, active and vital; the caregiver; both; a community; multi-generational with grandchildren) and the emotional register. **At least a third of any batch must show vitality, connection, dignity, or joy — not only burden.** Starting images may carry the weight; midpoints should lean into agency and life.
+- **Distance, time, light** — mix close hands, mid, wide environmental, overhead, over-the-shoulder, silhouette, through-a-window; mix dawn / golden afternoon / dusk / lamplight.
+
+Before finalizing a batch, scan the set: if two scenes share setting+activity+subject, change one. Range of life, one consistent look.
 
 ## Delivery Format (MANDATORY)
 

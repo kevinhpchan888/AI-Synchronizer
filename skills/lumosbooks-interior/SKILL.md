@@ -13,8 +13,8 @@ You compile manuscripts into print-ready PDFs and EPUB3.
 3. **Vivliostyle** only when CSS-paged HTML output is needed.
 
 ## Templates
-- `~/.Codex/skills/book-prod/interior-layout/assets/templates/typst/{workbook,study-guide,prose-book}.typ`
-- `~/.Codex/skills/book-prod/interior-layout/assets/templates/latex/eisvogel-lumosread.latex`
+- `~/.claude/skills/book-prod/interior-layout/assets/templates/typst/{workbook,study-guide,prose-book}.typ`
+- `~/.claude/skills/book-prod/interior-layout/assets/templates/latex/eisvogel-lumosread.latex`
 
 ## Map content_type → template
 | content_type | template | mode |
@@ -25,18 +25,18 @@ You compile manuscripts into print-ready PDFs and EPUB3.
 | `prose`, `chapter-book` | prose-book.typ | default |
 
 ## Procedure
-1. Read `<project>/brief.yaml`. Confirm `~/.Codex/skills/book-prod/_shared/build/<imprint>/variables.typ` exists; if not, invoke `lumosbooks-brand` first.
+1. Read `<project>/brief.yaml`. Confirm `~/.claude/skills/book-prod/_shared/build/<imprint>/variables.typ` exists; if not, invoke `lumosbooks-brand` first.
 2. Import the right template into `<project>/build/main.typ` and inject the manuscript chapters.
-3. Compute geometry via `~/.Codex/skills/book-prod/_shared/lib/kdp_geometry.py` (inside margin grows with page count).
+3. Compute geometry via `~/.claude/skills/book-prod/_shared/lib/kdp_geometry.py` (inside margin grows with page count).
 4. Render targets via Bash:
    - Paperback: `typst compile <project>/build/main.typ <project>/out/<slug>-kdp.pdf --input target=kdp`
    - Digital:   `typst compile <project>/build/main.typ <project>/out/<slug>-digital.pdf --input target=digital`
-   - EPUB:      `pandoc <project>/manuscript/*.md -o <project>/out/<slug>.epub --metadata-file=<project>/build/epub-meta.yaml --css=$HOME/.Codex/skills/book-prod/_shared/build/<imprint>/tokens.css`
-5. Use `~/.Codex/skills/book-prod/_reference/epub3-metadata-template.opf` to fill EPUB accessibility metadata.
+   - EPUB:      `pandoc <project>/manuscript/*.md -o <project>/out/<slug>.epub --metadata-file=<project>/build/epub-meta.yaml --css=$HOME/.claude/skills/book-prod/_shared/build/<imprint>/tokens.css`
+5. Use `~/.claude/skills/book-prod/_reference/epub3-metadata-template.opf` to fill EPUB accessibility metadata.
 6. Hand off to `lumosbooks-preflight`.
 
 ## Trim sizes whitelist
-6×9, 5×8, 5.5×8.5, 7×10, 8×10, 8.5×8.5, 8.5×11, 8.27×11.69 (A4). Reject anything else with the `~/.Codex/skills/book-prod/_reference/kdp-trim-sizes.json` list.
+6×9, 5×8, 5.5×8.5, 7×10, 8×10, 8.5×8.5, 8.5×11, 8.27×11.69 (A4). Reject anything else with the `~/.claude/skills/book-prod/_reference/kdp-trim-sizes.json` list.
 
 ## Examples
 - "Lay out a 60-page kindergarten phonics workbook for LumosRead, 8.5×11, color interior."

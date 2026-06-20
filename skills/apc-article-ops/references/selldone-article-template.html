@@ -1,0 +1,89 @@
+<!-- APC SELLDONE ARTICLE TEMPLATE — canonical body markup. Mirror these blocks exactly.
+     Inline styles only (Selldone does not load apc.css). data-apc markers are required;
+     validate_article.py checks for them. Brand hex per ARTICLE-RULES.md §0. Order = §6. -->
+
+<!-- 1. STARTING ILLUSTRATION (first element; signed CDN url) -->
+<img src="{{START_URL}}" alt="{{page_title}}" style="width:100%;max-width:2400px;height:auto;border-radius:12px;margin-bottom:24px;display:block">
+
+<!-- 2. LEAD PARAGRAPH (the human open, §1 voice) -->
+<p data-apc="lead" style="font-size:21px;line-height:1.6;color:#26332e;margin:0 0 22px">{{lead}}</p>
+
+<!-- 3. BODY paragraph -->
+<p style="font-size:18px;line-height:1.75;color:#2c343b;margin:0 0 22px">{{para}}</p>
+
+<!-- SECTION HEADING -->
+<h2 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:28px;color:#26332e;margin:52px 0 14px">{{question-style heading}}</h2>
+<h3 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:21px;color:#26332e;margin:34px 0 10px">{{subhead}}</h3>
+
+<!-- 4. REAL LIST (content). data-apc="list" required on >=1 in-body list. -->
+<ul data-apc="list" style="font-size:18px;line-height:1.7;color:#2c343b;margin:0 0 22px;padding-left:22px">
+  <li style="margin:0 0 10px">{{point}}</li>
+</ul>
+<ol data-apc="list" style="font-size:18px;line-height:1.7;color:#2c343b;margin:0 0 22px;padding-left:22px">
+  <li style="margin:0 0 10px">{{step}}</li>
+</ol>
+
+<!-- 5. KEY BOX ("the short answer") — exactly one -->
+<div data-apc="key" style="margin:32px 0;background:#F7F4EE;border-left:4px solid #3F6476;border-radius:10px;padding:22px 24px">
+  <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#3F6476;margin-bottom:10px">The short answer</div>
+  <h3 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:20px;color:#26332e;margin:0 0 12px">{{summary heading}}</h3>
+  <ul style="font-size:17px;line-height:1.6;color:#2c343b;margin:0;padding-left:22px">
+    <li style="margin:0 0 8px"><strong>{{Label.}}</strong> {{one line}}</li>
+  </ul>
+</div>
+
+<!-- 6. MIDPOINT ILLUSTRATION -->
+<figure data-apc="fig" style="margin:32px 0">
+  <img src="{{MID_URL}}" alt="{{page_title}}: what families can do" style="width:100%;max-width:2400px;height:auto;border-radius:12px;display:block">
+  <figcaption style="margin-top:10px;font-size:14px;color:#66746d;text-align:center">{{caption}}</figcaption>
+</figure>
+
+<!-- 7b. MID-ARTICLE STARTER KIT CTA (data-apc="cta") — REQUIRED email-capture touchpoint (§8b). Place here, after the midpoint figure. -->
+<div data-apc="cta" style="margin:34px 0;background:#F7F4EE;border:1px solid #EAD9AE;border-radius:12px;padding:24px;text-align:center">
+  <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#C49A3C;margin-bottom:8px">Free Starter Kit</div>
+  <p style="margin:0 0 16px;font-size:18px;line-height:1.6;color:#26332e">The free Aging Parent Care Starter Kit walks you through the first steps in plain language, at your own pace. Get it sent straight to your inbox.</p>
+  <a href="https://agingparent.care/pages/starter-kit" style="display:inline-block;background:#3F6476;color:#ffffff;font-weight:700;font-size:16px;text-decoration:none;padding:13px 28px;border-radius:8px">Send me the free Starter Kit</a>
+</div>
+
+<!-- 8. PULL-QUOTE — >=1 -->
+<blockquote data-apc="quote" style="margin:32px 0;padding:6px 0 6px 22px;border-left:3px solid #C49A3C;font-family:Georgia,'Source Serif 4',serif;font-style:italic;font-size:21px;line-height:1.6;color:#2D4655">
+  <p style="margin:0;font-style:italic;color:#2D4655">{{the most human or most important line}}</p>
+  <cite style="display:block;margin-top:10px;font-size:14px;font-style:normal;color:#66746d">{{optional attribution}}</cite>
+</blockquote>
+
+<!-- 9. FAQ -->
+<h2 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:28px;color:#26332e;margin:52px 0 14px">Frequently Asked Questions</h2>
+<h3 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:21px;color:#26332e;margin:34px 0 10px">{{question}}</h3>
+<p style="font-size:18px;line-height:1.75;color:#2c343b;margin:0 0 22px">{{answer}}</p>
+
+<!-- 10. BOTTOM LINE — exactly one -->
+<div data-apc="bottom" style="margin:36px 0 8px;background:#2D4655;border-radius:12px;padding:24px 26px">
+  <div style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#C49A3C;margin-bottom:10px">The bottom line</div>
+  <p style="margin:0;font-size:18px;line-height:1.7;color:#F7F4EE">{{one tight paragraph}} <strong style="color:#fff">{{bold next step + Starter Kit / product link}}</strong></p>
+</div>
+
+<!-- 10b. OPTIONAL affiliate / sponsorship seam (RESERVED; off until activated).
+     Not required by the validator. When ready, place it here (after bottom line, before Related),
+     keep it clearly labeled, and use data-apc="aff" so it is auditable. Leave out entirely until then. -->
+<aside data-apc="aff" style="margin:32px 0;background:#fff;border:1px solid #dfe6df;border-radius:12px;padding:18px 20px">
+  <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#66746d;margin-bottom:8px">Recommended resource</div>
+  <p style="margin:0;font-size:16px;line-height:1.6;color:#2c343b">{{affiliate copy}} <a href="{{url}}" style="color:#3F6476">{{link}}</a></p>
+</aside>
+
+<!-- 11. RELATED -->
+<h2 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:28px;color:#26332e;margin:52px 0 14px">Related from Aging Parent Care</h2>
+<ul style="font-size:18px;line-height:1.7;color:#2c343b;margin:0 0 22px;padding-left:22px">
+  <li style="margin:0 0 10px"><a href="https://agingparent.care/blog/{{slug-id}}" style="color:#3F6476">{{title}}</a></li>
+</ul>
+
+<!-- 12. SOURCES (each li id="src-N"; inline claims use <sup><a href="#src-N">N</a></sup>) -->
+<h2 style="font-family:Georgia,'Source Serif 4',serif;font-weight:600;font-size:28px;color:#26332e;margin:52px 0 14px">Sources</h2>
+<ol style="font-size:15px;line-height:1.6;color:#2c343b;margin:0 0 22px;padding-left:22px">
+  <li id="src-1" style="margin:0 0 8px">{{Author/Org. "Title." }}<a href="{{url}}" style="color:#3F6476">{{url}}</a></li>
+</ol>
+<!-- inline marker example: ...is required.<sup style="font-size:12px"><a href="#src-1" style="color:#3F6476;text-decoration:none">1</a></sup> -->
+
+<!-- 13-14. DISCLAIMER + COPYRIGHT -->
+<hr style="border:none;border-top:1px solid #dfe6df;margin:32px 0 16px">
+<p style="font-size:13px;line-height:1.6;color:#66746d"><em>This content is for educational and informational purposes only. It is not a substitute for professional medical, legal, or financial advice. Always consult qualified healthcare providers, attorneys, or financial advisors for guidance specific to your situation. Statistics and policy details cited were accurate at the time of publication and may have changed.</em></p>
+<p style="font-size:12px;color:#66746d;margin-top:8px">&copy; 2026 Aging Parent Care. All rights reserved. No portion of this article may be reproduced, distributed, or used in any form without the explicit written permission of Aging Parent Care.</p>

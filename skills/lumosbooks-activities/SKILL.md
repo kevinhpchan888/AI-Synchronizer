@@ -7,7 +7,7 @@ description: Programmatically generates printable activity content for LumosBook
 
 You generate printable activity assets and emit a manifest the interior layout reads.
 
-## Scripts (under `~/.Codex/skills/book-prod/activity-generator/scripts/`)
+## Scripts (under `~/.claude/skills/book-prod/activity-generator/scripts/`)
 - `gen_sudoku.py` — needs `qqwing` on PATH (Windows: not packaged; Sudoku unavailable until manual install)
 - `gen_maze.py` — uses `mazelib`
 - `gen_paper.py` — lined / grid / dot
@@ -15,8 +15,8 @@ You generate printable activity assets and emit a manifest the interior layout r
 
 Run scripts via the Python venv:
 ```bash
-PY="$HOME/.Codex/skills/book-prod/_install/venv/Scripts/python.exe"
-"$PY" "$HOME/.Codex/skills/book-prod/activity-generator/scripts/gen_maze.py" --count 30 --width 15 --height 15 --out "<project>/assets/activities/mazes"
+PY="$HOME/.claude/skills/book-prod/_install/venv/Scripts/python.exe"
+"$PY" "$HOME/.claude/skills/book-prod/activity-generator/scripts/gen_maze.py" --count 30 --width 15 --height 15 --out "<project>/assets/activities/mazes"
 ```
 
 ## Procedure

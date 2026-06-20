@@ -17,7 +17,7 @@ You validate every artifact and refuse to ship if anything fails.
 3. For each EPUB:
    - `epubcheck <file> --json <project>/preflight/<name>.epubcheck.json`
    - Parse JSON; require zero `severity: ERROR`.
-   - Open OEBPS/content.opf; assert presence of `schema:accessMode`, `schema:accessibilityFeature`, `schema:accessibilityHazard` per `~/.Codex/skills/book-prod/_reference/epub-a11y-1.1-checklist.md`.
+   - Open OEBPS/content.opf; assert presence of `schema:accessMode`, `schema:accessibilityFeature`, `schema:accessibilityHazard` per `~/.claude/skills/book-prod/_reference/epub-a11y-1.1-checklist.md`.
 4. Write `<project>/preflight/report.md` (human) and `report.json` (machine).
 5. Set `state.json["preflight_passed"]` to `done` only on zero errors. Otherwise `failed` and **block downstream skills**.
 
@@ -29,7 +29,7 @@ You validate every artifact and refuse to ship if anything fails.
 | EPUB OPF-014 (missing dcterms:modified) | Auto-patch via `lxml` on OPF | Add `<meta property="dcterms:modified">` |
 | Missing schema:accessibilityFeature | Auto-insert `["alternativeText","tableOfContents"]` | Edit OPF |
 
-A helper script lives at `~/.Codex/skills/book-prod/preflight/scripts/preflight.ps1` (Windows) and `preflight.sh` (bash) — call whichever fits the shell you're in.
+A helper script lives at `~/.claude/skills/book-prod/preflight/scripts/preflight.ps1` (Windows) and `preflight.sh` (bash) — call whichever fits the shell you're in.
 
 ## Examples
 - "Preflight the phonics workbook before I upload to KDP."

@@ -11,8 +11,8 @@ You bundle the finished outputs into a Shopify-ready package.
 1. Read `<project>/out/<slug>-digital.pdf` and the front-cover JPG.
 2. Optional watermark via Bash:
    ```bash
-   PY="$HOME/.Codex/skills/book-prod/_install/venv/Scripts/python.exe"
-   "$PY" "$HOME/.Codex/skills/book-prod/shopify-deliverable/scripts/watermark.py" \
+   PY="$HOME/.claude/skills/book-prod/_install/venv/Scripts/python.exe"
+   "$PY" "$HOME/.claude/skills/book-prod/shopify-deliverable/scripts/watermark.py" \
      --pdf "<project>/out/<slug>-digital.pdf" --text "Licensed to {{customer}}" \
      --opacity 0.08 --out "<project>/out/<slug>-digital-wm.pdf"
    ```

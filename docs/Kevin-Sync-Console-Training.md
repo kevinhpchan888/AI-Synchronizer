@@ -165,6 +165,16 @@ Use **Sync Agent Environment** when you want this machine to match the shared Cl
 
 Use **Sync Local Skills** only when you want to refresh skills without touching the shared Claude/Codex instruction layer.
 
+Tracked project repos can also contain skill folders. For example, APC can carry `skills/watch` because GitHub Desktop keeps that project repo current. The console treats those as upstream project skill sources, promotes newer project skills into the shared source, then copies the shared source into Claude Code, Codex, and Shared Agents. The live runtime folders are:
+
+```text
+C:\Users\Kevin Chan\.claude\skills
+C:\Users\Kevin Chan\.codex\skills
+C:\Users\Kevin Chan\.agents\skills
+```
+
+Daily rule: keep working in the local repo folder. Let AI Sync promote project skills and context into the shared layer.
+
 When the shared source is empty, use **Build Shared Skill Source** first. That imports the skills already present on the current machine from Claude Code, Codex, and Shared Agents into the shared source folder. After that, use **Sync Local Skills**.
 
 ## Starting From Scratch

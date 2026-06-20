@@ -51,7 +51,7 @@ async function summary() {
   ]);
   const projectStatuses = await Promise.all(projects.map(getProjectStatus));
   const machines = await readMachines();
-  const skills = await getSkillInventory(machines);
+  const skills = await getSkillInventory(machines, projectStatuses);
   const agents = await getAgentProfiles(tools);
   const memory = await getMemoryInventory(projectStatuses);
   return {
@@ -395,7 +395,9 @@ async function handleApi(req, res, url) {
     }
 
     if (req.method === "GET" && url.pathname === "/api/skills") {
-      return send(res, 200, await getSkillInventory(await readMachines()));
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, await getSkillInventory(await readMachines(), projectStatuses));
     }
 
     if (req.method === "GET" && url.pathname === "/api/memory") {
@@ -513,7 +515,9 @@ async function handleApi(req, res, url) {
     }
 
     if (req.method === "POST" && url.pathname === "/api/skills/sync-local") {
-      return send(res, 200, await syncLocalSkills());
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, await syncLocalSkills(projectStatuses));
     }
 
     if (req.method === "POST" && url.pathname === "/api/environment/sync-local") {
@@ -521,7 +525,9 @@ async function handleApi(req, res, url) {
     }
 
     if (req.method === "POST" && url.pathname === "/api/skills/import-local") {
-      return send(res, 200, await importLocalSkillsToCanonical());
+      const projects = await readProjects();
+      const projectStatuses = await Promise.all(projects.map(getProjectStatus));
+      return send(res, 200, await importLocalSkillsToCanonical(projectStatuses));
     }
 
     if (req.method === "POST" && url.pathname.match(/^\/api\/tools\/[^/]+\/install$/)) {

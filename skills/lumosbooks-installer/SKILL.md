@@ -36,9 +36,9 @@ After winget installs:
 1. Refresh PATH: `$env:Path = [System.Environment]::GetEnvironmentVariable('Path','Machine') + ';' + [System.Environment]::GetEnvironmentVariable('Path','User')`
 2. Install scoop if missing: `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned -Force; irm get.scoop.sh | iex`
 3. `scoop install potrace`
-4. **EPUBCheck 5.3.0**: download zip from `https://github.com/w3c/epubcheck/releases/download/v5.3.0/epubcheck-5.3.0.zip`, extract to `$env:USERPROFILE\.Codex\skills\book-prod\_install\epubcheck\`, then write a `$env:USERPROFILE\.local\bin\epubcheck.cmd` wrapper that calls `java -jar <path>\epubcheck.jar %*`. Add `%USERPROFILE%\.local\bin` to user PATH if missing.
+4. **EPUBCheck 5.3.0**: download zip from `https://github.com/w3c/epubcheck/releases/download/v5.3.0/epubcheck-5.3.0.zip`, extract to `$env:USERPROFILE\.claude\skills\book-prod\_install\epubcheck\`, then write a `$env:USERPROFILE\.local\bin\epubcheck.cmd` wrapper that calls `java -jar <path>\epubcheck.jar %*`. Add `%USERPROFILE%\.local\bin` to user PATH if missing.
 5. **Eisvogel template**: download `https://github.com/Wandmalfarbe/pandoc-latex-template/releases/latest/download/Eisvogel.zip`, extract `eisvogel.latex`, copy to `$env:APPDATA\pandoc\templates\eisvogel.latex`.
-6. **Python venv** at `$env:USERPROFILE\.Codex\skills\book-prod\_install\venv`: `python -m venv <path>`, then `<path>\Scripts\pip install --upgrade pip "rembg[cpu]>=2.0.75" "genxword==2.2.0" mazelib Pillow pypdf reportlab svgwrite jsonschema pyyaml lxml`.
+6. **Python venv** at `$env:USERPROFILE\.claude\skills\book-prod\_install\venv`: `python -m venv <path>`, then `<path>\Scripts\pip install --upgrade pip "rembg[cpu]>=2.0.75" "genxword==2.2.0" mazelib Pillow pypdf reportlab svgwrite jsonschema pyyaml lxml`.
 7. **npm globals**: `npm install -g @vivliostyle/cli@10.3.1 @mermaid-js/mermaid-cli pdf-lib`
 8. **MiKTeX auto-install on demand**: `initexmf --set-config-value=[MPM]AutoInstall=1`
 
@@ -48,9 +48,9 @@ After winget installs:
 - **OFL fonts** — fonts.google.com download API needs a browser session. List the font families (EB Garamond, Crimson Pro, Source Serif 4, Inter, JetBrains Mono, Lora, Merriweather, Spectral) and ask Kevin to install them from fonts.google.com.
 
 ## Verify (always run after install)
-For each tool, call its `--version` (or equivalent) via PowerShell. Use `pdffonts -v 2>&1`, `java -version 2>&1`, `epubcheck --version`. For venv tools: `& "$env:USERPROFILE\.Codex\skills\book-prod\_install\venv\Scripts\python.exe" -c "import genxword, mazelib, rembg"`.
+For each tool, call its `--version` (or equivalent) via PowerShell. Use `pdffonts -v 2>&1`, `java -version 2>&1`, `epubcheck --version`. For venv tools: `& "$env:USERPROFILE\.claude\skills\book-prod\_install\venv\Scripts\python.exe" -c "import genxword, mazelib, rembg"`.
 
-Report a pass/fail count. Save the output to `$env:USERPROFILE\.Codex\skills\book-prod\_install\verify.log`.
+Report a pass/fail count. Save the output to `$env:USERPROFILE\.claude\skills\book-prod\_install\verify.log`.
 
 ## Known issues
 - After winget installs, the *current* PowerShell session won't see new commands — refresh PATH or open a new shell.
@@ -62,4 +62,4 @@ Report a pass/fail count. Save the output to `$env:USERPROFILE\.Codex\skills\boo
 Calibre 9.5.0, Node 24.11.1, Python 3.14.0rc3, Poppler 4.00.
 
 ## Support tree
-All shared assets live at `$env:USERPROFILE\.Codex\skills\book-prod\` (templates, schemas, references, examples, helper Python). The 9 lumosbooks-* skills consume from there.
+All shared assets live at `$env:USERPROFILE\.claude\skills\book-prod\` (templates, schemas, references, examples, helper Python). The 9 lumosbooks-* skills consume from there.

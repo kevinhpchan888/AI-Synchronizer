@@ -1,0 +1,51 @@
+{
+  "_doc": "Concept memory for the Coverage & Novelty System (see references/coverage-and-novelty-system.md). REBUILT FROM LIVE every routine run; live store wins. Used by Phase D Novelty & Range Gate.",
+  "last_seeded": "2026-06-18",
+  "domains": ["Money & Benefits","Legal & Documents","Medical & Conditions","Physical Wellness & Mobility","Daily Living & ADLs","Housing & Environment","Safety & Risk","Social & Purpose","Technology & Tools","The Caregiver's Own Life","End of Life & After"],
+  "stages": ["Early signs / pre-need","Crisis","New normal","The long middle","Hard decisions / decline","After"],
+  "coverage_summary": {
+    "Money & Benefits": 5,
+    "The Caregiver's Own Life": 6,
+    "Housing & Environment": 3,
+    "Medical & Conditions": 2,
+    "Family (within Caregiver/Social)": 2,
+    "Legal & Documents": 1,
+    "Safety & Risk": 1,
+    "Technology & Tools": 1,
+    "End of Life & After": 1,
+    "Physical Wellness & Mobility": 0,
+    "Daily Living & ADLs": 0,
+    "Social & Purpose": 0
+  },
+  "frontier_domains_now": ["Physical Wellness & Mobility","Daily Living & ADLs","Social & Purpose","Technology & Tools","End of Life & After"],
+  "saturated_data_points_banned_as_central": [
+    "Medicare premium / Part B cost increases",
+    "$X,XXX monthly nursing-home / assisted-living cost figure",
+    "78% of caregivers report burnout (and sibling burnout percentages)",
+    "$1 trillion / invisible-labor unpaid-care valuation",
+    "caregiving is expensive / financial strain as the whole thesis"
+  ],
+  "articles": [
+    {"parent_id":28126,"title":"The Medicaid Cliff Is Coming","domain":"Money & Benefits","stage":"Crisis","central_data_point":"Medicaid cuts put 4.5M at risk","key_entities":["Medicaid","cuts"]},
+    {"parent_id":28121,"title":"$1 Trillion in Invisible Labor","domain":"The Caregiver's Own Life","stage":"The long middle","central_data_point":"$1T invisible labor (SATURATED)","key_entities":["AARP","unpaid care"]},
+    {"parent_id":28088,"title":"The $5,419 Question (home vs facility)","domain":"Money & Benefits","stage":"Hard decisions / decline","central_data_point":"$5,419 home-vs-facility","key_entities":["home care","facility","cost"]},
+    {"parent_id":28072,"title":"Long-Term Care Insurance in 2026","domain":"Money & Benefits","stage":"Early signs / pre-need","central_data_point":"LTC premiums","key_entities":["LTC insurance"]},
+    {"parent_id":28050,"title":"2026 Medicare Changes","domain":"Money & Benefits","stage":"New normal","central_data_point":"Medicare changes (SATURATED)","key_entities":["Medicare","premiums"]},
+    {"parent_id":28047,"title":"Nursing Homes Now Cost $11,000 a Month","domain":"Money & Benefits","stage":"Hard decisions / decline","central_data_point":"$11k/mo nursing (SATURATED)","key_entities":["nursing home","cost"]},
+    {"parent_id":28223,"title":"The Elder Scam Playbook","domain":"Safety & Risk","stage":"Early signs / pre-need","central_data_point":"elder fraud","key_entities":["scams","fraud"]},
+    {"parent_id":28222,"title":"A Power of Attorney Is Not Optional","domain":"Legal & Documents","stage":"Early signs / pre-need","central_data_point":"POA","key_entities":["power of attorney"]},
+    {"parent_id":28098,"title":"43% of Caregivers Have No Backup","domain":"The Caregiver's Own Life","stage":"New normal","central_data_point":"43% no backup","key_entities":["care team","backup"]},
+    {"parent_id":28081,"title":"Why Your Sibling Won't Help","domain":"The Caregiver's Own Life","stage":"The long middle","central_data_point":"sibling gap","key_entities":["siblings","family"]},
+    {"parent_id":28049,"title":"The Conversation About Moving","domain":"Housing & Environment","stage":"Hard decisions / decline","central_data_point":"the moving talk","key_entities":["moving","conversation"]},
+    {"parent_id":28045,"title":"54% Wish They Had Started Sooner","domain":"The Caregiver's Own Life","stage":"Early signs / pre-need","central_data_point":"54% started sooner","key_entities":["getting started","15-minute"]},
+    {"parent_id":28078,"title":"Two Months of Burden Becomes Clinical Depression","domain":"The Caregiver's Own Life","stage":"The long middle","central_data_point":"2-month depression threshold","key_entities":["caregiver depression"]},
+    {"parent_id":28069,"title":"New Dementia Drugs","domain":"Medical & Conditions","stage":"New normal","central_data_point":"anti-amyloid drugs","key_entities":["dementia","drugs"]},
+    {"parent_id":28109,"title":"Dementia Signs That Don't Look Like Dementia","domain":"Medical & Conditions","stage":"Early signs / pre-need","central_data_point":"atypical dementia signs","key_entities":["dementia","signs"]},
+    {"parent_id":28124,"title":"The Algorithm Deciding Treatment","domain":"Technology & Tools","stage":"Crisis","central_data_point":"AI prior-auth denials","key_entities":["AI","prior authorization"]},
+    {"parent_id":28125,"title":"78% of Caregivers Report Burnout","domain":"The Caregiver's Own Life","stage":"The long middle","central_data_point":"78% burnout (SATURATED)","key_entities":["burnout"]},
+    {"parent_id":28122,"title":"Anticipatory Grief","domain":"End of Life & After","stage":"The long middle","central_data_point":"anticipatory grief","key_entities":["grief"]},
+    {"parent_id":28054,"title":"The Guilt That Will Break You","domain":"The Caregiver's Own Life","stage":"The long middle","central_data_point":"caregiver guilt","key_entities":["guilt"]},
+    {"parent_id":28053,"title":"11 Signs It Is Time to Move","domain":"Housing & Environment","stage":"Hard decisions / decline","central_data_point":"11 signs to move","key_entities":["assisted living","move"]},
+    {"parent_id":28111,"title":"13,000 Deaths / Staffing Repeal","domain":"Housing & Environment","stage":"Hard decisions / decline","central_data_point":"nursing-home staffing repeal","key_entities":["nursing home","staffing"]}
+  ]
+}

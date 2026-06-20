@@ -618,9 +618,9 @@ print('graph.graphml written - open in Gephi, yEd, or any GraphML tool')
 python -m graphify.serve graphify-out/graph.json
 ```
 
-This starts a stdio MCP server that exposes tools: `query_graph`, `get_node`, `get_neighbors`, `get_community`, `god_nodes`, `graph_stats`, `shortest_path`. Add to Codex Desktop or any MCP-compatible agent orchestrator so other agents can query the graph live.
+This starts a stdio MCP server that exposes tools: `query_graph`, `get_node`, `get_neighbors`, `get_community`, `god_nodes`, `graph_stats`, `shortest_path`. Add to Claude Desktop or any MCP-compatible agent orchestrator so other agents can query the graph live.
 
-To configure in Codex Desktop, add to `claude_desktop_config.json`:
+To configure in Claude Desktop, add to `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
@@ -1207,18 +1207,18 @@ If a post-commit hook already exists, graphify appends to it rather than replaci
 
 ---
 
-## For native AGENTS.md integration
+## For native CLAUDE.md integration
 
-Run once per project to make graphify always-on in Codex sessions:
+Run once per project to make graphify always-on in Claude Code sessions:
 
 ```bash
-graphify Codex install
+graphify claude install
 ```
 
-This writes a `## graphify` section to the local `AGENTS.md` that instructs Codex to check the graph before answering codebase questions and rebuild it after code changes. No manual `/graphify` needed in future sessions.
+This writes a `## graphify` section to the local `CLAUDE.md` that instructs Claude to check the graph before answering codebase questions and rebuild it after code changes. No manual `/graphify` needed in future sessions.
 
 ```bash
-graphify Codex uninstall  # remove the section
+graphify claude uninstall  # remove the section
 ```
 
 ---
