@@ -73,6 +73,7 @@ The **Cognee + Graphiti Semantic Memory** panel is the richer memory layer:
 2. **Show Memory Capsule** shows the compact recovery brief for a compressed or brand-new AI session.
 3. **Show Startup Packet** shows the fuller context Claude, Codex, and Hermes should read before substantial work.
 4. **Search Memory** searches files, decisions, tasks, API routes, entities, and relations already indexed from the project.
+5. **Install Hermes Bridge** queues the Mac Mini worker to install the project-memory rule into every Hermes profile.
 
 Every project gets its own `.ai-memory/` folder inside that project. This is intentional. The memory travels with the repo or folder, so APC has APC memory, AutoResearch has AutoResearch memory, and a non-repo workspace gets its own context space. AI Sync Console is the control plane that scans and compares them.
 
@@ -89,6 +90,8 @@ The startup packet now includes the practical parts that matter when an agent re
 If a project file changes after the semantic graph was built, the memory panel turns yellow and says the graph should be rebuilt. Click **Build Semantic Memory** or **Start Work** to refresh it.
 
 Hermes publishes compact memory readiness for each project into the cloud control plane. It can also process queued memory refresh jobs named `refresh_memory`, `refresh_project_memory`, `build_semantic_memory`, or `memory_briefing`. Hermes is still not a replacement for the project repo. It is a coordinator that carries the project capsule, handoff, and stale/fresh state across machines.
+
+The Hermes bridge makes the rule explicit. It writes a shared bridge file inside the Hermes home folder and adds a managed memory block to each Hermes profile `SOUL.md`. After that, each profile has the same instruction: read the AI Sync bridge first, then read the matching project `CONTEXT_CAPSULE.md`, then read `AGENT_STARTUP.md` before substantial work. If memory is missing or stale, the profile should report that instead of editing from old context.
 
 Search results now show **why** they matched and which source file they came from. Use this when you are unsure where a decision, task, rule, route, or skill lives.
 

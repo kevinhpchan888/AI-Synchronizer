@@ -9,9 +9,12 @@ const ENV_FILE = path.join(ROOT, ".env.local");
 const LOCAL_MACHINE_FILE = path.join(ROOT, "registry", "local-machine.json");
 const POLL_MS = Number(process.env.HERMES_POLL_MS || 30000);
 const MEMORY_SCAN_MS = Number(process.env.HERMES_MEMORY_SCAN_MS || 300000);
+const BRIDGE_SCAN_MS = Number(process.env.HERMES_BRIDGE_SCAN_MS || 600000);
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 let appLibsPromise = null;
+let bridgeLibsPromise = null;
 let memoryStatusCache = { expiresAt: 0, value: null };
+let bridgeStatusCache = { expiresAt: 0, value: null };
 
 process.chdir(ROOT);
 
@@ -20,6 +23,13 @@ async function appLibs() {
     appLibsPromise = import("../src/lib/hermes-memory.mjs");
   }
   return appLibsPromise;
+}
+
+async function bridgeLibs() {
+  if (!bridgeLibsPromise) {
+    bridgeLibsPromise = import("../src/lib/hermes-bridge.mjs");
+  }
+  return bridgeLibsPromise;
 }
 
 async function readEnv() {
@@ -127,11 +137,34 @@ async function getHermesMemoryStatus(force = false) {
   }
 }
 
+async function getHermesBridgeStatus(force = false) {
+  if (!force && bridgeStatusCache.value && Date.now() < bridgeStatusCache.expiresAt) {
+    return bridgeStatusCache.value;
+  }
+  try {
+    const { installHermesMemoryBridge } = await bridgeLibs();
+    const value = await installHermesMemoryBridge({ agent: "hermes", limit: 50 });
+    bridgeStatusCache = {
+      expiresAt: Date.now() + BRIDGE_SCAN_MS,
+      value
+    };
+    return value;
+  } catch (error) {
+    return {
+      ok: false,
+      installed: false,
+      generatedAt: new Date().toISOString(),
+      error: error.message
+    };
+  }
+}
+
 async function publishHeartbeat(options = {}) {
   const machine = await readMachine();
   const env = await readEnv();
   const existingStatus = await readExistingMachineStatus(machine.id);
   const memory = await getHermesMemoryStatus(Boolean(options.forceMemory));
+  const hermesBridge = await getHermesBridgeStatus(Boolean(options.forceBridge));
   await supabaseFetch("kevin_sync_machines", {
     method: "POST",
     query: "on_conflict=id",
@@ -149,7 +182,8 @@ async function publishHeartbeat(options = {}) {
         host: hostname(),
         key: machine.key,
         pid: process.pid,
-        memory
+        memory,
+        hermesBridge
       }
     }
   });
@@ -186,15 +220,24 @@ async function markJob(job, status, result) {
 
 async function handleJob(job) {
   if (job.action === "heartbeat") {
-    await publishHeartbeat({ forceMemory: true });
+    await publishHeartbeat({ forceMemory: true, forceBridge: true });
     await markJob(job, "done", { message: "Heartbeat published." });
+    return;
+  }
+  const { HERMES_BRIDGE_ACTIONS, installHermesMemoryBridge } = await bridgeLibs();
+  if (HERMES_BRIDGE_ACTIONS.has(job.action)) {
+    const bridgeResult = await installHermesMemoryBridge({ agent: job?.payload?.agent || "hermes", limit: 50 });
+    bridgeStatusCache = { expiresAt: 0, value: null };
+    await publishHeartbeat({ forceMemory: true, forceBridge: true });
+    await markJob(job, bridgeResult.ok ? "done" : "failed", bridgeResult);
     return;
   }
   const { runHermesMemoryJob } = await appLibs();
   const memoryResult = await runHermesMemoryJob(job, { agent: "hermes" });
   if (memoryResult.handled) {
     memoryStatusCache = { expiresAt: 0, value: null };
-    await publishHeartbeat({ forceMemory: true });
+    bridgeStatusCache = { expiresAt: 0, value: null };
+    await publishHeartbeat({ forceMemory: true, forceBridge: true });
     await markJob(job, memoryResult.ok ? "done" : "failed", memoryResult);
     return;
   }

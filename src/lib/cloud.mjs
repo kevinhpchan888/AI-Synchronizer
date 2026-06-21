@@ -138,6 +138,7 @@ export async function publishMachineStatus(summary) {
           remote: project.remote
         })),
         memory: summary.memory,
+        hermesBridge: summary.hermesBridge,
         cloud: summary.cloud
       }
     })
@@ -195,4 +196,42 @@ export async function publishMachineStatus(summary) {
   }
 
   return { ok: true, message: "Machine and memory status published.", projects: projectRows.length };
+}
+
+export async function queueCloudJob(input) {
+  const env = await readEnvLocal();
+  const url = env.SUPABASE_URL;
+  const key = env.SUPABASE_SERVICE_ROLE_KEY || env.SUPABASE_SECRET_KEY;
+  if (!url || !key) {
+    return { ok: false, message: "Supabase is not connected yet. Add the Supabase connection details, then try again." };
+  }
+  const targetMachineKey = input.targetMachineKey || "mac-mini";
+  const action = input.action;
+  if (!action) return { ok: false, message: "Job action is required." };
+
+  const response = await fetch(`${url.replace(/\/$/, "")}/rest/v1/kevin_sync_jobs`, {
+    method: "POST",
+    headers: {
+      apikey: key,
+      Authorization: `Bearer ${key}`,
+      "Content-Type": "application/json",
+      Prefer: "return=representation"
+    },
+    body: JSON.stringify({
+      target_machine_key: targetMachineKey,
+      action,
+      status: "queued",
+      payload: input.payload || {}
+    })
+  });
+
+  if (!response.ok) {
+    return { ok: false, status: response.status, message: await response.text() };
+  }
+  const rows = await response.json();
+  return {
+    ok: true,
+    message: `${action} queued for ${targetMachineKey}.`,
+    job: Array.isArray(rows) ? rows[0] : rows
+  };
 }

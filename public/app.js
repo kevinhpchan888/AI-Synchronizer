@@ -42,6 +42,7 @@ const selectors = {
   rebuildSemanticButton: document.querySelector("#rebuildSemanticButton"),
   showContextCapsuleButton: document.querySelector("#showContextCapsuleButton"),
   showAgentPacketButton: document.querySelector("#showAgentPacketButton"),
+  installHermesBridgeButton: document.querySelector("#installHermesBridgeButton"),
   projectsPanel: document.querySelector("#projectsPanel"),
   projectsList: document.querySelector("#projectsList"),
   toolsList: document.querySelector("#toolsList"),
@@ -841,18 +842,46 @@ function clearSemanticResults(message = "") {
     : "";
 }
 
+function hermesBridgeCard() {
+  const bridge = state.summary?.hermesBridge;
+  if (!bridge) return semanticCard("Hermes bridge", "Checking", "Profile memory rule status.", "neutral");
+  if (bridge.installed) {
+    return semanticCard(
+      "Hermes bridge",
+      "Enforced",
+      `${bridge.enforcedProfiles}/${bridge.profileCount} profiles · ${bridge.readyProjects}/${bridge.projectCount} projects ready`,
+      "ok"
+    );
+  }
+  if (bridge.profileCount) {
+    return semanticCard(
+      "Hermes bridge",
+      "Partial",
+      `${bridge.enforcedProfiles}/${bridge.profileCount} profiles linked. Click Install Hermes Bridge.`,
+      "warn"
+    );
+  }
+  return semanticCard("Hermes bridge", "Install", "Queue Mac Mini install so Hermes reads project memory.", "warn");
+}
+
 function renderSemanticMemory() {
   const project = activeProject();
   const semantic = semanticForProject(project);
   const memory = memoryForProject(project);
   if (isHostedDashboard()) {
-    selectors.semanticMemorySummary.innerHTML = semanticCard("Cloud view", "Read-only", "Open local console to build or search semantic memory.", "neutral");
+    selectors.semanticMemorySummary.innerHTML = [
+      semanticCard("Cloud view", "Read-only", "Open local console to build or search semantic memory.", "neutral"),
+      hermesBridgeCard()
+    ].join("");
     selectors.semanticSearchResults.innerHTML = "";
     return;
   }
 
   if (!project) {
-    selectors.semanticMemorySummary.innerHTML = semanticCard("Semantic memory", "No project", "Choose a project first.", "warn");
+    selectors.semanticMemorySummary.innerHTML = [
+      semanticCard("Semantic memory", "No project", "Choose a project first.", "warn"),
+      hermesBridgeCard()
+    ].join("");
     selectors.semanticSearchResults.innerHTML = "";
     return;
   }
@@ -864,7 +893,8 @@ function renderSemanticMemory() {
       semanticCard("Base memory", "Initialize", "Create the portable .ai-memory pack first.", "warn"),
       semanticCard("Cognee index", "Blocked", "Initialize Memory will build this next.", "warn"),
       semanticCard("Graphiti timeline", "Blocked", "Initialize Memory will build this next.", "warn"),
-      semanticCard("Startup packet", "Missing", "No packet is valid until base memory exists.", "warn")
+      semanticCard("Startup packet", "Missing", "No packet is valid until base memory exists.", "warn"),
+      hermesBridgeCard()
     ].join("");
     return;
   }
@@ -884,7 +914,8 @@ function renderSemanticMemory() {
     semanticCard("Graphiti timeline", `${semantic?.relations ?? 0}`, graphDetail, tone),
     semanticCard("Memory capsule", capsuleReady ? "Ready" : "Missing", capsuleReady ? semantic.capsulePath : "Build semantic memory first.", capsuleReady ? tone : "warn"),
     semanticCard("Startup packet", packetReady ? "Ready" : "Missing", packetReady ? semantic.packetPath : "Build semantic memory first.", packetReady ? tone : "warn"),
-    semanticCard("Last built", lastBuilt, project.name, tone)
+    semanticCard("Last built", lastBuilt, project.name, tone),
+    hermesBridgeCard()
   ].join("");
 }
 
@@ -1399,6 +1430,20 @@ async function showActiveContextCapsule() {
   setWorkflowFeedback(`${project.name} memory capsule is visible below.`, "ok");
 }
 
+async function installHermesBridge() {
+  const result = await api("/api/hermes-bridge/install", {
+    method: "POST",
+    body: JSON.stringify({ targetMachineKey: "mac-mini" })
+  });
+  log(result.ok ? "Hermes bridge install queued." : "Hermes bridge install failed.", result.message || result);
+  setWorkflowFeedback(result.ok
+    ? "Hermes bridge install queued for Mac Mini. The worker will enforce memory rules on its next poll."
+    : "Hermes bridge install could not be queued.",
+    result.ok ? "ok" : "bad"
+  );
+  await refresh();
+}
+
 selectors.refreshButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Refreshing", () => refresh()));
 selectors.projectSwitcher.addEventListener("change", async () => {
   try {
@@ -1413,6 +1458,7 @@ selectors.rebuildSemanticButton.addEventListener("click", (event) => withButtonF
 selectors.semanticSearchButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Searching memory", () => searchActiveSemantic()));
 selectors.showContextCapsuleButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Loading capsule", () => showActiveContextCapsule()));
 selectors.showAgentPacketButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Loading packet", () => showActiveStartupPacket()));
+selectors.installHermesBridgeButton.addEventListener("click", (event) => withButtonFeedback(event.currentTarget, "Installing Hermes bridge", () => installHermesBridge()));
 selectors.semanticSearchInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") {
     event.preventDefault();

@@ -5,13 +5,14 @@ import { fileURLToPath } from "node:url";
 import { getLocalMachine, readProjects, addProject, removeProject, readSettings, readSession, saveSession, discoverProjectsHomeRepos } from "./lib/registry.mjs";
 import { getProjectStatus, runProjectAction } from "./lib/git.mjs";
 import { getToolStatus, installTool, runToolAction } from "./lib/tools.mjs";
-import { getCloudControlPlaneStatus, getCloudStatus, publishMachineStatus } from "./lib/cloud.mjs";
+import { getCloudControlPlaneStatus, getCloudStatus, publishMachineStatus, queueCloudJob } from "./lib/cloud.mjs";
 import { addMachine, readMachines, removeMachine } from "./lib/machines.mjs";
 import { getSkillInventory, importLocalSkillsToCanonical, syncLocalSkills } from "./lib/skills.mjs";
 import { getSetupStatus, openSetupPackageFolder, prepareSetupPackage } from "./lib/setup.mjs";
 import { configureClaudeForGlm52, getAgentProfiles, restoreClaudeRoute } from "./lib/agents.mjs";
 import { getMemoryInventory, getProjectMemoryStatus, initializeProjectMemory, writeProjectHandoff } from "./lib/memory.mjs";
 import { getAgentStartupPacket, getContextCapsule, getSemanticMemoryStatus, rebuildSemanticMemory, searchSemanticMemory } from "./lib/semantic-memory.mjs";
+import { getHermesMemoryBridgeStatus, installHermesMemoryBridge } from "./lib/hermes-bridge.mjs";
 import { adoptWorkspace, checkpointWorkspace, cloneGitProject, refreshWorkspaceHandoff, switchWorkspaceAgent } from "./lib/workspaces.mjs";
 import { syncLocalAgentEnvironment } from "./lib/environment.mjs";
 
@@ -53,20 +54,24 @@ async function summary() {
   const machines = await readMachines();
   const skills = await getSkillInventory(machines, projectStatuses);
   const agents = await getAgentProfiles(tools);
-  const memory = await getMemoryInventory(projectStatuses);
+  const [memory, hermesBridge] = await Promise.all([
+    getMemoryInventory(projectStatuses),
+    getHermesMemoryBridgeStatus()
+  ]);
   return {
     machine,
     machines,
     skills,
     agents,
     memory,
+    hermesBridge,
     session: normalizeSession(session, projectStatuses),
     setup,
     tools,
     projects: projectStatuses,
     cloud,
     cloudControl,
-    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents, memory }),
+    recommendations: buildRecommendations({ tools, projects: projectStatuses, cloud, machines, skills, agents, memory, hermesBridge }),
     generatedAt: new Date().toISOString()
   };
 }
@@ -88,7 +93,7 @@ function normalizeSession(session, projects) {
   };
 }
 
-function buildRecommendations({ tools, projects, cloud, machines, skills, agents, memory }) {
+function buildRecommendations({ tools, projects, cloud, machines, skills, agents, memory, hermesBridge }) {
   const items = [];
   const missingTools = tools.filter((tool) => !tool.exists && !tool.legacy);
   const dirty = projects.filter((project) => project.state === "dirty");
@@ -105,6 +110,7 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
   const missingMemory = memory?.projects?.filter((project) => project.state === "missing") ?? [];
   const staleMemory = memory?.projects?.filter((project) => ["stale", "incomplete", "handoff-needed"].includes(project.state)) ?? [];
   const weakSemanticMemory = memory?.projects?.filter((project) => ["missing", "invalid", "stale"].includes(project.semantic?.state)) ?? [];
+  const hermesBridgeNeedsInstall = hermesBridge && !hermesBridge.installed;
 
   if (missingTools.length) {
     items.push({
@@ -191,6 +197,16 @@ function buildRecommendations({ tools, projects, cloud, machines, skills, agents
       title: "Build semantic project memory",
       body: `${weakSemanticMemory.length} project${weakSemanticMemory.length === 1 ? " needs" : "s need"} the Cognee/Graphiti semantic layer rebuilt.`,
       action: "Use Build Semantic Memory for the active project."
+    });
+  }
+  if (hermesBridgeNeedsInstall) {
+    items.push({
+      level: "warning",
+      title: "Enforce Hermes project memory",
+      body: hermesBridge.profileCount
+        ? `${hermesBridge.enforcedProfiles}/${hermesBridge.profileCount} Hermes profile${hermesBridge.profileCount === 1 ? "" : "s"} have the memory rule.`
+        : "Hermes profiles are not linked to the project memory bridge yet.",
+      action: "Click Install Hermes Bridge."
     });
   }
   if (!cloud.supabase.configured) {
@@ -404,6 +420,23 @@ async function handleApi(req, res, url) {
       const projects = await readProjects();
       const projectStatuses = await Promise.all(projects.map(getProjectStatus));
       return send(res, 200, await getMemoryInventory(projectStatuses));
+    }
+
+    if (req.method === "GET" && url.pathname === "/api/hermes-bridge/status") {
+      return send(res, 200, await getHermesMemoryBridgeStatus());
+    }
+
+    if (req.method === "POST" && url.pathname === "/api/hermes-bridge/install") {
+      const body = await readBody(req);
+      if (body.target === "local") {
+        return send(res, 200, await installHermesMemoryBridge({ agent: "hermes" }));
+      }
+      const targetMachineKey = body.targetMachineKey || "mac-mini";
+      return send(res, 200, await queueCloudJob({
+        targetMachineKey,
+        action: "install_hermes_memory_bridge",
+        payload: { agent: "hermes", requestedBy: "ai-sync-console" }
+      }));
     }
 
     if (req.method === "POST" && url.pathname === "/api/memory/auto-setup") {
