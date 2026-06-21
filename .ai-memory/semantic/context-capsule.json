@@ -1,0 +1,787 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-21T14:13:18.774Z",
+  "agent": "all",
+  "project": {
+    "id": "ccec9a50-d1e6-4411-b49b-c11d9d4ddef2",
+    "name": "Kevin Sync Console",
+    "path": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync",
+    "state": "dirty",
+    "branch": "master",
+    "dirtyCount": 25,
+    "changedFiles": [
+      ".ai-memory/semantic/AGENT_STARTUP.md",
+      ".ai-memory/semantic/cognee-index.json",
+      ".ai-memory/semantic/graphiti-episodes.jsonl",
+      ".ai-memory/semantic/graphiti-graph.json",
+      "context-spaces/general/.ai-memory/semantic/AGENT_STARTUP.md",
+      "context-spaces/general/.ai-memory/semantic/cognee-index.json",
+      "context-spaces/general/.ai-memory/semantic/graphiti-episodes.jsonl",
+      "context-spaces/general/.ai-memory/semantic/graphiti-graph.json",
+      ".ai-memory/semantic/CONTEXT_CAPSULE.md",
+      ".ai-memory/semantic/context-capsule.json"
+    ]
+  },
+  "files": {
+    "capsule": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory\\semantic\\CONTEXT_CAPSULE.md",
+    "startupPacket": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory\\semantic\\AGENT_STARTUP.md",
+    "cogneeIndex": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory\\semantic\\cognee-index.json",
+    "graphitiGraph": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory\\semantic\\graphiti-graph.json"
+  },
+  "memoryHealth": {
+    "chunks": 260,
+    "entities": 220,
+    "relations": 450,
+    "episodes": 5,
+    "sourceHash": "a0013b09d8dd9df7f198dfc4f24c43f311681fb2b74643bd5f4a0fc570aed4bd",
+    "sourceNewestAt": "2026-06-21T14:02:41.875Z",
+    "handoffUpdatedAt": "2026-06-19T13:40:30.991Z"
+  },
+  "summary": "tatus\n\nCurrent state: active\n\n## Last Known Good State\n\nAPC cloned and synchronized on AMVPC, MacBook Pro, and Mac Mini at $HOME/Documents/GitHub/APC. All three are on main at 794f77d with .ai-memory present.\n\n## Current Focus\n\nKeep AI-Synchronizer registry/deployment current so APC appears as a first-class visual project in the console on every machine.\n\n## Blockers\n\nNone recorded.\n\nLast updated: 2026-06-19T08:54:40",
+  "latestHandoff": "andoff\n\n## Latest Handoff\n\nStart Work feedback fixed. The button now evaluates the active project only and displays a visible command-feedback strip: ready, pull needed, save WIP needed, push needed, memory needed, handoff needed, diverged history, or failure. Browser click test on local console returned \"APC is ready. Continue in Claude or Codex.\" with ok styling. This prevents the Start Work button from feeling dea",
+  "taskMemory": "asks\n\n## Active\n\n- [ ] Add current project tasks.\n\n## Done",
+  "decisionMemory": "ecisions\n\nRecord important project decisions here.",
+  "changedSinceHandoff": [
+    {
+      "id": "b2592d2dba8daffb0291a324279ba6f9ed4fca9c",
+      "path": "README.md",
+      "title": "Kevin Sync Console",
+      "updatedAt": "2026-06-21T14:02:41.875Z",
+      "size": 1655,
+      "keywords": [
+        {
+          "word": "supabase",
+          "count": 7
+        },
+        {
+          "word": "repos",
+          "count": 4
+        },
+        {
+          "word": "dashboard",
+          "count": 3
+        },
+        {
+          "word": "for",
+          "count": 3
+        },
+        {
+          "word": "claude",
+          "count": 2
+        },
+        {
+          "word": "cloud",
+          "count": 2
+        },
+        {
+          "word": "codex",
+          "count": 2
+        },
+        {
+          "word": "companion",
+          "count": 2
+        },
+        {
+          "word": "control",
+          "count": 2
+        },
+        {
+          "word": "existing",
+          "count": 2
+        },
+        {
+          "word": "git",
+          "count": 2
+        },
+        {
+          "word": "github",
+          "count": 2
+        }
+      ],
+      "headings": [
+        "Kevin Sync Console",
+        "How Existing GitHub Project Repos Work",
+        "Secrets",
+        "Cloud Control Plane"
+      ],
+      "preview": "# Kevin Sync Console Kevin Sync Console is a local visual companion for keeping project repos, Claude/Codex skills, Claude/Codex config, and agent memory aligned across Windows and Mac. Start on Windows: ```powershell .\\Start-KevinSyncConsole.ps1 ``` Start on Mac/Linux: ```bash ./start-kevin-sync-console.sh ``` The dashboard opens at `http://localhost:47831`"
+    },
+    {
+      "id": "995f8e1fea3fbad1f1a1a0478cafa4da657676be",
+      "path": "supabase/migrations/20260621140104_kevin_sync_control_plane.sql",
+      "title": "supabase/migrations/20260621140104_kevin_sync_control_plane.sql",
+      "updatedAt": "2026-06-21T14:01:52.716Z",
+      "size": 5043,
+      "keywords": [
+        {
+          "word": "public",
+          "count": 38
+        },
+        {
+          "word": "null",
+          "count": 28
+        },
+        {
+          "word": "default",
+          "count": 24
+        },
+        {
+          "word": "text",
+          "count": 19
+        },
+        {
+          "word": "create",
+          "count": 17
+        },
+        {
+          "word": "exists",
+          "count": 16
+        },
+        {
+          "word": "delete",
+          "count": 11
+        },
+        {
+          "word": "jsonb",
+          "count": 11
+        },
+        {
+          "word": "timestamptz",
+          "count": 11
+        },
+        {
+          "word": "uuid",
+          "count": 11
+        },
+        {
+          "word": "kevin_sync_projects",
+          "count": 10
+        },
+        {
+          "word": "table",
+          "count": 10
+        }
+      ],
+      "headings": [],
+      "preview": "create extension if not exists pgcrypto; create table if not exists public.kevin_sync_machines ( id uuid primary key, name text not null, platform text not null, role text, address text, last_seen timestamptz not null default now(), status jsonb not null default '{}'::jsonb, created_at timestamptz not null default now(), updated_at timestamptz not null defau"
+    },
+    {
+      "id": "546ce509909348eb62609f5c69729b11c277397d",
+      "path": "supabase/config.toml",
+      "title": "For detailed configuration reference documentation, visit:",
+      "updatedAt": "2026-06-21T13:59:12.136Z",
+      "size": 15557,
+      "keywords": [
+        {
+          "word": "auth",
+          "count": 45
+        },
+        {
+          "word": "enabled",
+          "count": 44
+        },
+        {
+          "word": "true",
+          "count": 30
+        },
+        {
+          "word": "false",
+          "count": 28
+        },
+        {
+          "word": "for",
+          "count": 23
+        },
+        {
+          "word": "email",
+          "count": 20
+        },
+        {
+          "word": "supabase",
+          "count": 20
+        },
+        {
+          "word": "database",
+          "count": 14
+        },
+        {
+          "word": "port",
+          "count": 14
+        },
+        {
+          "word": "number",
+          "count": 13
+        },
+        {
+          "word": "allow",
+          "count": 12
+        },
+        {
+          "word": "user",
+          "count": 12
+        }
+      ],
+      "headings": [
+        "For detailed configuration reference documentation, visit:",
+        "https://supabase.com/docs/guides/local-development/cli/config",
+        "A string used to distinguish different Supabase projects on the same host. Defaults to the",
+        "working directory name when running supabase init.",
+        "Port to use for the API URL."
+      ],
+      "preview": "# For detailed configuration reference documentation, visit: # https://supabase.com/docs/guides/local-development/cli/config # A string used to distinguish different Supabase projects on the same host. Defaults to the # working directory name when running `supabase init`. project_id = \"ClaudeCodex_Sync\" [api] enabled = true # Port to use for the API URL. por"
+    },
+    {
+      "id": "39abecba534faefddcdc975848634acf33cfcf01",
+      "path": "package.json",
+      "title": "package.json",
+      "updatedAt": "2026-06-21T13:50:57.890Z",
+      "size": 1074,
+      "keywords": [
+        {
+          "word": "node",
+          "count": 22
+        },
+        {
+          "word": "mjs",
+          "count": 21
+        },
+        {
+          "word": "check",
+          "count": 20
+        },
+        {
+          "word": "src",
+          "count": 19
+        },
+        {
+          "word": "lib",
+          "count": 17
+        },
+        {
+          "word": "test",
+          "count": 4
+        },
+        {
+          "word": "scripts",
+          "count": 2
+        },
+        {
+          "word": "server",
+          "count": 2
+        },
+        {
+          "word": "skills",
+          "count": 2
+        },
+        {
+          "word": "agents",
+          "count": 1
+        },
+        {
+          "word": "claude",
+          "count": 1
+        },
+        {
+          "word": "cloud",
+          "count": 1
+        }
+      ],
+      "headings": [],
+      "preview": "{ \"name\": \"kevin-sync-console\", \"version\": \"0.1.0\", \"private\": true, \"type\": \"module\", \"description\": \"Visual local companion for syncing projects, skills, Claude/Codex config, and agent memory.\", \"scripts\": { \"start\": \"node src/server.mjs\", \"test\": \"node --test test/*.test.mjs\", \"check\": \"node --check src/server.mjs && node --check src/lib/command.mjs && no"
+    },
+    {
+      "id": "75b5f3685ee9f8138a03693c3e3d08b944a59c3d",
+      "path": "scripts/hermes-worker.mjs",
+      "title": "scripts/hermes-worker.mjs",
+      "updatedAt": "2026-06-21T13:50:41.378Z",
+      "size": 9088,
+      "keywords": [
+        {
+          "word": "const",
+          "count": 42
+        },
+        {
+          "word": "await",
+          "count": 40
+        },
+        {
+          "word": "env",
+          "count": 24
+        },
+        {
+          "word": "return",
+          "count": 22
+        },
+        {
+          "word": "machine",
+          "count": 19
+        },
+        {
+          "word": "job",
+          "count": 16
+        },
+        {
+          "word": "value",
+          "count": 15
+        },
+        {
+          "word": "null",
+          "count": 14
+        },
+        {
+          "word": "async",
+          "count": 13
+        },
+        {
+          "word": "error",
+          "count": 13
+        },
+        {
+          "word": "function",
+          "count": 13
+        },
+        {
+          "word": "status",
+          "count": 12
+        }
+      ],
+      "headings": [],
+      "preview": "import { promises as fs } from \"node:fs\"; import path from \"node:path\"; import { hostname, platform } from \"node:os\"; import { fileURLToPath } from \"node:url\"; import { randomUUID } from \"node:crypto\"; import { jobTargetsForMachine } from \"../src/lib/hermes-worker-routing.mjs\"; const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), \"..\"); co"
+    },
+    {
+      "id": "614a288a1a790060a8aabf54f82e8846094d1bcc",
+      "path": "src/lib/hermes-worker-routing.mjs",
+      "title": "src/lib/hermes-worker-routing.mjs",
+      "updatedAt": "2026-06-21T13:50:31.753Z",
+      "size": 633,
+      "keywords": [
+        {
+          "word": "machine",
+          "count": 8
+        },
+        {
+          "word": "function",
+          "count": 4
+        },
+        {
+          "word": "normalizedtext",
+          "count": 4
+        },
+        {
+          "word": "return",
+          "count": 4
+        },
+        {
+          "word": "text",
+          "count": 4
+        },
+        {
+          "word": "includes",
+          "count": 3
+        },
+        {
+          "word": "targets",
+          "count": 3
+        },
+        {
+          "word": "const",
+          "count": 2
+        },
+        {
+          "word": "export",
+          "count": 2
+        },
+        {
+          "word": "hermes",
+          "count": 2
+        },
+        {
+          "word": "ishermescoordinator",
+          "count": 2
+        },
+        {
+          "word": "key",
+          "count": 2
+        }
+      ],
+      "headings": [],
+      "preview": "function normalizedText(value) { return String(value || \"\").toLowerCase(); } function unique(values) { return [...new Set(values.filter(Boolean))]; } export function isHermesCoordinator(machine = {}) { const text = [ normalizedText(machine.key), normalizedText(machine.name), normalizedText(machine.role) ].join(\" \"); return text.includes(\"hermes\") || text.inc"
+    },
+    {
+      "id": "342235ce7f3793c963f001baa6a994503c28df37",
+      "path": "test/hermes-worker-routing.test.mjs",
+      "title": "test/hermes-worker-routing.test.mjs",
+      "updatedAt": "2026-06-21T13:50:07.995Z",
+      "size": 656,
+      "keywords": [
+        {
+          "word": "assert",
+          "count": 4
+        },
+        {
+          "word": "hermes",
+          "count": 4
+        },
+        {
+          "word": "test",
+          "count": 4
+        },
+        {
+          "word": "import",
+          "count": 3
+        },
+        {
+          "word": "jobtargetsformachine",
+          "count": 3
+        },
+        {
+          "word": "mac",
+          "count": 3
+        },
+        {
+          "word": "mini",
+          "count": 3
+        },
+        {
+          "word": "coordinator",
+          "count": 2
+        },
+        {
+          "word": "deepequal",
+          "count": 2
+        },
+        {
+          "word": "key",
+          "count": 2
+        },
+        {
+          "word": "mac-mini",
+          "count": 2
+        },
+        {
+          "word": "macbook-pro",
+          "count": 2
+        }
+      ],
+      "headings": [],
+      "preview": "import assert from \"node:assert/strict\"; import test from \"node:test\"; import { jobTargetsForMachine } from \"../src/lib/hermes-worker-routing.mjs\"; test(\"Mac Mini Hermes coordinator claims shared Hermes queues\", () => { assert.deepEqual(jobTargetsForMachine({ id: \"machine-1\", key: \"mac-mini\", name: \"Mac Mini\", role: \"Hermes coordinator\" }), [\"mac-mini\", \"mac"
+    },
+    {
+      "id": "858bad5377ef31963d66b47f782bb8052e724e89",
+      "path": "src/lib/cloud.mjs",
+      "title": "src/lib/cloud.mjs",
+      "updatedAt": "2026-06-21T13:43:07.469Z",
+      "size": 8177,
+      "keywords": [
+        {
+          "word": "const",
+          "count": 39
+        },
+        {
+          "word": "await",
+          "count": 22
+        },
+        {
+          "word": "return",
+          "count": 21
+        },
+        {
+          "word": "env",
+          "count": 19
+        },
+        {
+          "word": "key",
+          "count": 18
+        },
+        {
+          "word": "status",
+          "count": 17
+        },
+        {
+          "word": "message",
+          "count": 14
+        },
+        {
+          "word": "response",
+          "count": 14
+        },
+        {
+          "word": "summary",
+          "count": 12
+        },
+        {
+          "word": "false",
+          "count": 11
+        },
+        {
+          "word": "rows",
+          "count": 11
+        },
+        {
+          "word": "envkeys",
+          "count": 10
+        }
+      ],
+      "headings": [],
+      "preview": "import { promises as fs } from \"node:fs\"; import path from \"node:path\"; import { commandExists, run, runShell } from \"./command.mjs\"; async function readEnvLocal() { const keys = {}; for (const key of [ \"SUPABASE_URL\", \"SUPABASE_SERVICE_ROLE_KEY\", \"SUPABASE_SECRET_KEY\", \"SUPABASE_ANON_KEY\", \"SUPABASE_PUBLISHABLE_KEY\", \"SUPABASE_PROJECT_REF\", \"VERCEL_TEAM\", \""
+    }
+  ],
+  "importantFiles": [
+    {
+      "path": ".ai-memory/HANDOFF.md",
+      "title": "Handoff",
+      "preview": "# Handoff ## Latest Handoff Start Work feedback fixed. The button now evaluates the active project only and displays a visible command-feedback strip: ready, pull needed, save WIP needed, push needed, memory needed, handoff needed, diverged history, or failure. Browser click test on local console returned \"APC is ready. Continue in Claude or Codex.\" with ok "
+    },
+    {
+      "path": ".ai-memory/STATUS.md",
+      "title": "Status",
+      "preview": "# Status Current state: active ## Last Known Good State APC cloned and synchronized on AMVPC, MacBook Pro, and Mac Mini at $HOME/Documents/GitHub/APC. All three are on main at 794f77d with .ai-memory present. ## Current Focus Keep AI-Synchronizer registry/deployment current so APC appears as a first-class visual project in the console on every machine. ## Bl"
+    },
+    {
+      "path": ".ai-memory/RULES.md",
+      "title": "Agent Rules",
+      "preview": "# Agent Rules - Read this memory pack before starting substantial work. - Update STATUS.md and HANDOFF.md before switching machines, agents, or projects. - Record important architectural decisions in DECISIONS.md. - Keep this folder committed with the project repo."
+    },
+    {
+      "path": ".ai-memory/TASKS.md",
+      "title": "Tasks",
+      "preview": "# Tasks ## Active - [ ] Add current project tasks. ## Done"
+    },
+    {
+      "path": ".ai-memory/DECISIONS.md",
+      "title": "Decisions",
+      "preview": "# Decisions Record important project decisions here."
+    },
+    {
+      "path": ".ai-memory/CONTEXT_INDEX.json",
+      "title": ".ai-memory/CONTEXT_INDEX.json",
+      "preview": "{ \"schemaVersion\": 1, \"project\": \"Kevin Sync Console\", \"createdAt\": \"2026-06-19T08:54:40.164Z\", \"memoryEngines\": { \"cognee\": { \"role\": \"project knowledge index\", \"rebuildable\": true }, \"graphiti\": { \"role\": \"temporal event graph\", \"rebuildable\": true }, \"hermes\": { \"role\": \"always-on coordinator\", \"sourceOfTruth\": false } }, \"requiredFiles\": [ \"PROJECT.md\", "
+    },
+    {
+      "path": ".ai-memory/PROJECT.md",
+      "title": "Kevin Sync Console",
+      "preview": "# Kevin Sync Console ## Purpose Describe what this project is for. ## Important Paths - Project root: C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync ## Owners / Agents - Kevin - Claude Code - Codex - Hermes Last updated: 2026-06-19T08:54:40.160Z"
+    },
+    {
+      "path": "env/portable-agent-profile/claude/CLAUDE.md",
+      "title": "How I Work (Kevin Chan, AMVPC)",
+      "preview": "# How I Work (Kevin Chan, AMVPC) ## Tool Awareness (NEVER FORGET) Before doing ANYTHING manually, check this list. If an MCP tool or skill covers it, use it. Never say \"I can't do that\" without checking here first. Tools are deferred; use `ToolSearch` to load schemas before calling. ### MCP Tool Registry (UUID to Name) | Prefix | Platform | Use When | |-----"
+    },
+    {
+      "path": "env/portable-agent-profile/codex/AGENTS.md",
+      "title": "How I Work (Kevin Chan, AMVPC)",
+      "preview": "# How I Work (Kevin Chan, AMVPC) ## Tool Awareness (NEVER FORGET) Before doing ANYTHING manually, check this list. If an MCP tool or skill covers it, use it. Never say \"I can't do that\" without checking here first. Tools are deferred; use `ToolSearch` to load schemas before calling. ### MCP Tool Registry (UUID to Name) | Prefix | Platform | Use When | |-----"
+    },
+    {
+      "path": ".ai-memory/events/2026-06-20.jsonl",
+      "title": ".ai-memory/events/2026-06-20.jsonl",
+      "preview": "{\"id\":\"ed42b8d3-384d-416a-b390-bb9caece40bc\",\"type\":\"memory_initialized\",\"projectId\":\"ccec9a50-d1e6-4411-b49b-c11d9d4ddef2\",\"projectName\":\"Kevin Sync Console\",\"occurredAt\":\"2026-06-20T03:12:31.764Z\",\"payload\":{\"createdFiles\":[],\"memoryPath\":\"C:\\\\Users\\\\Kevin Chan\\\\Documents\\\\ClaudeCodex Sync\\\\.ai-memory\"}} {\"id\":\"20616d3d-5430-462c-9230-03bc971f7bac\",\"type\":"
+    }
+  ],
+  "importantEntities": [
+    {
+      "name": "Path",
+      "type": "concept",
+      "mentions": 55,
+      "sources": [
+        "context-spaces/general/.ai-memory/HANDOFF.md",
+        "src/lib/hermes-bridge.mjs",
+        "scripts/start-hermes-worker.sh",
+        "scripts/start-local-console.sh"
+      ]
+    },
+    {
+      "name": "JSON",
+      "type": "concept",
+      "mentions": 41,
+      "sources": [
+        "src/server.mjs",
+        "scripts/hermes-worker.mjs",
+        "src/lib/cloud.mjs",
+        "src/lib/hermes-bridge.mjs"
+      ]
+    },
+    {
+      "name": "Codex",
+      "type": "concept",
+      "mentions": 39,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        ".ai-memory/events/2026-06-19.jsonl",
+        "README.md"
+      ]
+    },
+    {
+      "name": "True",
+      "type": "concept",
+      "mentions": 39,
+      "sources": [
+        "env/portable-agent-profile/codex/hooks/ai-word-scanner.py",
+        "env/portable-agent-profile/claude/hooks/ai-word-scanner.py",
+        "skills/watch/scripts/tests/test_frames_scene.py",
+        "skills/watch/scripts/tests/test_report.py"
+      ]
+    },
+    {
+      "name": "Claude",
+      "type": "concept",
+      "mentions": 37,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/events/2026-06-19.jsonl",
+        "README.md",
+        "package.json"
+      ]
+    },
+    {
+      "name": "Kevin",
+      "type": "concept",
+      "mentions": 30,
+      "sources": [
+        ".ai-memory/PROJECT.md",
+        "src/lib/memory.mjs",
+        "skills/lumosbooks-preflight/SKILL.md",
+        "skills/lumosbooks-shopify/SKILL.md"
+      ]
+    },
+    {
+      "name": "Generate",
+      "type": "concept",
+      "mentions": 30,
+      "sources": [
+        "templates/setup-new-machine-windows.ps1",
+        "skills/lumosbooks-shopify/SKILL.md",
+        "skills/lumosbooks-cover/SKILL.md",
+        "skills/lumosbooks-activities/SKILL.md"
+      ]
+    },
+    {
+      "name": "None",
+      "type": "concept",
+      "mentions": 29,
+      "sources": [
+        ".ai-memory/STATUS.md",
+        "context-spaces/general/.ai-memory/STATUS.md",
+        "skills/watch/SKILL.md",
+        "skills/lumosbooks-preflight/SKILL.md"
+      ]
+    },
+    {
+      "name": "ArgumentParser",
+      "type": "concept",
+      "mentions": 28,
+      "sources": [
+        "skills/apc-article-ops/scripts/validate_article.py",
+        "skills/apc-article-ops/scripts/check_writing_rules.py",
+        "skills/watch/scripts/channel.py",
+        "skills/watch/scripts/watch.py"
+      ]
+    },
+    {
+      "name": "Read",
+      "type": "concept",
+      "mentions": 27,
+      "sources": [
+        ".ai-memory/RULES.md",
+        "context-spaces/general/.ai-memory/RULES.md",
+        "skills/watch/README.md",
+        "src/lib/hermes-bridge.mjs"
+      ]
+    },
+    {
+      "name": "SKILL",
+      "type": "concept",
+      "mentions": 26,
+      "sources": [
+        "src/lib/hermes-bridge.mjs",
+        "src/lib/skills.mjs",
+        "src/lib/semantic-memory.mjs",
+        "skills/apc-homepage/SKILL.md"
+      ]
+    },
+    {
+      "name": "Every",
+      "type": "concept",
+      "mentions": 23,
+      "sources": [
+        "skills/reddit-mcp/SKILL.md",
+        "skills/writing-well/SKILL.md",
+        "skills/human-pro/SKILL.md",
+        "skills/apc-article-ops/SKILL.md"
+      ]
+    }
+  ],
+  "rulesAndDecisions": [
+    "\"role\": \"always-on coordinator\",",
+    "Tool Awareness (NEVER FORGET)",
+    "Before doing ANYTHING manually, check this list. If an MCP tool or skill covers it, use it. Never say \"I can't do that\" without checking here first. Tools are deferred; use `ToolSearch` to load schemas before calling.",
+    "Behavioral Rules (ALWAYS ACTIVE)",
+    "5. Do not treat chat history as source of truth. Project memory lives in the repo and travels with it.",
+    "2. **No AI patterns.** Never use: \"not X, Y\" pseudo-profundity, \"and yet\", \"there was something about\", \"it was as if\", \"something shifted\", compulsive triplets, adjective stacking, emotional flatlining.",
+    "3. **No em dashes.** Brand rule. Use commas, periods, semicolons, or colons instead.",
+    "AI image/video prompts**: same rule. Code blocks with copy buttons. Always include pixel dimensions.",
+    "Canonical messaging**: product content changes update Notion canonical first, then sync all surfaces. Notion is single source of truth.",
+    "Selldone**: invoke `skill: \"selldone\"` BEFORE any Selldone API call. The skill has all three API layers, MCP tools, image upload procedures, and quirks. Never rediscover from scratch."
+  ],
+  "openTasks": [
+    "Add current project tasks.",
+    "Add current project tasks.",
+    "**Homepage** — title is brand-only (\"Aging Parent Care\"), **meta description empty**. Set keyword-led title + meta.",
+    "**8 category hubs** (`/pages/category-*`) — generic titles, no meta descriptions. Set keyword-led title + meta per category.",
+    "**Articles page** (`/pages/Articles`) — title \"Articles\", no meta. Optimize.",
+    "**Renamed POA article** — currently a **302**; change to **301**.",
+    "**Product pages** — remove the stray `BlogPosting` schema; keep `Product`/`Offer`/`Review`.",
+    "All links point to correct destinations (especially `/product/680234`)"
+  ],
+  "recentEvents": [
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-20T03:15:27.866Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory"
+      }
+    },
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-20T03:12:31.764Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory"
+      }
+    },
+    {
+      "type": "agent_switch",
+      "occurredAt": "2026-06-19T11:09:02.401Z",
+      "payload": {
+        "targetAgent": "claude",
+        "handoffSummary": "Missing tools installed and sync detection fixed. MacBook now has Claude Code CLI, Codex CLI, VS Code, Skillshare, ai-config-sync, Memorix, Vercel, and Supabase installed. Skill inventory now understands nested skills and Skillshare flattened names, so canonical/Claude/Codex/Agents all align at 65 skills. Stale placeholder machine records removed; Cloud Fleet tracks real PC/MacBook/Mac Mini."
+      }
+    },
+    {
+      "type": "handoff_written",
+      "occurredAt": "2026-06-19T11:09:02.366Z",
+      "payload": {
+        "summary": "Missing tools installed and sync detection fixed. MacBook now has Claude Code CLI, Codex CLI, VS Code, Skillshare, ai-config-sync, Memorix, Vercel, and Supabase installed. Skill inventory now understands nested skills and Skillshare flattened names, so canonical/Claude/Codex/Agents all align at 65 skills. Stale placeholder machine records removed; Cloud Fleet tracks real PC/MacBook/Mac Mini."
+      }
+    },
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-19T11:09:02.324Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\.ai-memory"
+      }
+    },
+    {
+      "type": "agent_switch",
+      "occurredAt": "2026-06-19T10:55:37.393Z",
+      "payload": {
+        "targetAgent": "claude",
+        "handoffSummary": "Claude/Codex portable environment sync added. New Sync Agent Environment button and /api/environment/sync-local apply shared Claude instructions, Codex instructions, portable hooks/rules, and skills with backups. Auth, sessions, logs, caches, SQLite state, and machine-specific app paths remain local. PC environment sync already ran successfully with backup under ~/.ai-sync-backups."
+      }
+    }
+  ],
+  "recallPrompt": "Before acting on Kevin Sync Console, read .ai-memory/semantic/CONTEXT_CAPSULE.md first. Then read .ai-memory/semantic/AGENT_STARTUP.md if the task is substantial. Use the local folder C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync. If the capsule is stale, rebuild semantic memory in AI Sync Console before editing."
+}

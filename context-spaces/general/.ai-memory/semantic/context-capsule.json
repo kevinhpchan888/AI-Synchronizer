@@ -1,0 +1,273 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-21T06:54:24.677Z",
+  "agent": "all",
+  "project": {
+    "id": "b78c0ca8-0a7f-491f-baf2-701a3f4e73b6",
+    "name": "General / Other",
+    "path": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general",
+    "state": "context",
+    "branch": null,
+    "dirtyCount": 0,
+    "changedFiles": []
+  },
+  "files": {
+    "capsule": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory\\semantic\\CONTEXT_CAPSULE.md",
+    "startupPacket": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory\\semantic\\AGENT_STARTUP.md",
+    "cogneeIndex": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory\\semantic\\cognee-index.json",
+    "graphitiGraph": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory\\semantic\\graphiti-graph.json"
+  },
+  "memoryHealth": {
+    "chunks": 10,
+    "entities": 75,
+    "relations": 14,
+    "episodes": 3,
+    "sourceHash": "a9d704cf2e2abd0f9ec0c6ad7b95e8d61cfcbdcf02d816614760acaee562a604",
+    "sourceNewestAt": "2026-06-20T03:15:27.912Z",
+    "handoffUpdatedAt": "2026-06-19T13:56:18.561Z"
+  },
+  "summary": "tatus\n\nCurrent state: active\n\n## Last Known Good State\n\nNot recorded yet.\n\n## Current Focus\n\nNot recorded yet.\n\n## Blockers\n\nNone recorded.\n\nLast updated: 2026-06-19T12:02:22.173Z",
+  "latestHandoff": "andoff\n\n## Latest Handoff\n\nAuto-generated handoff for the next AI tool.\nProject: General / Other\nPath: C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\nBranch: not applicable\nRemote: none / context-only\nSync state: Context space\nWorking tree: clean or not repo-based.\nLatest commit: not available.\nMemory instruction: read .ai-memory/PROJECT.md, STATUS.md, HANDOFF.md, RULES.md, TASKS.md, and CONTEX",
+  "taskMemory": "asks\n\n## Active\n\n- [ ] Add current project tasks.\n\n## Done",
+  "decisionMemory": "ecisions\n\nRecord important project decisions here.",
+  "changedSinceHandoff": [],
+  "importantFiles": [
+    {
+      "path": ".ai-memory/HANDOFF.md",
+      "title": "Handoff",
+      "preview": "# Handoff ## Latest Handoff Auto-generated handoff for the next AI tool. Project: General / Other Path: C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general Branch: not applicable Remote: none / context-only Sync state: Context space Working tree: clean or not repo-based. Latest commit: not available. Memory instruction: read .ai-memory/PROJ"
+    },
+    {
+      "path": ".ai-memory/RULES.md",
+      "title": "Agent Rules",
+      "preview": "# Agent Rules - Read this memory pack before starting substantial work. - Update STATUS.md and HANDOFF.md before switching machines, agents, or projects. - Record important architectural decisions in DECISIONS.md. - Keep this folder committed with the project repo."
+    },
+    {
+      "path": ".ai-memory/DECISIONS.md",
+      "title": "Decisions",
+      "preview": "# Decisions Record important project decisions here."
+    },
+    {
+      "path": ".ai-memory/TASKS.md",
+      "title": "Tasks",
+      "preview": "# Tasks ## Active - [ ] Add current project tasks. ## Done"
+    },
+    {
+      "path": ".ai-memory/STATUS.md",
+      "title": "Status",
+      "preview": "# Status Current state: active ## Last Known Good State Not recorded yet. ## Current Focus Not recorded yet. ## Blockers None recorded. Last updated: 2026-06-19T12:02:22.173Z"
+    },
+    {
+      "path": ".ai-memory/PROJECT.md",
+      "title": "General / Other",
+      "preview": "# General / Other ## Purpose Capture non-repo work, loose ideas, temporary investigations, cross-project notes, and \"Other\" sessions that do not yet deserve their own project repo. ## Important Paths - Project root: $AI_SYNC_ROOT/context-spaces/general - Memory pack: $AI_SYNC_ROOT/context-spaces/general/.ai-memory ## Promotion Rule If this context becomes a "
+    },
+    {
+      "path": ".ai-memory/CONTEXT_INDEX.json",
+      "title": ".ai-memory/CONTEXT_INDEX.json",
+      "preview": "{ \"schemaVersion\": 1, \"project\": \"General / Other\", \"createdAt\": \"2026-06-19T12:02:22.178Z\", \"memoryEngines\": { \"cognee\": { \"role\": \"project knowledge index\", \"rebuildable\": true }, \"graphiti\": { \"role\": \"temporal event graph\", \"rebuildable\": true }, \"hermes\": { \"role\": \"always-on coordinator\", \"sourceOfTruth\": false } }, \"requiredFiles\": [ \"PROJECT.md\", \"ST"
+    },
+    {
+      "path": ".ai-memory/events/2026-06-20.jsonl",
+      "title": ".ai-memory/events/2026-06-20.jsonl",
+      "preview": "{\"id\":\"def6f93c-e825-4b0f-829f-a09d0510c12f\",\"type\":\"memory_initialized\",\"projectId\":\"b78c0ca8-0a7f-491f-baf2-701a3f4e73b6\",\"projectName\":\"General / Other\",\"occurredAt\":\"2026-06-20T03:12:31.338Z\",\"payload\":{\"createdFiles\":[],\"memoryPath\":\"C:\\\\Users\\\\Kevin Chan\\\\Documents\\\\ClaudeCodex Sync\\\\context-spaces\\\\general\\\\.ai-memory\"}} {\"id\":\"1c5ba1f5-ebbb-4cbd-bbc6"
+    },
+    {
+      "path": ".ai-memory/events/2026-06-19.jsonl",
+      "title": ".ai-memory/events/2026-06-19.jsonl",
+      "preview": "{\"id\":\"3d95e4bd-ba93-476b-8324-4852b80720ca\",\"type\":\"memory_initialized\",\"projectId\":\"b78c0ca8-0a7f-491f-baf2-701a3f4e73b6\",\"projectName\":\"General / Other\",\"occurredAt\":\"2026-06-19T12:02:22.179Z\",\"payload\":{\"createdFiles\":[\"PROJECT.md\",\"STATUS.md\",\"DECISIONS.md\",\"TASKS.md\",\"HANDOFF.md\",\"RULES.md\",\"CONTEXT_INDEX.json\"],\"memoryPath\":\"C:\\\\Users\\\\Kevin Chan\\\\Doc"
+    },
+    {
+      "path": "README.md",
+      "title": "General / Other",
+      "preview": "# General / Other Use this context space for work that does not belong to a dedicated project repo yet. When the work becomes concrete, create or connect a real project repo and move the relevant memory into that project."
+    }
+  ],
+  "importantEntities": [
+    {
+      "name": "General",
+      "type": "concept",
+      "mentions": 6,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-20.jsonl"
+      ]
+    },
+    {
+      "name": "Other",
+      "type": "concept",
+      "mentions": 6,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-20.jsonl"
+      ]
+    },
+    {
+      "name": "Handoff",
+      "type": "concept",
+      "mentions": 5,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/RULES.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "Project",
+      "type": "concept",
+      "mentions": 5,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/PROJECT.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "STATUS",
+      "type": "concept",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/STATUS.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "TASKS",
+      "type": "concept",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/TASKS.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "DECISIONS",
+      "type": "concept",
+      "mentions": 4,
+      "sources": [
+        ".ai-memory/RULES.md",
+        ".ai-memory/DECISIONS.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "Users",
+      "type": "concept",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "Kevin Chan",
+      "type": "concept",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "Documents",
+      "type": "concept",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "ClaudeCodex Sync",
+      "type": "concept",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/events/2026-06-20.jsonl",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    },
+    {
+      "name": "RULES",
+      "type": "concept",
+      "mentions": 3,
+      "sources": [
+        ".ai-memory/HANDOFF.md",
+        ".ai-memory/CONTEXT_INDEX.json",
+        ".ai-memory/events/2026-06-19.jsonl"
+      ]
+    }
+  ],
+  "rulesAndDecisions": [
+    "Capture non-repo work, loose ideas, temporary investigations, cross-project notes, and \"Other\" sessions that do not yet deserve their own project repo.",
+    "Promotion Rule",
+    "\"role\": \"always-on coordinator\","
+  ],
+  "openTasks": [
+    "Add current project tasks."
+  ],
+  "recentEvents": [
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-20T03:15:27.911Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory"
+      }
+    },
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-20T03:12:31.338Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory"
+      }
+    },
+    {
+      "type": "handoff_written",
+      "occurredAt": "2026-06-19T13:56:18.561Z",
+      "payload": {
+        "summary": "Auto-generated handoff for the next AI tool.\nProject: General / Other\nPath: C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\nBranch: not applicable\nRemote: none / context-only\nSync state: Context space\nWorking tree: clean or not repo-based.\nLatest commit: not available.\nMemory instruction: read .ai-memory/PROJECT.md, STATUS.md, HANDOFF.md, RULES.md, TASKS.md, and CONTEXT_INDEX.json before making substantial changes.\nNext step: continue General / Other from the current project state in the next AI tool. If the console shows red or yellow for this active project, fix that first.\nGenerated by AI Sync Console at 2026-06-19T13:56:18.557Z."
+      }
+    },
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-19T13:56:18.558Z",
+      "payload": {
+        "createdFiles": [],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory"
+      }
+    },
+    {
+      "type": "memory_initialized",
+      "occurredAt": "2026-06-19T12:02:22.179Z",
+      "payload": {
+        "createdFiles": [
+          "PROJECT.md",
+          "STATUS.md",
+          "DECISIONS.md",
+          "TASKS.md",
+          "HANDOFF.md",
+          "RULES.md",
+          "CONTEXT_INDEX.json"
+        ],
+        "memoryPath": "C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general\\.ai-memory"
+      }
+    }
+  ],
+  "recallPrompt": "Before acting on General / Other, read .ai-memory/semantic/CONTEXT_CAPSULE.md first. Then read .ai-memory/semantic/AGENT_STARTUP.md if the task is substantial. Use the local folder C:\\Users\\Kevin Chan\\Documents\\ClaudeCodex Sync\\context-spaces\\general. If the capsule is stale, rebuild semantic memory in AI Sync Console before editing."
+}
