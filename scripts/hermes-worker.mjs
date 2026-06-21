@@ -3,6 +3,7 @@ import path from "node:path";
 import { hostname, platform } from "node:os";
 import { fileURLToPath } from "node:url";
 import { randomUUID } from "node:crypto";
+import { jobTargetsForMachine } from "../src/lib/hermes-worker-routing.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ENV_FILE = path.join(ROOT, ".env.local");
@@ -191,8 +192,7 @@ async function publishHeartbeat(options = {}) {
 
 async function getQueuedJobs() {
   const machine = await readMachine();
-  const targets = [machine.key, machine.id, "hermes", "mac-mini"]
-    .filter(Boolean)
+  const targets = jobTargetsForMachine(machine)
     .map((target) => `target_machine_key.eq.${encodeURIComponent(target)}`)
     .join(",");
   const query = [

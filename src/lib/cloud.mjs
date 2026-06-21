@@ -219,6 +219,7 @@ export async function queueCloudJob(input) {
     },
     body: JSON.stringify({
       target_machine_key: targetMachineKey,
+      project_id: input.projectId || input.project_id || null,
       action,
       status: "queued",
       payload: input.payload || {}
