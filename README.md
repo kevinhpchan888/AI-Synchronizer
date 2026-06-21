@@ -35,3 +35,5 @@ Supabase URL: https://usxahiliflnjypywspxk.supabase.co
 ```
 
 The schema in `cloud/supabase-schema.sql` creates namespaced `kevin_sync_*` tables for machine heartbeats, Hermes jobs, project status, and memory snapshots.
+
+The same schema is also stored as a Supabase CLI migration in `supabase/migrations/`, so a fresh setup can recreate the control-plane tables from the repo instead of relying on a copied SQL snippet.
