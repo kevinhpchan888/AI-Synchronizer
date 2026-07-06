@@ -18,11 +18,25 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   boots, GET / 200, /api/summary returns data | commit b37d74b on fable5/optimization-loop.
   Finding: the generator already carries all five facts; the test locks it in.
 
+- [H1] Hermes context slim: bridge markdown is now a thin routing table (name, path,
+  readiness, capsule, packet; attention line only when not ready); managed SOUL block,
+  per-profile skill, and rule file compressed. Recall prompts, handoff excerpts, and
+  changed-file lists removed from the bridge; they live in the capsule and projects.json
+  (both verified intact). Measured on 8-project fixture: per-agent session context
+  9,082 -> 4,245 bytes (53% cut), bridge 153 -> 66 lines. Size-guard + no-bloat + no-loss
+  test added | src/lib/hermes-bridge.mjs, test/hermes-bridge.test.mjs | verified: 16/16
+  tests, check pass, before/after measured with same fixture | commit on
+  fable5/optimization-loop.
+
 ## In progress
-- (nothing; next up: M2 staleness honesty, then P2 P-2 using the 4.93s baseline)
+- (nothing; next up: H2 Hermes round-trip test, then M2 staleness honesty)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
+- P0b H2 Hermes round-trip: bridge chain (SOUL -> bridge -> capsule -> packet) recovers full context, locked by test
+- P0b H4 Stale bridge honesty: worker refresh_hermes_bridge path verified + tested
 - P0 M2 Staleness honesty + fix self-dirtying .ai-memory
+- P0b H3 Capsule/packet overlap dedupe (capsule = short brief, packet = deep read)
+- P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
 - P0 M3 Capsule quality: compact, answers "what next"
 - P0 M4 One-glance memory truth signal on dashboard
 - P1 U1 Progressive disclosure: cockpit + grouped tabs/drawer

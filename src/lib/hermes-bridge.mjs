@@ -91,16 +91,9 @@ function managedBlock(bridgeFile) {
     START_MARKER,
     "## AI Sync Project Memory Rule",
     "",
-    "Read the AI Sync memory bridge before project work.",
-    "",
-    `Bridge file: ${bridgeFile}`,
-    "",
-    "Rules:",
-    "- Identify the project first.",
-    "- If the project is listed in the bridge, read its CONTEXT_CAPSULE.md before acting.",
-    "- For substantial work, also read AGENT_STARTUP.md.",
-    "- If memory is missing or stale, report that status before editing files.",
-    "- Do not rely only on this Hermes profile memory when a project memory pack exists.",
+    `Read the AI Sync memory bridge before project work: ${bridgeFile}`,
+    "For listed projects: read CONTEXT_CAPSULE.md before acting; read AGENT_STARTUP.md before substantial work.",
+    "If memory is missing or stale, report that instead of editing from profile memory.",
     END_MARKER
   ].join("\n");
 }
@@ -123,15 +116,9 @@ function skillMarkdown(bridgeFile) {
     "",
     "# AI Sync Memory",
     "",
-    "Before project work:",
-    "",
-    `1. Read ${bridgeFile}.`,
-    "2. Match the requested project to the project list.",
-    "3. Read the project's CONTEXT_CAPSULE.md first.",
-    "4. Read AGENT_STARTUP.md before substantial edits, repo actions, or routing work.",
-    "5. If the bridge says memory is missing or stale, report that and request a memory refresh before editing.",
-    "",
-    "This skill exists so every Hermes profile uses the same project memory instead of relying only on its own profile history.",
+    `1. Read ${bridgeFile} and match the requested project.`,
+    "2. Read the project's CONTEXT_CAPSULE.md first; read AGENT_STARTUP.md before substantial work.",
+    "3. If memory is missing or stale, report that and request a refresh before editing.",
     ""
   ].join("\n");
 }
@@ -140,11 +127,7 @@ function profileInstructionMarkdown(profileName, bridgeFile) {
   return [
     `# AI Sync Memory Rule for ${profileName}`,
     "",
-    "This profile is connected to AI Sync project memory.",
-    "",
-    "Before handling project work, read the bridge file, then read the project capsule and startup packet named there.",
-    "",
-    `Bridge file: ${bridgeFile}`,
+    `Before project work, read the bridge file, then the project capsule and startup packet named there: ${bridgeFile}`,
     "",
     "If a project is not listed, continue normally but say that no AI Sync project memory was found.",
     ""
@@ -152,23 +135,19 @@ function profileInstructionMarkdown(profileName, bridgeFile) {
 }
 
 function bridgeMarkdown(status) {
+  // This file is loaded as context by every Hermes profile before project work,
+  // so it stays a thin routing table. The full detail (handoff, recall prompt,
+  // changed files) lives in each project's capsule and in projects.json.
   const lines = [
     "# AI Sync Hermes Memory Bridge",
     "",
-    `Generated: ${status.generatedAt}`,
-    `Agent: ${status.agent}`,
+    `Generated: ${status.generatedAt} | Agent: ${status.agent}`,
     "",
-    "## Required Behavior",
+    "Match the requested project below, read its CONTEXT_CAPSULE.md first, and read",
+    "AGENT_STARTUP.md before substantial edits, handoffs, repo changes, or routing work.",
+    "If readiness is not `ready`, refresh memory or report the blocker before editing.",
     "",
-    "Every Hermes profile must use this bridge before project work.",
-    "",
-    "1. Identify the project.",
-    "2. Find the project below.",
-    "3. Read `CONTEXT_CAPSULE.md` first.",
-    "4. Read `AGENT_STARTUP.md` before substantial edits, handoffs, repo changes, or routing work.",
-    "5. If readiness is not `ready`, refresh memory or report the blocker before editing.",
-    "",
-    "## Project Memory"
+    "## Projects"
   ];
 
   if (!status.projects.length) {
@@ -179,23 +158,13 @@ function bridgeMarkdown(status) {
     lines.push(
       "",
       `### ${project.projectName}`,
-      "",
-      `- Project id: ${project.projectId}`,
       `- Path: ${project.path}`,
-      `- Git state: ${project.gitState}`,
-      `- Memory state: ${project.memoryState}`,
-      `- Semantic state: ${project.semanticState}`,
       `- Readiness: ${project.readiness}`,
       `- Capsule: ${project.capsulePath || "missing"}`,
-      `- Startup packet: ${project.startupPacket || "missing"}`,
-      `- Recall prompt: ${project.recallPrompt || "No recall prompt available."}`
+      `- Startup packet: ${project.startupPacket || "missing"}`
     );
-    if (project.latestHandoff) lines.push(`- Latest handoff: ${project.latestHandoff}`);
-    if (project.changedSinceHandoff?.length) {
-      lines.push("- Changed since handoff:");
-      for (const item of project.changedSinceHandoff.slice(0, 10)) {
-        lines.push(`  - ${item.path}: ${item.updatedAt}`);
-      }
+    if (project.readiness !== "ready") {
+      lines.push(`- Attention: git ${project.gitState}, memory ${project.memoryState}, semantic ${project.semanticState}`);
     }
   }
 

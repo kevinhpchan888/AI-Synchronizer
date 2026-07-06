@@ -174,6 +174,30 @@ slice this iteration and enqueue the rest.
   words, whether the active project's memory would let a fresh agent resume, with the
   timestamp of the last good build. Not six tiles. One honest answer.
 
+### P0b — Hermes memory: correct AND lean (added by Kevin 2026-07-07)
+Hermes profiles (11 agents on the Mac Mini, AMVCreator on AMVPC) must get working
+project memory without paying a context tax on every session. The bridge injects
+instructions into every profile SOUL.md plus a shared bridge file each agent loads
+before project work. Rules for this workstream: every byte injected into a profile
+is paid on every session of every agent, so the bridge stays a thin routing table
+(project -> readiness -> capsule path); detail lives once, in the capsule.
+`projects.json` is the data plane for the worker and cloud; keep it complete.
+- **H1. Slim the bridge context.** DONE iteration 2: bridge markdown reduced to a
+  routing table, managed block / skill / rule file compressed. 53% per-session cut
+  (9,082 -> 4,245 bytes on an 8-project fixture) with a size-guard test.
+- **H2. Hermes round-trip.** Prove a Hermes agent following the bridge chain
+  (SOUL block -> bridge -> capsule -> packet) recovers full context: extend the M1
+  round-trip pattern through installHermesMemoryBridge. Lock with a test.
+- **H3. Capsule dedupe for Hermes.** The capsule and startup packet overlap; a
+  Hermes agent told to read both pays twice. Measure the overlap; make the capsule
+  the short brief and the packet the deep read, with no repeated sections.
+- **H4. Stale bridge honesty.** The bridge file is a snapshot. If memory rebuilds
+  after install, the bridge should be refreshed by the worker job path
+  (refresh_hermes_bridge) or clearly dated so agents can detect drift. Verify the
+  worker actually refreshes it; add a test if uncovered.
+- **H5. Worker efficiency.** hermes-worker + buildHermesMemoryStatus recompute all
+  project statuses per job; reuse the same caching P2 P-2 adds for the dashboard.
+
 ### P1 — Simplify the UI (make it much easier to use)
 - **U1. Progressive disclosure.** Keep the top cockpit (active project + readiness + primary
   action) always visible. Move the ~15 secondary panels behind a small number of tabs or an

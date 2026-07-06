@@ -68,6 +68,45 @@ test("installHermesMemoryBridge writes a shared bridge and profile rules", async
   }
 });
 
+test("bridge stays a compact routing table and defers detail to the capsule", async () => {
+  const hermesHome = await makeHermesHome();
+  const project = await makeProject();
+  try {
+    await installHermesMemoryBridge({ hermesHome, projectStatuses: [project], agent: "hermes" });
+
+    const bridge = await readFile(path.join(hermesHome, "ai-sync-memory", "HERMES_MEMORY_BRIDGE.md"), "utf8");
+
+    // Routing essentials are present.
+    assert.match(bridge, /Hermes Bridge Project/);
+    assert.match(bridge, /Readiness:/);
+    assert.match(bridge, /CONTEXT_CAPSULE\.md/);
+    assert.match(bridge, /AGENT_STARTUP\.md/);
+
+    // Bulky content stays out of the bridge; it belongs in the capsule.
+    assert.doesNotMatch(bridge, /Recall prompt:/);
+    assert.doesNotMatch(bridge, /Latest handoff:/);
+    assert.doesNotMatch(bridge, /Changed since handoff:/);
+
+    // Size guard: a ready project entry stays a small pointer block.
+    const entry = bridge.slice(bridge.indexOf("### Hermes Bridge Project"));
+    assert.ok(entry.length < 600, `bridge entry too large: ${entry.length} bytes`);
+
+    // No context is lost: the capsule the bridge points to still carries the handoff.
+    const capsuleLine = bridge.split("\n").find((line) => line.startsWith("- Capsule: "));
+    const capsulePath = capsuleLine.replace("- Capsule: ", "").trim();
+    const capsule = await readFile(capsulePath, "utf8");
+    assert.match(capsule, /Build the bridge/);
+
+    // The data plane keeps the full detail for workers and the cloud.
+    const manifest = JSON.parse(await readFile(path.join(hermesHome, "ai-sync-memory", "projects.json"), "utf8"));
+    assert.ok(manifest.projects[0].latestHandoff, "projects.json must keep latestHandoff");
+    assert.ok(manifest.projects[0].recallPrompt, "projects.json must keep recallPrompt");
+  } finally {
+    await rm(hermesHome, { recursive: true, force: true });
+    await rm(project.path, { recursive: true, force: true });
+  }
+});
+
 test("installHermesMemoryBridge updates the managed block without duplicating it", async () => {
   const hermesHome = await makeHermesHome();
   const project = await makeProject();
