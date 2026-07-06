@@ -69,13 +69,19 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   public/styles.css | verified in Chrome on side-port server: default view, tab switch,
   persistence across reload, M4 verdict visible in flow strip | commit 5e7a821.
 
+- [U2] Command stack collapsed 6 -> 4 controls: Start Work primary; Claude/Codex is a
+  segmented "Work in" switch highlighting the active tool (click other side = existing
+  handoff flow); End Work + Sync Now share a row; Memory Status removed from cockpit
+  (verdict lives in flow strip, detail in Memory tab; handler kept, optional-chained) |
+  public/index.html, public/app.js, public/styles.css | verified in Chrome: layout,
+  active-tool highlight, zero console errors on fresh load; 20/20 tests | commit 6ed7ac1.
+
 ## In progress
-- (nothing; next up: U2 collapse the six-button command stack)
+- (nothing; next up: U3 plain-language state + fix-it buttons, or P-2 the 4.93s summary)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
 - P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
-- P1 U2 Collapse the six-button command stack
 - P1 U3 Plain-language state + one fix-it button per warning
 - P1 U4 First-run clarity: pick -> Start -> switch -> End
 - P2 P-1 Measure refresh + per-route timings first
