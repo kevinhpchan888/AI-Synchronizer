@@ -1966,4 +1966,37 @@ selectors.publishCloudButton.addEventListener("click", async () => {
   });
 });
 
+// Progressive disclosure: the cockpit, flow strip, and next actions stay
+// visible; everything else lives under one tab group so the default view
+// is small. Panels are hidden, not removed, so existing wiring still works.
+const VIEW_STORAGE_KEY = "aiSyncActiveView";
+const VIEW_NAMES = new Set(["overview", "memory", "projects", "skills", "machines", "more"]);
+
+function applyView(view) {
+  const next = VIEW_NAMES.has(view) ? view : "overview";
+  document.querySelectorAll("[data-view]").forEach((element) => {
+    element.classList.toggle("view-hidden", element.dataset.view !== next);
+  });
+  document.querySelectorAll("[data-view-tab]").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.viewTab === next);
+  });
+  try {
+    localStorage.setItem(VIEW_STORAGE_KEY, next);
+  } catch {
+    // Private browsing can block storage; the view still switches.
+  }
+}
+
+document.querySelectorAll("[data-view-tab]").forEach((tab) => {
+  tab.addEventListener("click", () => applyView(tab.dataset.viewTab));
+});
+
+let storedView = "overview";
+try {
+  storedView = localStorage.getItem(VIEW_STORAGE_KEY) || "overview";
+} catch {
+  // Fall back to the default view.
+}
+applyView(storedView);
+
 refresh();

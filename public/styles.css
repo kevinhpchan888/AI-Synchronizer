@@ -232,6 +232,43 @@ main {
   gap: 10px;
 }
 
+.view-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 18px;
+  padding: 6px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+}
+
+.view-tabs button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.view-tabs button:hover {
+  color: var(--text);
+  background: var(--surface-soft);
+}
+
+.view-tabs button.active {
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-color: var(--line);
+}
+
+.view-hidden {
+  display: none !important;
+}
+
 .overview-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));

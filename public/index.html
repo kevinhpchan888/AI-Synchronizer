@@ -77,7 +77,16 @@
         <div id="activeActionList" class="active-action-list"></div>
       </section>
 
-      <section class="overview-grid" aria-label="System status">
+      <nav class="view-tabs" id="viewTabs" aria-label="Console sections">
+        <button type="button" data-view-tab="overview" class="active">Overview</button>
+        <button type="button" data-view-tab="memory">Memory</button>
+        <button type="button" data-view-tab="projects">Projects</button>
+        <button type="button" data-view-tab="skills">Skills &amp; Agents</button>
+        <button type="button" data-view-tab="machines">Machines &amp; Setup</button>
+        <button type="button" data-view-tab="more">More</button>
+      </nav>
+
+      <section class="overview-grid" data-view="overview" aria-label="System status">
         <article class="metric-card" id="projectsCard">
           <div class="metric-topline">
             <span class="status-dot neutral"></span>
@@ -128,7 +137,7 @@
         </article>
       </section>
 
-      <section class="panel semantic-memory-panel" id="semanticMemoryPanel">
+      <section class="panel semantic-memory-panel" id="semanticMemoryPanel" data-view="memory">
         <div class="panel-heading">
           <div>
             <h2>Cognee + Graphiti Semantic Memory</h2>
@@ -150,7 +159,7 @@
       </section>
 
       <section class="content-grid">
-        <section class="panel action-panel">
+        <section class="panel action-panel" data-view="overview">
           <div class="panel-heading">
             <div>
               <h2>Needs Attention</h2>
@@ -160,7 +169,7 @@
           <div id="recommendationsList" class="recommendations"></div>
         </section>
 
-        <section class="panel setup-panel">
+        <section class="panel setup-panel" data-view="machines">
           <div class="panel-heading">
             <div>
               <h2>Recovery Path</h2>
@@ -175,7 +184,7 @@
         </section>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="machines">
         <div class="panel-heading">
           <div>
             <h2>One-Click New Machine Setup</h2>
@@ -189,7 +198,7 @@
         <div id="setupStatus" class="setup-status"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="more">
         <div class="panel-heading">
           <div>
             <h2>Training Mode</h2>
@@ -204,7 +213,7 @@
         </div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="machines">
         <div class="panel-heading">
           <div>
             <h2>Machines</h2>
@@ -215,7 +224,7 @@
         <div id="machinesList" class="list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="machines">
         <div class="panel-heading">
           <div>
             <h2>Cloud Fleet</h2>
@@ -225,7 +234,7 @@
         <div id="cloudFleetList" class="list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="skills">
         <div class="panel-heading">
           <div>
             <h2>Skill Coverage</h2>
@@ -241,7 +250,7 @@
         <div id="skillMatrix" class="skill-matrix"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="skills">
         <div class="panel-heading">
           <div>
             <h2>Agent / Model Profiles</h2>
@@ -257,7 +266,7 @@
         <div id="agentProfilesList" class="agent-grid"></div>
       </section>
 
-      <section id="projectsPanel" class="panel">
+      <section id="projectsPanel" class="panel" data-view="projects">
         <div class="panel-heading">
           <div>
             <h2>Projects</h2>
@@ -274,7 +283,7 @@
         <div id="projectsList" class="list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="more">
         <div class="panel-heading">
           <div>
             <h2>Tools</h2>
@@ -284,7 +293,7 @@
         <div id="toolsList" class="list"></div>
       </section>
 
-      <section class="panel">
+      <section class="panel" data-view="more">
         <div class="panel-heading">
           <div>
             <h2>Activity</h2>
