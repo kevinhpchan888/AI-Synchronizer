@@ -62,13 +62,19 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   console (PID uptime 2+ days) serves old server code until restarted; new app.js is
   served from disk immediately.
 
+- [U1] Progressive disclosure shipped: cockpit + flow strip + Next Best Actions stay
+  visible; the other ~14 panels are grouped under six tabs (Overview, Memory, Projects,
+  Skills & Agents, Machines & Setup, More). Hidden-not-removed so existing wiring works;
+  active tab persists in localStorage | public/index.html, public/app.js,
+  public/styles.css | verified in Chrome on side-port server: default view, tab switch,
+  persistence across reload, M4 verdict visible in flow strip | commit 5e7a821.
+
 ## In progress
-- (nothing; next up: U1+U2 UI simplification, per Kevin's direct request)
+- (nothing; next up: U2 collapse the six-button command stack)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
 - P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
-- P1 U1 Progressive disclosure: cockpit + grouped tabs/drawer
 - P1 U2 Collapse the six-button command stack
 - P1 U3 Plain-language state + one fix-it button per warning
 - P1 U4 First-run clarity: pick -> Start -> switch -> End
@@ -77,6 +83,24 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
 - P2 P-3 Render only changed DOM; split oversized files if it lowers risk
 - P2 P-4 Parallel client fetches; never block first paint on cloud
 - P3 Error surfacing, loading/empty states, a11y on dialogs, missing-folder safety
+
+## Live environment constraints (from Kevin, 2026-07-07 night — do NOT violate)
+- All 9 ~/.hermes configs were rewritten tonight (GLM coding-plan provider, compression
+  caps, GPT-5.5 fallback). NEVER restore ~/.hermes from repo templates or pre-tonight
+  backups. This loop only touches Hermes via temp fixtures (mkdtemp); keep it that way.
+- Do not run skill sync, Sync Agent Environment, installers, or restore scripts against
+  the live machine from this loop. Code + tests only.
+- env/portable-agent-profile and cos/profile/gateway-wrapper.sh.template are STALE vs
+  live wrappers (webhook env exports on cos/donny). Do not "fix" live config from
+  templates; if template drift needs correcting, update the template FROM live, and only
+  when Kevin asks.
+- Ports in use tonight: 8645/8646 (webhooks), 8009 (ChatMock), plus 47831 (Kevin's live
+  console, uptime 2+ days). Test servers use 47899+.
+- The generated ai-sync skill in Hermes profiles was deliberately left untouched by
+  tonight's pruning; the APC installer now has an exclude list. Bridge installs remain
+  Kevin-triggered, not loop-triggered.
+- Hermes gateways restarted ~5x tonight; connection blips in worker logs from tonight
+  are expected, not bugs.
 
 ## Open questions for Kevin
 - (none yet)
