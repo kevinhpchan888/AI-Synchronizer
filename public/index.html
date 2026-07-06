@@ -41,11 +41,15 @@
 
         <div class="command-stack">
           <button id="startWorkButton" class="primary">Start Work</button>
-          <button id="switchClaudeButton">Use Claude</button>
-          <button id="switchCodexButton">Use Codex</button>
-          <button id="endWorkButton">End Handoff</button>
-          <button id="syncEverythingButton">Sync Now</button>
-          <button id="openMemoryButton">Memory Status</button>
+          <div class="agent-switch" role="group" aria-label="Active tool">
+            <span class="agent-switch-label">Work in</span>
+            <button id="switchClaudeButton">Claude</button>
+            <button id="switchCodexButton">Codex</button>
+          </div>
+          <div class="command-row">
+            <button id="endWorkButton">End Work</button>
+            <button id="syncEverythingButton">Sync Now</button>
+          </div>
           <div id="workflowFeedback" class="command-feedback neutral" role="status">Choose a project, then start work.</div>
         </div>
       </section>

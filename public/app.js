@@ -489,8 +489,11 @@ function renderMissionControl() {
 
   const route = state.summary.agents.activeRoute === "glm" ? "GLM 5.2" : "Claude";
   const glmReady = state.summary.agents.glm.configuredFor52;
-  const sessionAgent = state.summary.session?.activeAgent === "codex" ? "Codex" : route;
+  const agentIsCodex = state.summary.session?.activeAgent === "codex";
+  const sessionAgent = agentIsCodex ? "Codex" : route;
   setFlowStep(selectors.agentMissionTile, route === "GLM 5.2" && !glmReady ? "warn" : "ok", sessionAgent, project?.name || "No active project");
+  selectors.switchClaudeButton?.classList.toggle("active", !agentIsCodex);
+  selectors.switchCodexButton?.classList.toggle("active", agentIsCodex);
 }
 
 function renderProjectSwitcher() {
@@ -1949,7 +1952,10 @@ async function showProjectMemoryStatus() {
   }, 1800);
 }
 
-selectors.openMemoryButton.addEventListener("click", (event) => {
+// The cockpit no longer has a Memory Status button: the flow strip shows the
+// resume verdict and the Memory tab holds the detail. Keep the handler for
+// any legacy markup that still renders the button.
+selectors.openMemoryButton?.addEventListener("click", (event) => {
   withButtonFeedback(event.currentTarget, "Showing memory", showProjectMemoryStatus);
 });
 

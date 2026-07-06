@@ -1047,6 +1047,45 @@ select {
   font-weight: 680;
 }
 
+.agent-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 5px 6px;
+  background: var(--surface-soft);
+}
+
+.agent-switch-label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 650;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.agent-switch button {
+  flex: 1;
+  min-height: 34px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 7px;
+}
+
+.agent-switch button.active {
+  color: var(--blue);
+  background: var(--blue-soft);
+  border-color: var(--line);
+}
+
+.command-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
 .command-feedback {
   min-height: 44px;
   border: 1px solid var(--line);
