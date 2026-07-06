@@ -47,6 +47,36 @@ test("semantic status becomes stale when project files change after rebuild", as
   }
 });
 
+test("memory's own event log does not make semantic memory stale", async () => {
+  // The console appends .ai-memory/events/*.jsonl entries on Start Work,
+  // tool switches, and checkpoints. Those writes are bookkeeping, not
+  // project changes; they must not flip the memory tile to stale or the
+  // tile turns perpetually yellow right after every switch.
+  const project = await makeProject();
+  try {
+    await rebuildSemanticMemory(project, { reason: "test" });
+    assert.equal((await getSemanticMemoryStatus(project)).state, "fresh");
+
+    const eventsDir = path.join(project.path, ".ai-memory", "events");
+    await mkdir(eventsDir, { recursive: true });
+    const eventFile = path.join(eventsDir, "2026-07-07.jsonl");
+    await writeFile(eventFile, `${JSON.stringify({ type: "agent_switch", at: "2026-07-07T00:00:00Z" })}\n`, "utf8");
+    const future = new Date(Date.now() + 10_000);
+    await utimes(eventFile, future, future);
+
+    const status = await getSemanticMemoryStatus(project);
+    assert.equal(status.state, "fresh", "event log append must not dirty the source hash");
+
+    // A real project file change must still flip to stale.
+    const changed = path.join(project.path, "src", "server.mjs");
+    await writeFile(changed, "export const route = '/api/memory/briefing';\nexport const more = true;\n", "utf8");
+    await utimes(changed, future, future);
+    assert.equal((await getSemanticMemoryStatus(project)).state, "stale");
+  } finally {
+    await rm(project.path, { recursive: true, force: true });
+  }
+});
+
 test("startup packet highlights changed files and a next-agent checklist", async () => {
   const project = await makeProject();
   try {

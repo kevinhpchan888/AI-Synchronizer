@@ -288,8 +288,14 @@ async function readTextFile(file) {
 }
 
 function sourceHash(items) {
+  // Event logs are indexed for search, but they are bookkeeping the console
+  // writes on Start Work, tool switches, and checkpoints. Keep them out of
+  // the staleness hash or memory turns stale right after every switch.
   const hash = createHash("sha256");
-  for (const item of [...items].sort((a, b) => a.relativePath.localeCompare(b.relativePath))) {
+  const hashable = [...items]
+    .filter((item) => !normalizeSlash(item.relativePath).includes(`${MEMORY_DIR}/events/`))
+    .sort((a, b) => a.relativePath.localeCompare(b.relativePath));
+  for (const item of hashable) {
     hash.update(item.relativePath);
     hash.update(String(item.size));
     hash.update(item.updatedAt);
