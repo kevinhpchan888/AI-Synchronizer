@@ -43,14 +43,32 @@ async function exists(file) {
   }
 }
 
+// "vercel whoami" is a network call and was the slowest part of every
+// dashboard refresh (1.7s+ per /api/summary). CLI auth only changes when
+// the user logs in or out, so cache the answer and re-check occasionally.
+const VERCEL_AUTH_TTL_MS = 10 * 60 * 1000;
+let vercelAuthCache = { checkedAt: 0, ok: false };
+
+export async function checkVercelAuth(options = {}) {
+  const now = Date.now();
+  if (!options.force && vercelAuthCache.checkedAt && now - vercelAuthCache.checkedAt < VERCEL_AUTH_TTL_MS) {
+    return vercelAuthCache.ok;
+  }
+  const runner = options.runner || (async () => {
+    const vercelCommand = await commandExists("vercel");
+    if (!vercelCommand.exists) return { ok: false };
+    return runShell("vercel whoami", { timeout: 5000 });
+  });
+  const result = await runner();
+  vercelAuthCache = { checkedAt: now, ok: Boolean(result.ok) };
+  return vercelAuthCache.ok;
+}
+
 export async function getCloudStatus() {
   const envKeys = await readEnvLocal();
   const vercelProjectFile = path.join(process.cwd(), ".vercel", "project.json");
   const vercelLinked = await exists(vercelProjectFile);
-  const vercelCommand = await commandExists("vercel");
-  const vercelWhoami = vercelCommand.exists
-    ? await runShell("vercel whoami", { timeout: 15000 })
-    : { ok: false };
+  const vercelWhoami = { ok: await checkVercelAuth() };
 
   return {
     vercel: {
