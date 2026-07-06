@@ -45,15 +45,21 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   refreshes when Install Hermes Bridge is clicked; the Generated timestamp in the bridge
   lets agents detect drift.
 
+- [M2] Fixed self-dirtying memory: .ai-memory/events/*.jsonl appends (written on Start
+  Work, tool switches, checkpoints) were included in the staleness source hash, so the
+  memory tile flipped yellow immediately after every switch. Root cause of "not clear how
+  well it works". Events stay indexed for search but are excluded from the hash; real
+  file changes still flip stale (RED->GREEN, same test asserts both directions) |
+  src/lib/semantic-memory.mjs (sourceHash), test/semantic-memory.test.mjs | verified:
+  19/19 tests, check pass, server boots, /api/memory returns honest state | commit 55b50b2.
+
 ## In progress
-- (nothing; next up: M2 staleness honesty, then H3 capsule/packet dedupe)
+- (nothing; next up: M4 one-glance memory truth, then U1/U2 UI simplification)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
-- P0 M2 Staleness honesty + fix self-dirtying .ai-memory
-- P0b H3 Capsule/packet overlap dedupe (capsule = short brief, packet = deep read)
-- P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
-- P0 M3 Capsule quality: compact, answers "what next"
+- P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
 - P0 M4 One-glance memory truth signal on dashboard
+- P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
 - P1 U1 Progressive disclosure: cockpit + grouped tabs/drawer
 - P1 U2 Collapse the six-button command stack
 - P1 U3 Plain-language state + one fix-it button per warning
