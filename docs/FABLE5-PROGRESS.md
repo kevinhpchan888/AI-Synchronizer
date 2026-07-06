@@ -28,11 +28,17 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   tests, check pass, before/after measured with same fixture | commit on
   fable5/optimization-loop.
 
+- [H2] Hermes round-trip test: a cold profile starting from ONLY its SOUL.md navigates
+  the chain by parsing pointers out of each file (SOUL -> bridge -> capsule -> packet)
+  and recovers the same five facts as M1 (project, branch, dirty state, handoff, tasks,
+  code location). Also covers re-install discovering a newly added profile |
+  test/hermes-roundtrip.test.mjs | verified: 17/17 tests, check pass | commit on
+  fable5/optimization-loop.
+
 ## In progress
-- (nothing; next up: H2 Hermes round-trip test, then M2 staleness honesty)
+- (nothing; next up: H4 stale bridge honesty, then M2 staleness honesty)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
-- P0b H2 Hermes round-trip: bridge chain (SOUL -> bridge -> capsule -> packet) recovers full context, locked by test
 - P0b H4 Stale bridge honesty: worker refresh_hermes_bridge path verified + tested
 - P0 M2 Staleness honesty + fix self-dirtying .ai-memory
 - P0b H3 Capsule/packet overlap dedupe (capsule = short brief, packet = deep read)
