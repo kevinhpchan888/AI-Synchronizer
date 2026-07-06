@@ -76,16 +76,23 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   public/index.html, public/app.js, public/styles.css | verified in Chrome: layout,
   active-tool highlight, zero console errors on fresh load; 20/20 tests | commit 6ed7ac1.
 
+- [P-2] Summary refresh 4.93s -> 0.28s warm (94% cut). Root cause: getCloudStatus ran
+  "vercel whoami" (network call, 15s timeout) on EVERY /api/summary. Auth answer now
+  cached 10 min, timeout capped at 5s, response shape unchanged; cache semantics locked
+  by test. Profiled all summary() components first: cloud 1.7s, skills 133ms, git x9
+  80ms, tools 78ms, memory 72ms, rest negligible | src/lib/cloud.mjs,
+  test/cloud-status.test.mjs | verified: cold 1.98s, warm 0.28/0.28/0.27s on real
+  registry; 21/21 tests | commit 736466e.
+
 ## In progress
-- (nothing; next up: U3 plain-language state + fix-it buttons, or P-2 the 4.93s summary)
+- (nothing; next up: U3 plain-language fix-it buttons or M3 capsule quality)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
 - P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
 - P1 U3 Plain-language state + one fix-it button per warning
 - P1 U4 First-run clarity: pick -> Start -> switch -> End
-- P2 P-1 Measure refresh + per-route timings first
-- P2 P-2 Cache Git status / source hashes by mtime
+- P2 P-2b Remaining refresh cost is ~0.3s (skills scan 133ms, git 80ms); only optimize if felt
 - P2 P-3 Render only changed DOM; split oversized files if it lowers risk
 - P2 P-4 Parallel client fetches; never block first paint on cloud
 - P3 Error surfacing, loading/empty states, a11y on dialogs, missing-folder safety
