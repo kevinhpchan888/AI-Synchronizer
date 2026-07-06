@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, rm, utimes, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { getHermesMemoryBridgeStatus, installHermesMemoryBridge } from "../src/lib/hermes-bridge.mjs";
+import { runHermesMemoryJob } from "../src/lib/hermes-memory.mjs";
 import { rebuildSemanticMemory } from "../src/lib/semantic-memory.mjs";
 
 async function makeHermesHome() {
@@ -101,6 +102,47 @@ test("bridge stays a compact routing table and defers detail to the capsule", as
     const manifest = JSON.parse(await readFile(path.join(hermesHome, "ai-sync-memory", "projects.json"), "utf8"));
     assert.ok(manifest.projects[0].latestHandoff, "projects.json must keep latestHandoff");
     assert.ok(manifest.projects[0].recallPrompt, "projects.json must keep recallPrompt");
+  } finally {
+    await rm(hermesHome, { recursive: true, force: true });
+    await rm(project.path, { recursive: true, force: true });
+  }
+});
+
+test("bridge readiness stays honest across stale and refresh", async () => {
+  // Mirrors the worker lifecycle: memory jobs rebuild project memory, and
+  // handleJob rewrites the bridge afterward (via installHermesMemoryBridge).
+  // The bridge snapshot must flip to attention when a project goes stale
+  // and back to ready after a memory refresh.
+  const hermesHome = await makeHermesHome();
+  const project = await makeProject();
+  const bridgeFile = path.join(hermesHome, "ai-sync-memory", "HERMES_MEMORY_BRIDGE.md");
+  try {
+    await installHermesMemoryBridge({ hermesHome, projectStatuses: [project], agent: "hermes" });
+    let bridge = await readFile(bridgeFile, "utf8");
+    assert.match(bridge, /- Readiness: ready/);
+    assert.doesNotMatch(bridge, /- Attention:/);
+
+    // Project changes after the build: semantic memory is now stale.
+    const changed = path.join(project.path, "AGENTS.md");
+    await writeFile(changed, "# Agent Rules\n\nRead the memory capsule first. Updated.\n", "utf8");
+    const future = new Date(Date.now() + 10_000);
+    await utimes(changed, future, future);
+
+    await installHermesMemoryBridge({ hermesHome, projectStatuses: [project], agent: "hermes" });
+    bridge = await readFile(bridgeFile, "utf8");
+    assert.doesNotMatch(bridge, /- Readiness: ready/);
+    assert.match(bridge, /- Attention:/);
+
+    // A memory job heals the project, then the bridge rewrite reports ready.
+    const job = await runHermesMemoryJob(
+      { action: "refresh_memory", project_id: project.id, payload: { agent: "hermes" } },
+      { projectStatuses: [project] }
+    );
+    assert.equal(job.ok, true);
+    await installHermesMemoryBridge({ hermesHome, projectStatuses: [project], agent: "hermes" });
+    bridge = await readFile(bridgeFile, "utf8");
+    assert.match(bridge, /- Readiness: ready/);
+    assert.doesNotMatch(bridge, /- Attention:/);
   } finally {
     await rm(hermesHome, { recursive: true, force: true });
     await rm(project.path, { recursive: true, force: true });

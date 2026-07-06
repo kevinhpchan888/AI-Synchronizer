@@ -35,11 +35,20 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   test/hermes-roundtrip.test.mjs | verified: 17/17 tests, check pass | commit on
   fable5/optimization-loop.
 
+- [H4] Stale bridge honesty verified and locked. Finding: the worker path was already
+  correct (handleJob rewrites the bridge after every memory job via
+  publishHeartbeat -> installHermesMemoryBridge), but nothing tested the semantics. New
+  lifecycle test: bridge shows ready -> project file changes -> reinstall shows attention
+  line and non-ready readiness -> refresh_memory job heals -> reinstall shows ready
+  again | test/hermes-bridge.test.mjs | verified: 18/18 tests, check pass | commit on
+  fable5/optimization-loop. Note: on machines without the worker, the bridge only
+  refreshes when Install Hermes Bridge is clicked; the Generated timestamp in the bridge
+  lets agents detect drift.
+
 ## In progress
-- (nothing; next up: H4 stale bridge honesty, then M2 staleness honesty)
+- (nothing; next up: M2 staleness honesty, then H3 capsule/packet dedupe)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
-- P0b H4 Stale bridge honesty: worker refresh_hermes_bridge path verified + tested
 - P0 M2 Staleness honesty + fix self-dirtying .ai-memory
 - P0b H3 Capsule/packet overlap dedupe (capsule = short brief, packet = deep read)
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
