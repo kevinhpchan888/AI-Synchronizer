@@ -53,12 +53,20 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   src/lib/semantic-memory.mjs (sourceHash), test/semantic-memory.test.mjs | verified:
   19/19 tests, check pass, server boots, /api/memory returns honest state | commit 55b50b2.
 
+- [M4] One-glance memory truth: memory status now carries a resume verdict (ready bool,
+  plain headline, what-to-do detail, lastBuiltAt). Active-project memory tile shows it
+  verbatim instead of "85% + graph" / "220 entities · 450 relations". Client falls back
+  to old rendering if the API lacks the field | src/lib/memory.mjs, public/app.js,
+  test/memory-status.test.mjs | verified: 20/20 tests, check pass, live API on side port
+  returns honest verdict for real registry | commit 3ce73a2. NOTE: Kevin's long-running
+  console (PID uptime 2+ days) serves old server code until restarted; new app.js is
+  served from disk immediately.
+
 ## In progress
-- (nothing; next up: M4 one-glance memory truth, then U1/U2 UI simplification)
+- (nothing; next up: U1+U2 UI simplification, per Kevin's direct request)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
 - P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
-- P0 M4 One-glance memory truth signal on dashboard
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
 - P1 U1 Progressive disclosure: cockpit + grouped tabs/drawer
 - P1 U2 Collapse the six-button command stack
