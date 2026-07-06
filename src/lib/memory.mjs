@@ -163,6 +163,12 @@ export async function getProjectMemoryStatus(project) {
         episodes: 0,
         lastBuiltAt: null,
         packetPath: null
+      },
+      resume: {
+        ready: false,
+        headline: "Project folder unavailable",
+        detail: "Fix the project path before relying on memory.",
+        lastBuiltAt: null
       }
     };
   }
@@ -224,6 +230,8 @@ export async function getProjectMemoryStatus(project) {
     freshness = 85;
   }
 
+  const semantic = await getSemanticMemoryStatus(project);
+
   return {
     projectId: project.id,
     projectName: project.name,
@@ -240,7 +248,44 @@ export async function getProjectMemoryStatus(project) {
     handoffAgeHours: handoffAge,
     handoffBehindWork,
     packHash: packExists ? await hashMemoryPack(memoryPath) : null,
-    semantic: await getSemanticMemoryStatus(project)
+    semantic,
+    resume: resumeVerdict(state, semantic)
+  };
+}
+
+// One honest answer to "can a fresh agent resume this project from memory?"
+// The dashboard shows this verbatim instead of asking the user to interpret
+// memory percentages, entity counts, and graph states.
+function resumeVerdict(memoryState, semantic) {
+  if (memoryState === "missing" || !semantic || ["missing", "unavailable"].includes(semantic.state)) {
+    return {
+      ready: false,
+      headline: "No recovery memory yet",
+      detail: "Build semantic memory before switching tools or machines.",
+      lastBuiltAt: null
+    };
+  }
+  if (semantic.state === "invalid") {
+    return {
+      ready: false,
+      headline: "Recovery memory is broken",
+      detail: "Rebuild semantic memory; the saved index cannot be read.",
+      lastBuiltAt: semantic.lastBuiltAt ?? null
+    };
+  }
+  if (semantic.state === "stale") {
+    return {
+      ready: false,
+      headline: "Rebuild memory before switching",
+      detail: "Files changed since the last build; a fresh agent would miss recent work.",
+      lastBuiltAt: semantic.lastBuiltAt ?? null
+    };
+  }
+  return {
+    ready: true,
+    headline: "A fresh agent can resume from memory",
+    detail: `Capsule and startup packet are current (built ${semantic.lastBuiltAt ? new Date(semantic.lastBuiltAt).toLocaleString() : "recently"}).`,
+    lastBuiltAt: semantic.lastBuiltAt ?? null
   };
 }
 

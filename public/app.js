@@ -471,15 +471,15 @@ function renderMissionControl() {
 
   const memoryTone = toneForMemory(memoryItem);
   const semanticTone = toneForSemantic(memoryItem?.semantic);
-  const memoryTitle = memoryItem?.state === "fresh" && memoryItem?.semantic?.state === "fresh"
-    ? `${memoryItem.freshness}% + graph`
+  const resume = memoryItem?.resume;
+  const memoryTitle = resume
+    ? (resume.ready ? "Agent can resume" : resume.headline)
     : memoryItem?.message || "Memory unknown";
-  const memoryDetail = memoryItem?.state === "missing"
-    ? "Initialize memory first"
-    : memoryItem?.semantic?.state === "fresh"
-    ? `${memoryItem.semantic.entities} entities · ${memoryItem.semantic.relations} relations`
-    : memoryItem?.handoffUpdatedAt ? `Handoff ${new Date(memoryItem.handoffUpdatedAt).toLocaleTimeString()}` : "Build semantic memory";
-  setFlowStep(selectors.memoryMissionTile, semanticTone === "warn" ? "warn" : memoryTone, memoryTitle, memoryDetail);
+  const memoryDetail = resume
+    ? (resume.ready && resume.lastBuiltAt ? `Built ${new Date(resume.lastBuiltAt).toLocaleString()}` : resume.detail)
+    : "Build semantic memory";
+  const memoryTileTone = resume ? (resume.ready ? "ok" : "warn") : (semanticTone === "warn" ? "warn" : memoryTone);
+  setFlowStep(selectors.memoryMissionTile, memoryTileTone, memoryTitle, memoryDetail);
 
   const cloudMachines = state.summary.cloudControl?.machines ?? [];
   const visibleMachines = cloudMachines.length || state.summary.machines.length;
