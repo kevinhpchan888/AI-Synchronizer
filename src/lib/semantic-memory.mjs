@@ -825,10 +825,16 @@ async function buildContextCapsule({ project, index, graph, agent = "all" }) {
 }
 
 function contextCapsuleMarkdown(capsule) {
+  // The capsule is the SHORT recovery brief an agent reads first after
+  // compression or a tool/machine switch. Deep inventory (changed files,
+  // important files, entities, routes) lives in the startup packet, which
+  // the capsule points to. Do not duplicate packet sections here; agents
+  // read both files in sequence and pay for every repeated line.
   const project = capsule.project;
-  const health = capsule.memoryHealth;
   const lines = [
     "# Context Capsule",
+    "",
+    `Generated: ${capsule.generatedAt}`,
     "",
     "## Post-Compression Recovery",
     "",
@@ -841,15 +847,6 @@ function contextCapsuleMarkdown(capsule) {
     `- State: ${project.state}`,
     `- Branch: ${project.branch || "unknown"}`,
     `- Local changes: ${project.dirtyCount}`,
-    "",
-    "## Memory Health",
-    "",
-    `- Semantic chunks: ${health.chunks}`,
-    `- Entities: ${health.entities}`,
-    `- Relations: ${health.relations}`,
-    `- Episodes: ${health.episodes}`,
-    `- Latest source update indexed: ${health.sourceNewestAt || "unknown"}`,
-    `- Latest handoff: ${health.handoffUpdatedAt || "unknown"}`,
     "",
     "## Current Summary",
     "",
@@ -867,26 +864,12 @@ function contextCapsuleMarkdown(capsule) {
     "",
     ...(capsule.rulesAndDecisions.length ? capsule.rulesAndDecisions.map((item) => `- ${item}`) : ["- No explicit rules or decisions indexed yet."]),
     "",
-    "## Changed Since Last Handoff",
-    "",
-    ...(capsule.changedSinceHandoff.length
-      ? capsule.changedSinceHandoff.map((item) => `- ${item.path}: updated ${item.updatedAt}`)
-      : ["- No indexed files changed after the latest handoff."]),
-    "",
-    "## Important Files",
-    "",
-    ...capsule.importantFiles.map((item) => `- ${item.path}: ${item.title}`),
-    "",
     "## Read Next",
     "",
-    `- ${capsule.files.startupPacket}`,
+    `- ${capsule.files.startupPacket} (changed files, important files, entities, routes, search recipes)`,
     `- ${path.join(project.path, MEMORY_DIR, "STATUS.md")}`,
     `- ${path.join(project.path, MEMORY_DIR, "HANDOFF.md")}`,
     `- ${path.join(project.path, MEMORY_DIR, "TASKS.md")}`,
-    "",
-    "## Generated",
-    "",
-    capsule.generatedAt,
     ""
   ];
   return lines.join("\n");

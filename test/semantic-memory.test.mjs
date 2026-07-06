@@ -126,6 +126,15 @@ test("context capsule gives a compact post-compression recovery brief", async ()
     assert.match(capsule.markdown, /AGENT_STARTUP\.md/);
     assert.match(capsule.markdown, /Improve project memory/);
     assert.equal(capsuleFile, capsule.markdown);
+
+    // The capsule is the short brief; inventory sections belong to the
+    // startup packet only. Agents read both files, so duplication is cost.
+    assert.doesNotMatch(capsule.markdown, /## Changed Since Last Handoff/);
+    assert.doesNotMatch(capsule.markdown, /## Important Files/);
+    assert.doesNotMatch(capsule.markdown, /## Memory Health/);
+    // The full detail stays available in the capsule JSON for the data plane.
+    assert.ok(Array.isArray(capsule.data.changedSinceHandoff));
+    assert.ok(Array.isArray(capsule.data.importantFiles));
   } finally {
     await rm(project.path, { recursive: true, force: true });
   }
