@@ -2,21 +2,26 @@
 
 Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last, every iteration.
 
-## Baseline (fill on iteration 1)
-- check: (run `npm run check`)
-- tests: (run `npm test`, record pass count; seed = 14 passing)
-- full dashboard refresh time: (measure GET / then GET /api/summary on real registry)
-- per-route timings: (record slow /api/* handlers)
-- notes:
+## Baseline (recorded 2026-07-07, iteration 1, MacBook Pro, real registry)
+- check: pass
+- tests: 14 pass (15 after M1 landed)
+- route timings (curl, warm server): `/` 0.04s, `/api/summary` **4.93s**, `/api/memory` 0.11s,
+  `/api/skills` 0.14s, `/api/agents` 0.28s, `/api/projects` 0.06s, `/api/tools` 0.30s
+- notes: `/api/summary` is the whale; the dashboard blocks on it every refresh. It likely
+  recomputes git status + memory status + source hashes for every registered project.
+  That is the P2 P-2 target and the number to beat.
 
 ## Done
-- (nothing yet)
+- [M1] Memory round-trip test: cold agent recovers project, branch, dirty state, last
+  handoff, open tasks, and code location from CONTEXT_CAPSULE.md + AGENT_STARTUP.md alone
+  | test/memory-roundtrip.test.mjs | verified: new test passes, full suite 15/15, server
+  boots, GET / 200, /api/summary returns data | commit b37d74b on fable5/optimization-loop.
+  Finding: the generator already carries all five facts; the test locks it in.
 
 ## In progress
-- (nothing yet)
+- (nothing; next up: M2 staleness honesty, then P2 P-2 using the 4.93s baseline)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
-- P0 M1 Memory round-trip test (executable "memory works")
 - P0 M2 Staleness honesty + fix self-dirtying .ai-memory
 - P0 M3 Capsule quality: compact, answers "what next"
 - P0 M4 One-glance memory truth signal on dashboard
