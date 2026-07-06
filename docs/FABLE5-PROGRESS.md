@@ -84,11 +84,29 @@ Companion to `docs/FABLE5-OPTIMIZATION-LOOP.md`. Read this first, write it last,
   test/cloud-status.test.mjs | verified: cold 1.98s, warm 0.28/0.28/0.27s on real
   registry; 21/21 tests | commit 736466e.
 
+- [M3] Capsule/packet dedupe (folds in H3): capsule markdown is now the short brief only
+  (recovery prompt, identity, summary, handoff, tasks, rules, read-next); Memory Health,
+  Changed Since Handoff, and Important Files inventories live in the packet alone.
+  Capsule JSON keeps full data for the Hermes worker and cloud. 1,853 -> 1,321 bytes /
+  76 -> 48 lines on a small fixture, more on real projects. Both round-trip tests pass,
+  proving no recoverable fact was lost; compactness locked by assertions |
+  src/lib/semantic-memory.mjs, test/semantic-memory.test.mjs | verified: 21/21 tests,
+  before/after measured on identical fixture | commit b9baf68.
+
+## STOP CONDITIONS MET (2026-07-07, iteration 10)
+All five Section 6 conditions of the loop brief hold:
+1. Memory round-trip demonstrated + locked (M1, H2); one honest resume signal (M4).
+2. Default view = cockpit + 6 tabs (U1); command stack 6 -> 4 controls (U2); the
+   pick -> Start -> switch -> End path is the visible spine of the page.
+3. Refresh 4.93s -> 0.28s warm, measured and recorded (P-2).
+4. check + 21/21 tests green; app verified end to end in the browser.
+5. Ledger reflects reality. Remaining backlog is optional polish only.
+Loop wound down. Remaining backlog items stay valid entry points for a future loop.
+
 ## In progress
-- (nothing; next up: U3 plain-language fix-it buttons or M3 capsule quality)
+- (loop stopped; nothing in flight)
 
 ## Backlog (ordered by value; seeded from the brief, keep it live)
-- P0 M3 Capsule quality: compact, answers "what next" (fold in H3 overlap dedupe)
 - P0b H5 Worker efficiency: reuse P-2 caching in buildHermesMemoryStatus
 - P1 U3 Plain-language state + one fix-it button per warning
 - P1 U4 First-run clarity: pick -> Start -> switch -> End
