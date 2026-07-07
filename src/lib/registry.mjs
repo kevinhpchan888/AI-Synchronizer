@@ -1,4 +1,4 @@
-import { promises as fs, existsSync } from "node:fs";
+import { promises as fs, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { homedir, hostname, platform } from "node:os";
@@ -54,22 +54,45 @@ function expandProjectPath(projectPath) {
   const projectsHome = getProjectsHome();
   if (projectPath === "$PROJECTS_HOME") return projectsHome;
   if (typeof projectPath === "string" && projectPath.startsWith("$PROJECTS_HOME/")) {
-    return path.join(projectsHome, projectPath.slice("$PROJECTS_HOME/".length));
+    const relative = projectPath.slice("$PROJECTS_HOME/".length);
+    // Machines in this fleet split between ~/Documents/GitHub and ~/GitHub.
+    // Resolve each project to whichever root actually contains it, so a repo
+    // is found regardless of the local layout. Fall back to the machine's
+    // projects home when it is not cloned yet (an honest "missing").
+    for (const root of projectsHomeCandidates()) {
+      const candidate = path.join(root, relative);
+      if (existsSync(candidate)) return candidate;
+    }
+    return path.join(projectsHome, relative);
   }
   return projectPath;
 }
 
+function projectsHomeCandidates() {
+  const roots = [];
+  if (process.env.AI_SYNC_PROJECTS_HOME) roots.push(process.env.AI_SYNC_PROJECTS_HOME);
+  roots.push(path.join(homedir(), "Documents", "GitHub"));
+  roots.push(path.join(homedir(), "GitHub"));
+  return roots;
+}
+
+function countRepoDirs(dir) {
+  try {
+    return readdirSync(dir, { withFileTypes: true }).filter((entry) => entry.isDirectory()).length;
+  } catch {
+    return -1; // does not exist / unreadable
+  }
+}
+
 export function getProjectsHome() {
   if (process.env.AI_SYNC_PROJECTS_HOME) return process.env.AI_SYNC_PROJECTS_HOME;
-  // GitHub Desktop clones to ~/Documents/GitHub on every platform, but some
-  // setups use a bare ~/GitHub. Prefer whichever actually exists so projects
-  // resolve on macOS the same way they always did on Windows. Fall back to
-  // Documents/GitHub, the GitHub Desktop default, when neither is present yet.
+  // GitHub Desktop clones to ~/Documents/GitHub, but some machines use a bare
+  // ~/GitHub, and a machine can have both (one holding the real repos, the
+  // other nearly empty). Pick whichever actually holds repos. Default to
+  // Documents/GitHub when neither exists yet.
   const documentsGitHub = path.join(homedir(), "Documents", "GitHub");
   const bareGitHub = path.join(homedir(), "GitHub");
-  if (existsSync(documentsGitHub)) return documentsGitHub;
-  if (existsSync(bareGitHub)) return bareGitHub;
-  return documentsGitHub;
+  return countRepoDirs(bareGitHub) > countRepoDirs(documentsGitHub) ? bareGitHub : documentsGitHub;
 }
 
 function collapseProjectPath(projectPath) {

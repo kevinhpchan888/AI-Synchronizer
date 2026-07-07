@@ -40,6 +40,24 @@ test("falls back to bare ~/GitHub when that is the layout", async () => {
   }
 });
 
+test("when both roots exist, picks the one that actually holds repos (the Mac Mini case)", async () => {
+  const home = await mkdtemp(path.join(os.tmpdir(), "ph-home-"));
+  try {
+    // ~/Documents/GitHub holds only the console; ~/GitHub holds the real repos.
+    await mkdir(path.join(home, "Documents", "GitHub", "AI-Synchronizer"), { recursive: true });
+    for (const repo of ["APC", "AutoResearch", "DuoSages"]) {
+      await mkdir(path.join(home, "GitHub", repo), { recursive: true });
+    }
+    process.env.HOME = home;
+    delete process.env.AI_SYNC_PROJECTS_HOME;
+    assert.equal(getProjectsHome(), path.join(home, "GitHub"));
+  } finally {
+    process.env.HOME = ORIGINAL_HOME;
+    if (ORIGINAL_OVERRIDE !== undefined) process.env.AI_SYNC_PROJECTS_HOME = ORIGINAL_OVERRIDE;
+    await rm(home, { recursive: true, force: true });
+  }
+});
+
 test("an explicit AI_SYNC_PROJECTS_HOME override always wins", async () => {
   try {
     process.env.AI_SYNC_PROJECTS_HOME = "/custom/projects/root";
