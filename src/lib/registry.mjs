@@ -1,4 +1,4 @@
-import { promises as fs } from "node:fs";
+import { promises as fs, existsSync } from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { homedir, hostname, platform } from "node:os";
@@ -60,7 +60,16 @@ function expandProjectPath(projectPath) {
 }
 
 export function getProjectsHome() {
-  return process.env.AI_SYNC_PROJECTS_HOME || path.join(homedir(), platform() === "win32" ? "Documents/GitHub" : "GitHub");
+  if (process.env.AI_SYNC_PROJECTS_HOME) return process.env.AI_SYNC_PROJECTS_HOME;
+  // GitHub Desktop clones to ~/Documents/GitHub on every platform, but some
+  // setups use a bare ~/GitHub. Prefer whichever actually exists so projects
+  // resolve on macOS the same way they always did on Windows. Fall back to
+  // Documents/GitHub, the GitHub Desktop default, when neither is present yet.
+  const documentsGitHub = path.join(homedir(), "Documents", "GitHub");
+  const bareGitHub = path.join(homedir(), "GitHub");
+  if (existsSync(documentsGitHub)) return documentsGitHub;
+  if (existsSync(bareGitHub)) return bareGitHub;
+  return documentsGitHub;
 }
 
 function collapseProjectPath(projectPath) {
