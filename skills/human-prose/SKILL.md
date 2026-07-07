@@ -1,6 +1,7 @@
 ---
 name: human-prose
-description: "Eliminates the 6 most common patterns that make creative writing sound AI-generated. Based on Anna Delvier's research (Pikes Peak Writers Conference) studying thousands of manuscripts flagged by literary agents. Apply automatically to ALL creative prose, fiction, narrative, scripts, dialogue, book chapters, short stories, and any storytelling output. Also apply when editing or rewriting existing prose. This skill fires alongside writing-well (which handles clarity/economy) — human-prose handles the specific machine-sounding patterns that make text feel assembled rather than written. Use this skill whenever generating narrative prose, fiction, book content, character scenes, dialogue passages, descriptive writing, scripts with narrative elements, blog storytelling, or any text meant to read as if a human author wrote it."
+description: Eliminates the 6 patterns that make creative writing sound AI-generated (per Anna Delvier's agent-flagged manuscript research). Apply automatically to ALL creative prose, fiction, dialogue, scripts, chapters, storytelling, and any rewrite of narrative text. Fires alongside writing-well; this one removes machine-sounding assembly.
+
 ---
 
 # Human Prose

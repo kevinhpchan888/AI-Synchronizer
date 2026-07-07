@@ -3,7 +3,8 @@ name: reddit-research-mastery
 author: Donny (Kevin Chan)
 version: 1.0.0
 last_updated: 2026-04-28
-description: Disciplined Reddit research methodology for voice-of-customer mining, pain-point extraction, JTBD discovery, ad-angle harvesting, and competitor sentiment for a Singapore-incorporated Meta-ads-only Shopify dropshipper. Use whenever the user mentions Reddit, subreddit, r/, voice of customer, VOC, pain points, JTBD, customer language, ad angles, market research, niche slang, sentiment, fake reviews, astroturf, social listening, "what do people think about X", "find pain points", "what are people saying", "how do people describe X", competitor reviews, or wants to harvest copy/hooks from real users. Treats Reddit as the gold-standard unfiltered-talk source for ad creative inputs and refuses to confuse upvotes with demand.
+description: "Reddit research doctrine: voice-of-customer mining, pain points, JTBD, ad angles, niche slang, sentiment, astroturf detection. Trigger on Reddit, subreddits, VOC, customer language, find pain points, what people say about X, competitor reviews, or harvesting hooks from real users. Refuses to confuse upvotes with demand; reddit-mcp is the data backend."
+
 ---
 
 # Reddit Research Mastery

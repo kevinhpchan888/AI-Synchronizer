@@ -1,6 +1,7 @@
 ---
 name: cover-design
-description: Designs complete book covers (front, spine, back) for KDP paperback and ebook from a brief that supplies title, subtitle, author, blurb, page count, trim size, paper type, brand tokens, and optional NanoBanana-generated artwork. Computes KDP wraparound dimensions exactly using KDP's spine formula (page_count × 0.002252 in for white paper or × 0.0025 in for cream paper, plus 0.06 in cover thickness, plus 0.125 in bleed each side) and generates 3 distinct concepts per request (typographic-led, image-led, hybrid). Outputs KDP wraparound PDF (300 DPI, RGB, embedded fonts), ebook front-cover JPG (1600×2560 minimum, sRGB, under 50 MB), and Shopify product mockup set. Use whenever Kevin asks to design, create, generate, or refresh a cover, jacket, wrap, or product image.
+description: Designs full KDP covers (front, spine, back) from a brief; computes exact wraparound dimensions with KDP's spine formula and produces 3 concepts (typographic, image-led, hybrid). Outputs print-ready wraparound PDF, ebook cover JPG, and Shopify mockups. Trigger when Kevin asks to design or refresh a cover, jacket, wrap, or product image.
+
 ---
 
 # Cover Design

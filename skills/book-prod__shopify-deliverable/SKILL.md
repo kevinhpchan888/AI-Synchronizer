@@ -1,6 +1,7 @@
 ---
 name: shopify-deliverable
-description: Packages the finished book outputs for direct-to-customer sale on Shopify Digital Downloads. Produces a watermarked digital PDF (optional), product image set sized for Shopify (2048×2048 max recommended, JPG under 20 MB per image), product description copy in the LumosRead voice, suggested SKU and pricing, and zips everything within Shopify's 5 GB per-file limit. Use whenever Kevin asks to package, export, prepare for Shopify, or bundle a digital download.
+description: "Packages finished books for Shopify Digital Downloads: optional watermarked PDF, product images sized for Shopify, LumosRead product copy, SKU and pricing suggestions, zipped under the 5 GB limit. Trigger on package, export, prepare for Shopify, or bundle a digital download."
+
 ---
 
 # Shopify Deliverable

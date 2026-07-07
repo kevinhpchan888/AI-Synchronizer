@@ -1,6 +1,7 @@
 ---
 name: preflight
-description: Runs the full validation gauntlet on every PDF and EPUB before any deliverable ships. Checks PDF font embedding (pdffonts emb=yes for all fonts), PDF/A or PDF/X conformance via veraPDF when requested, page count and trim-size match, image DPI ≥ 300, color space sRGB for KDP. Validates EPUB3 with EPUBCheck 5.3.0 (zero errors required), checks EPUB Accessibility 1.1 metadata (schema:accessMode, schema:accessibilityFeature, schema:accessibilityHazard MUST be present per W3C REC 17 Oct 2024; schema:accessibilitySummary and schema:accessModeSufficient SHOULD; dcterms:conformsTo and a11y:certifiedBy MUST appear when claiming conformance). Emits a single pass/fail report with actionable fixes. Use whenever Kevin says preflight, validate, check, gate, ship, or release; and the orchestrator calls it before marking any project ready.
+description: "Validation gate for every PDF and EPUB before shipping: font embedding, PDF/A or PDF/X via veraPDF, trim and page count, 300 DPI, sRGB for KDP, EPUBCheck 5.3.0 zero errors, EPUB Accessibility 1.1 metadata. Emits one pass/fail report with fixes. Trigger on preflight, validate, check, gate, ship, or release."
+
 ---
 
 # Preflight

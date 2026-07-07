@@ -1,6 +1,7 @@
 ---
 name: logo-design-system
-description: Creates production-ready logo systems, brand identity kits, and typographic design assets. Generates SVG logos (with optional text-to-path conversion for font-independent rendering), HTML/CSS preview pages, complete brand style guides, design tokens (CSS + JSON), print specifications, and social media templates. Use this skill whenever the user mentions logos, brand identity, brand guidelines, style sheets, design systems, favicon, social cards, logo variants, typography, wordmarks, lettermarks, brand colors, Pantone, or asks to create, redesign, or expand a logo into a full brand kit. Also triggers for requests involving SVG logo creation, logo file formats, brand asset packages, or visual identity systems. Even if the user just says "make me a logo" or "create brand assets," this skill applies.
+description: "Creates logo systems and brand identity kits: SVG logos with text-to-path, previews, style guides, design tokens (CSS and JSON), print specs, and social templates. Trigger on logo, wordmark, lettermark, favicon, brand identity, brand guidelines, brand colors, Pantone, typography systems, social cards, or make me a logo."
+
 ---
 
 # Logo Design System

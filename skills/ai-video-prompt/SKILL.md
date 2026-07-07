@@ -1,6 +1,7 @@
 ---
 name: ai-video-prompt
-description: Generate high-quality AI prompts for image and video generation across any platform. Handles platform selection, prompt adaptation, and multi-shot sequences. Trigger on phrases like "write me a prompt", "video prompt", "image prompt", "scene breakdown", "shot list", "storyboard", or any time the user describes what they want to see and needs it translated into generation-ready instructions. Also trigger when the user describes a vibe, visual, character, or scenario for AI generation — even without saying "prompt."
+description: Generate AI image and video prompts for any platform, with platform selection, prompt adaptation, and multi-shot sequences. Trigger on write me a prompt, video prompt, image prompt, scene breakdown, shot list, storyboard, or whenever the user describes a visual, vibe, character, or scenario for AI generation without saying prompt.
+
 ---
 
 # AI Video & Image Prompt Builder

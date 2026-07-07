@@ -1,6 +1,7 @@
 ---
 name: project-orchestrator
-description: Top-level entry point that turns a single Kevin prompt like "produce a 60-page kindergarten phonics workbook for LumosRead 8.5x11 white paper color interior" into a finished, preflighted deliverable. Decomposes the request into a project brief, scaffolds the project folder under %USERPROFILE%\BookProjects\<slug>\, then sequentially invokes brand-system, image-integration, activity-generator, interior-layout, cover-design, preflight, and shopify-deliverable, logging every step and supporting mid-pipeline resume. Use whenever Kevin gives a high-level book request that does not name a specific sub-skill.
+description: "Turns one book request into a finished, preflighted deliverable: builds the brief, scaffolds under BookProjects, then runs brand-system, image-integration, activity-generator, interior-layout, cover-design, preflight, and shopify-deliverable in order with resume support. Trigger on any high-level book request that names no specific sub-skill."
+
 ---
 
 # Project Orchestrator

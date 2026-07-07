@@ -1,6 +1,7 @@
 ---
 name: apc-homepage
-description: "Manage the agingparent.care homepage — edit sections, swap images, update copy, push changes live. Use this skill whenever the user mentions the APC homepage, agingparent.care home page, homepage sections, homepage updates, homepage images, homepage copy, or wants to make any visual, structural, or content change to the main landing page. Also trigger when the user says 'push the homepage', 'update the hero', 'change the CTA', or references any homepage section by name (hero, products, caregiving arc, workbook preview, testimonials, newsletter, FAQ, final CTA, footer). Trigger: /apc-homepage"
+description: "Manage the agingparent.care homepage: edit sections, swap images, update copy, push live. Trigger on APC homepage, any section by name (hero, products, caregiving arc, workbook preview, testimonials, newsletter, FAQ, final CTA, footer), update the hero, change the CTA, or /apc-homepage."
+
 ---
 
 # APC Homepage Manager

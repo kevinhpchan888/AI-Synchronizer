@@ -1,6 +1,7 @@
 ---
 name: apc-video
-description: APC Article Video pipeline. Turns Aging Parent Care blog articles into 60-second vertical Reels using Remotion (React-based video framework). Covers script writing, photorealistic image prompts (NanoBanana Pro), stock footage sourcing, ElevenLabs Cassidy voiceover, Remotion composition building, and final render. Use this skill whenever creating APC video scripts, generating photorealistic image prompts for video Ken Burns stills, building Remotion compositions, discussing the video pipeline, or producing any APC Reel or YouTube Short. Also trigger when the user mentions "second video," "next video," "video script," "Remotion," "Ken Burns stills," "VO clips," or "NanoBanana Pro prompts for video." This is NOT the same as apc-illustrations (Tomi Um watercolors for blog articles). This skill is for photorealistic video production only.
+description: "APC article-to-video pipeline: 60-second vertical Reels via Remotion with NanoBanana Pro photorealistic stills, stock footage, and ElevenLabs Cassidy voiceover. Trigger on APC video scripts, Remotion, Ken Burns stills, VO clips, next video, or any APC Reel or YouTube Short. Photorealistic video only; apc-illustrations handles watercolor article art."
+
 ---
 
 # APC Article Video Pipeline

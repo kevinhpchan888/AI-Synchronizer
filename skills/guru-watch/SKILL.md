@@ -1,25 +1,7 @@
 ---
 name: guru-watch
-description: |
-  Kevin's synthesized mentor knowledge base across e-commerce/dropshipping AND
-  digital-products/ebooks. 17 mentors total. Vault is an Obsidian-format folder
-  synced via Google Drive (kevinhpchan@gmail.com), readable from any device.
-  USE THIS SKILL whenever Kevin names any of the 17 mentors, asks "do gurus
-  agree on X", "what does my mentor say about Y", "is this tactic backed by
-  anyone I follow", or any question where one of the cohorts likely has signal.
-  ANCHOR: Alex Hormozi (cross-vertical strategy — $100M Offers, $100M Leads,
-  book-as-funnel; applies to BOTH verticals). DROPSHIPPING (7): Henrik Wold,
-  Saamir Mithwani, AC Hampton, Kamil Sattar (Ecom King), Ethan Dobbins,
-  Andrew Yu, Shaun Eng. AD CRAFT + STRATEGY cross-vertical (4): Alex Hormozi
-  (offer construction + lead gen), Spencer Pawliw (script architecture),
-  Dara Denney (creative diagnostics), Fraser Cottrell (AI production).
-  EBOOK / DIGITAL PRODUCTS (5): Dale L. Roberts (KDP wide-publishing),
-  Sean Dollwet (KDP niche-hunting), Brian Moran (SamCart, digital-product
-  funnels), Rachel Harrison-Sund (low-content KDP), Book Launchers /
-  Julie Broad (non-fiction authority-book marketing). All
-  mentors treated as flat peers, no trust weighting. Brutally honest on risk
-  flags. Pairs with dropship-* skills for ecom questions and ebook-* skills
-  for digital-product questions.
+description: "Kevin's mentor knowledge base: 17 gurus across dropshipping and ebook/digital products (Hormozi anchor; Wold, Mithwani, Hampton, Sattar, Dobbins, Yu, Eng; Pawliw, Denney, Cottrell; Roberts, Dollwet, Moran, Harrison-Sund, Broad). Obsidian vault on Google Drive. Trigger when Kevin names a mentor or asks what gurus say, whether they agree, or if a tactic is backed."
+
 ---
 
 # guru-watch — Kevin's mentor knowledge base

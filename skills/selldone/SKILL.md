@@ -1,6 +1,6 @@
 ---
 name: selldone
-description: "Selldone e-commerce platform expert — manage products, blog articles, CMS pages, orders, emails, discounts, and analytics for APC (agingparent.care). This is the integration hub for all APC store operations. Use this skill whenever the user mentions Selldone, APC store, agingparent.care, blog articles, product catalog, orders, CMS pages, newsletters, discounts, coupons, or any e-commerce management task. Also trigger when the user wants to push content, upload images, manage categories, check analytics, or do any store administration."
+description: "Selldone e-commerce expert for the APC store (agingparent.care): products, blog articles, CMS pages, orders, emails, discounts, categories, analytics. The hub for all APC store operations. Trigger on Selldone, APC store, agingparent.care, or any store administration or content push."
 trigger: /selldone
 ---
 

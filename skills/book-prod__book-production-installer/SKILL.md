@@ -1,6 +1,7 @@
 ---
 name: book-production-installer
-description: Bootstraps the entire LumosBooks production toolchain on Windows native (Typst 0.14.2 via winget, Pandoc 3.9.x via winget, MiKTeX, Quarto 1.9.18, Calibre, Vivliostyle CLI 10.3.1, Ghostscript, ImageMagick, Poppler, rembg 2.0.75, potrace 1.16 via scoop, EPUBCheck 5.3.0 with cmd wrapper, veraPDF, mermaid-cli, pdf-lib, qqwing 1.3.4, genxword 2.2.0, mazelib, OFL fonts). Use this skill whenever Kevin asks to install, set up, bootstrap, repair, or verify the book production stack, or whenever any other book-prod skill reports a missing binary. Always run install first, then verify; never assume the toolchain is present.
+description: Bootstraps the LumosBooks toolchain on Windows (Typst, Pandoc, MiKTeX, Quarto, Calibre, Vivliostyle, Ghostscript, ImageMagick, Poppler, rembg, potrace, EPUBCheck, veraPDF, and more). Trigger when Kevin asks to install, repair, or verify the book stack, or any book-prod skill reports a missing binary. Install first, then verify.
+
 ---
 
 # Book Production Installer (Windows native)

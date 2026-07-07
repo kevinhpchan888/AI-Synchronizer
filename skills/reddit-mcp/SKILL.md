@@ -3,7 +3,8 @@ name: reddit-mcp
 author: Kevin Chan (AMVPC)
 version: 1.0.0
 last_updated: 2026-06-15
-description: Canonical Reddit data access for ALL projects. ALWAYS use this skill whenever you need Reddit information of any kind — voice-of-customer mining, pain points, what real people say, customer language, hooks, ad angles, sentiment, social listening, niche slang, competitor talk, content research, trend signals, "what are people saying about X", "find threads about Y", r/<subreddit>, or any mention of Reddit. Routes through the hosted reddit-research-mcp server (semantic subreddit discovery across 20,000+ subs, full comment-tree fetch, cross-subreddit aggregation, cited URLs) as the PRIMARY backend, with the anonymous JSON script as fallback. Pairs with reddit-research-mastery for the mining doctrine.
+description: "Canonical Reddit data access for ALL projects via the hosted reddit-research-mcp server (semantic discovery across 20,000+ subs, comment trees, citations) with anonymous JSON fallback. ALWAYS use for any Reddit need: VOC, pain points, hooks, sentiment, social listening, subreddit lookups, find threads about Y. Pairs with reddit-research-mastery."
+
 ---
 
 # Reddit MCP — Always-On Reddit Access

@@ -1,6 +1,7 @@
 ---
 name: image-integration
-description: Prepares Kevin's NanoBanana Pro AI-generated images (PNG/JPG) for both print and digital distribution. Resizes to 300+ DPI, assigns sRGB color profile (or converts to CMYK via Ghostscript for IngramSpark), removes backgrounds with rembg, smart-crops for cover use, vector-traces line art with potrace, batch-processes folders, and writes a mandatory JSON metadata sidecar (source prompt, dimensions, color space, intended use, license) for every processed image. Use whenever Kevin mentions images, illustrations, NanoBanana, photos, artwork, background removal, upscaling, or DPI.
+description: "Prepares NanoBanana Pro images for print and digital: 300+ DPI, sRGB or CMYK, background removal with rembg, smart crop, potrace vector line art, batch folders, mandatory JSON metadata sidecars. Trigger on images, illustrations, NanoBanana, artwork, background removal, upscaling, or DPI in book work."
+
 ---
 
 # Image Integration

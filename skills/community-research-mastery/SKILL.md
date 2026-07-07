@@ -3,7 +3,8 @@ name: community-research-mastery
 author: Donny (Kevin Chan)
 version: 1.0.0
 last_updated: 2026-04-28
-description: Voice-of-customer integration layer that routes pain-mining and JTBD research across Reddit, Amazon reviews, YouTube comments, TikTok comments, Quora, niche forums, and Facebook (Groups, Pages comments, Marketplace) for a Singapore-incorporated Meta-ads-only Shopify dropshipper. Use whenever the user mentions voice of customer, VOC, customer research, pain mining, JTBD, social listening, Amazon reviews, YouTube comments, TikTok comments, Quora, community research, niche forums, Facebook Groups, Facebook Pages comments, Facebook Marketplace, FB groups, FB marketplace, demographic research, regional demand, "what do customers complain about", "how do people describe X", "review mining", review-mining for ad creative, "what's selling on marketplace", or wants a multi-source pain-language harvest. Defers to reddit-research-mastery for Reddit specifically, to dropship-competitive-intel for Meta Ad Library work, and to googletrends-mastery for trend confirmation. Treats community signal as one source per platform — triangulates before greenlighting any creative bet.
+description: Voice-of-customer research across Amazon reviews, YouTube and TikTok comments, Quora, forums, and Facebook Groups, Pages, and Marketplace. Trigger on VOC, customer research, pain mining, JTBD, social listening, review mining, demographic or regional demand, what customers complain about, or what sells on marketplace. Defers to reddit skills for Reddit and googletrends-mastery for trends.
+
 ---
 
 # Community Research Mastery

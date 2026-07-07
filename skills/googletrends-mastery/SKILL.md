@@ -3,8 +3,8 @@ name: googletrends-mastery
 author: Donny (Kevin Chan)
 version: 1.0.0
 last_updated: 2026-04-27
-description: >
-  Disciplined Google Trends research methodology. Use whenever the user mentions Google Trends, search trends, trend analysis, breakout queries, topic validation, "is X growing", "is X dying", trend forecasting, RSV (relative search volume), nowcasting, search interest over time, or any question that involves measuring attention to a topic over time. Also trigger for adjacent intents: validating a YouTube video topic, sizing a market, testing a startup thesis, hunting macro signals, or comparing the trajectory of two products/brands/categories. Trigger even on casual phrasings like "is everyone searching for X", "is X still a thing", or "what's blowing up right now". This skill encodes the mechanics, gotchas, tooling, validation pattern, and decision-grade briefing format for treating Google Trends as a noisy share-of-attention proxy rather than a magic crystal ball.
+description: "Google Trends research method: RSV mechanics, breakout queries, nowcasting, validation, and decision-grade briefs treating Trends as a share-of-attention proxy. Trigger on Google Trends, search trends, trend analysis or forecasting, topic validation, market sizing, is X growing or dying or still a thing, what is blowing up, or comparing trajectories."
+
 ---
 
 # Google Trends Mastery

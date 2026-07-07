@@ -3,19 +3,8 @@ name: apc-seo-onpage
 author: Kevin Chan (AMVPC)
 version: 1.0.0
 last_updated: 2026-06-17
-description: >
-  MANDATORY on-page SEO contract for every agingparent.care page and article.
-  ALWAYS apply this whenever creating, editing, renaming, retitling, or
-  publishing ANY surface on the site: blog articles, the homepage, category
-  hubs, the Articles page, product pages, and standalone pages. Trigger on any
-  task that touches a page title, H1, meta description, slug/URL, canonical,
-  schema/structured data, internal links, or image alt text; on any "publish",
-  "update the page", "rename", "fix SEO", or "why isn't this ranking" request;
-  and as the publish gate inside apc-article-ops. This skill encodes the rule
-  that APC content is written to be SEARCHED, not just shared: the real keyword
-  must live in the title, H1, and slug, sourced from google-keyword-research.
-  Pairs with: google-keyword-research (L1 demand), apc-article-ops (publish
-  pipeline), apc-homepage (homepage edits).
+description: MANDATORY on-page SEO contract for every agingparent.care surface. Apply when creating, editing, renaming, or publishing any APC page or article, and to any task touching titles, H1s, meta descriptions, slugs, canonicals, schema, internal links, or alt text. The searched keyword must live in title, H1, and slug, sourced from google-keyword-research. Publish gate inside apc-article-ops.
+
 ---
 
 # APC On-Page SEO Contract (always applied)

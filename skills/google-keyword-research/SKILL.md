@@ -3,18 +3,8 @@ name: google-keyword-research
 author: Kevin Chan (AMVPC)
 version: 1.0.0
 last_updated: 2026-06-17
-description: >
-  L1 keyword-demand layer for APC SEO. Use whenever you need to find what people
-  actually search, the exact question wording for FAQ blocks, long-tail variants,
-  or to decide what article to write or refresh for agingparent.care. Trigger on:
-  keyword research, "what do people search for", autocomplete, People Also Ask,
-  PAA, long-tail keywords, search demand, SEO keyword, striking distance, "rank
-  this article", content gap, or any article-planning task. This is L1 in the
-  three-layer ranking loop (L1 demand via Google autocomplete -> L2 voice-of-
-  customer via reddit-mcp -> L3 rising/dying via googletrends-mastery). Runs free
-  with no API key by default (Google suggest endpoint); swappable to SerpApi for
-  real PAA and DataForSEO for real search volume. Pairs with apc-article-ops,
-  which consumes the briefs this skill produces.
+description: L1 keyword-demand layer for APC SEO using free Google autocomplete (SerpApi or DataForSEO optional). Trigger on keyword research, autocomplete, People Also Ask, long-tail keywords, search demand, striking distance, content gap, rank this article, or planning any APC article. Feeds briefs to apc-article-ops; pairs with reddit-mcp and googletrends-mastery.
+
 ---
 
 # Google Keyword Research — the L1 demand layer

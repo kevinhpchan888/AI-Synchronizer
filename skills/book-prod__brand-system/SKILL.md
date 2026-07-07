@@ -1,6 +1,7 @@
 ---
 name: brand-system
-description: Manages multi-imprint brand identity for LumosBooks (LumosRead is the first imprint; new imprints are added by copying the template). Defines the canonical brand-tokens.json schema covering color, typography, spacing, page geometry per trim size, illustration prompts, voice, and logo paths, then converts those tokens into engine-specific configs (variables.typ, tokens.sty, tokens.css). Use this skill whenever the user mentions brand, imprint, LumosRead, navy, gold, lightbulb, tokens, design system, color palette, typography, or asks to start a new brand.
+description: "Multi-imprint brand identity for LumosBooks (LumosRead first): canonical brand-tokens.json (color, type, spacing, page geometry, prompts, voice, logos) converted to engine configs (variables.typ, tokens.sty, tokens.css). Trigger on brand, imprint, LumosRead, tokens, design system, palette, or starting a new imprint."
+
 ---
 
 # Brand System

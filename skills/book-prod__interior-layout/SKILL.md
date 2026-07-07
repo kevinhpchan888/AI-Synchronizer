@@ -1,6 +1,7 @@
 ---
 name: interior-layout
-description: Produces book interiors (KDP-ready paperback PDF, digital PDF with bookmarks/hyperlinks, EPUB3 that passes EPUBCheck 5.3.0) from a Markdown brief plus brand tokens. Handles prose chapters, study guides, workbooks with exercises, journals, planners, and activity books, with single-column, two-column, marginalia kaobook-style, full-bleed, and exercise layouts; respects KDP trim, bleed (0.125 in), and inside-margin minimums (0.375 in for 24-150 pp; 0.5 in for 151-300 pp; 0.625 in for 301-500 pp; 0.75 in for 501-700 pp; 0.875 in for 701-828 pp). Use whenever Kevin asks to lay out, format, typeset, render, or produce a book, manuscript, workbook, study guide, planner, journal, or interior PDF/EPUB.
+description: "Produces book interiors from a Markdown brief plus brand tokens: KDP-ready paperback PDF, digital PDF, EPUB3 passing EPUBCheck. Handles prose, workbooks, study guides, journals, planners, activity books; respects KDP trim, bleed, and margin minimums. Trigger on lay out, format, typeset, render, or produce a book interior, manuscript, or interior PDF or EPUB."
+
 ---
 
 # Interior Layout

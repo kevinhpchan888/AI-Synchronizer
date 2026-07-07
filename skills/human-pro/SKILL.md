@@ -1,6 +1,7 @@
 ---
 name: human-pro
-description: Make written prose sound like a real person talking, not a magazine article. Goes beyond human-prose (which removes AI tells) to actively inject conversational warmth, rhythm, and direct address. Use this whenever rewriting, editing, or auditing articles, blog posts, or long-form content for conversational tone. Also trigger when the user says "make it more human", "more conversational", "sounds too formal", "too stiff", or wants content that reads like someone talking to a friend.
+description: "Make prose sound like a person talking: conversational warmth, rhythm, contractions, direct address. Goes beyond human-prose tell removal. Trigger when rewriting or auditing articles or long-form for tone, or on make it more human, more conversational, too formal, too stiff. MANDATORY on APC articles."
+
 ---
 
 # Human Pro
